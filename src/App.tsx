@@ -6,6 +6,8 @@ import './App.css'
 function App() {
   const [count, setCount] = useState(0)
 
+
+  /* cambio pa ver si el wn de isac se salio */
   return (
     <>
       <div>
