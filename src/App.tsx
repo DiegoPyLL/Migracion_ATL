@@ -5,6 +5,9 @@ import Home from "./pages/home";
 import Login from "./pages/login";
 import Registro from "./pages/registro";
 import Perfil from "./pages/perfil";
+import VentaSeguros from "./pages/ventaSeguros";
+import ComprarSeguroSalud from "./pages/comprar_seguro_salud";
+
 
 export default function App() {
   return (
@@ -15,6 +18,15 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/perfil" element={<Perfil />} />
+
+
+        {/* --- RUTAS DE SEGUROS --- */}
+        
+        {/* Ruta para la "vitrina" con las tarjetas */}
+        <Route path="/seguros/venta" element={<VentaSeguros />} />
+        
+        {/* Ruta para el formulario de compra específico */}
+        <Route path="/comprar-seguro-salud" element={<ComprarSeguroSalud />} />
       </Routes>
       <Footer />
     </BrowserRouter>

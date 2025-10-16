@@ -1,267 +1,212 @@
+/* Importar fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* --- Variables --- */
 :root {
-  --gap: 12px;
-  --accent: #00B0FF;
+  --primary-blue: #007bff;
+  --text-color: #333;
+  --label-color: #6c757d;
+  --border-color: #ced4da;
+  --background-color: #f8f9fa;
+  --error-red: #dc3545;
 }
 
-
-html, body {
-  min-width: 400px;
-  min-height: 600px;
-}
-
-body {
+/* ✅ CAMBIO CLAVE: Contenedor principal en lugar de <body> */
+.seguro-salud-container {
+  background-color: #f0f2f5;
   font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 2rem;
 }
 
-/* Contenedor de sección */
-.row.g-4 {
+.form-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ✅ NUEVO: Estilo para el mensaje de éxito en React */
+.mensaje-exito-react {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.mensaje-exito-react strong {
+  font-weight: 700;
+}
+
+/* El resto de tu CSS se mantiene casi idéntico */
+.form-header h1 {
+  color: var(--primary-blue);
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem 0;
+}
+.form-header p {
+  color: var(--label-color);
+  margin: 0 0 2rem 0;
+}
+.form-section h2 {
+  font-size: 1.25rem;
+  margin: 0 0 1.5rem 0;
+}
+.separator {
+  border: none;
+  border-top: 1px solid #e9ecef;
+  margin: 2.5rem 0;
+}
+.form-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
-
-
-
-
-
-
-
-
-
-/* Al pasar el mouse */
-a:hover {
-  color: #00B0FF !important;   /* opcional */
+.form-field {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
 }
-
-
-/* Navbar */
-.navbar {
-  background-color: #ffffff;
-  box-shadow: 0 4px 12px rgb(0, 0, 0);
-  padding: 0.5rem 1rem;
+.form-field label {
+  font-size: 0.875rem;
+  color: var(--label-color);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
 }
-
-.navbar .navbar-brand {
+.form-field input, .form-field select {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.form-field select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+}
+.form-field input::placeholder {
+  color: #adb5bd;
+}
+.form-field input:focus, .form-field select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+.error-message {
+  color: var(--error-red);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  min-height: 1em;
+}
+.form-field.has-error .error-message {
+  display: block;
+}
+.form-field.has-error input, .form-field.has-error select {
+  border-color: var(--error-red);
+  border-width: 2px;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+.btn-submit, .btn-reset {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.btn-submit {
+  background-color: var(--primary-blue);
+  color: #fff;
+  border-color: var(--primary-blue);
+}
+.btn-submit:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.btn-reset {
+  background-color: transparent;
+  color: var(--label-color);
+  border-color: var(--border-color);
+}
+.btn-reset:hover {
+  background-color: #e9ecef;
+}
+.summary-box {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  color: var(--label-color);
+}
+.summary-item:not(:last-child) {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+.summary-item strong {
+  color: var(--text-color);
+  font-weight: 600;
+}
+.summary-item.price strong {
+  font-size: 1.5rem;
+  color: var(--primary-blue);
+}
+.terms-section {
+  margin-top: 1.5rem;
+}
+.form-field-checkbox {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
 }
-
-.navbar .navbar-brand img {
-  margin-right: 0.5rem;
-  max-height: 60px;
+.form-field-checkbox input[type="checkbox"] {
+  width: 1.25em;
+  height: 1.25em;
+  accent-color: var(--primary-blue);
+  cursor: pointer;
 }
-
-/* Menú a la derecha */
-.navbar .navbar-nav {
-  margin-left: auto;
+.form-field-checkbox label {
+  font-size: 0.9rem;
+  color: var(--label-color);
+  margin: 0;
 }
-
-/* Links más pequeños y efecto hover con fondo azul */
-.navbar .nav-link {
-  color: #000 !important;
-  position: relative;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem; /* espacio para que el fondo se vea */
-  transition: background-color 0.3s;
-}
-
-.navbar .nav-link:hover {
-  background-color: #00B0FF !important;
-  color: #fff !important;         /* blanco cuando se pasa el mouse */
-  border-radius: 5px;
-}
-
-.navbar .nav-link::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #00B0FF;
-  z-index: -1;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
-}
-
-.navbar .nav-link:hover::before {
-  transform: scaleX(1);
-}
-
-
-
-
-/* Texto sobre imagen */
-.texto-sobre-imagen {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 70%;
-  color: #fff;
-  font-size: 2.2rem;
-  font-weight: bold;
-  text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
-  z-index: 5;   /* MENOR que los controles */
-  text-align: center;
-  pointer-events: none; /* deja pasar clics */
-}
-
-.texto-sobre-imagen a,
-.texto-sobre-imagen button {
-  pointer-events: auto; /* los botones/enlaces siguen siendo clickeables */
-}
-
-/* Asegurar que los controles del carrusel estén encima */
-.carousel-control-prev,
-.carousel-control-next {
-  z-index: 100;   /* más alto que el overlay */
-}
-
-
-
-
-/* carrusel */
-.carousel-item img {
-  width: 90%;              /* ancho al 90% */
-  margin: 0 auto;          /* centra la imagen */
-  height: 600px;           /* altura fija (ajusta según necesites) */
-  object-fit: cover;       /* para que no se deforme */
-  border-radius: 15px;     /* opcional, esquinas redondeadas */
-}
-
-
-.carousel-item {
-  position: relative;         
-  transition: transform 0.5s ease-in-out;
-}
-
-.carousel-control-prev,
-.carousel-control-next {
-  background: transparent;
-  border: none;
-  width: 5%;
-}
-
-.carousel-item video {
-  width: 90%;
-  margin: 0 auto;
-  height: 600px;
-  object-fit: cover;
-  border-radius: 15px;
-}
-
-
-
-
-/* Botón reservar hora */
-.boton-reserva {
-  display: block;
-  margin: 2rem auto;
-  padding: 1rem 6rem;
-  font-size: 1.8rem;
-  border-radius: 50px;
-  width: 60%;
-  max-width: 600px;
-  text-align: center;
-  background-color: #007bff;
-  color: white;
+.form-field-checkbox a {
+  color: var(--primary-blue);
   text-decoration: none;
-  transition: background-color 0.3s;
+  font-weight: 500;
 }
-
-.boton-reserva:hover {
-  background-color: #0056b3;
+.form-field-checkbox a:hover {
+  text-decoration: underline;
 }
-
-
-
-
-
-
-/* Card Seguros */
-.card {
-  max-width: 90%;         
-  margin: 0 auto;         
-  border-radius: 20px;    
-  overflow: hidden;       
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-   
-}
-
-.card .card-body,
-.card .card-header {
-  border-radius: 15px;
-}
-
-.card.text-center {
-  width: 90%;
-  margin: 2rem auto;
-  background-color: #A8E6CF; 
-  border: 4px solid #A8E6CF; 
-  border-radius: 10px;       /* Opcional, esquinas redondeadas */
-  padding: 10px;   
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-}
-
-.card.text-center .card.mb-5 {
-  margin-bottom: 2rem; 
-}
-
-.card-header {
-  font-weight: bold;
-  font-size: 1.2rem;
-  color: #000000; /* azul, cámbialo por el que quieras */
-  background-color: transparent; /* sin fondo */
-  border: none; /* sin línea debajo */
-  text-align: center;
-}
-
-.card-header .nav {
-  justify-content: center; 
-}
-
-.card-header .nav-link {
-  margin: 0 5rem; 
-  color: rgb(88, 88, 88);  text-decoration: none"
-}
-
-/* Efecto hover en las tarjetas de seguros */
-.card.mb-5 {
-  position: relative;
-  overflow: hidden; /* oculta lo que se salga del borde */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  
-  border-radius: 15px; /* esquinas redondeadas */
-}
-
-.card.mb-5::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: 3px solid #00B0FF; /* mismo azul que usas */
-  border-radius: 15px;
-  opacity: 0;
-  transform: scaleX(0);
-  transition: transform 0.3s ease, opacity 0.4s ease;
-  pointer-events: none; 
-}
-
-.card.mb-5:hover::before {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
-.card.mb-5:hover {
-  transform: translateY(-5px); /* opcional: levanta la tarjeta */
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-}
-
-
-

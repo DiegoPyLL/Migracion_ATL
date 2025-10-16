@@ -1,9 +1,14 @@
-import * as React from "react";
+import React from 'react';
+// Importamos el componente que tiene las tarjetas
+import CardsSeguros from '../components/home/cardSeguros';
 
-export default function VentaSeguros(): React.ReactElement{
+const VentaSeguros = () => {
   return (
+    // Puedes agregar más elementos aquí si quieres, como un título
     <div>
-      <h1>Venta de Seguros</h1>
+      <CardsSeguros /> 
     </div>
   );
-}
+};
+
+export default VentaSeguros;
