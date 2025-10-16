@@ -1,0 +1,130 @@
+/* 🌐 Importar fuente más elegante */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* --- Variables globales --- */
+:root {
+  --accent: #00bcd4;
+  --bg-gradient: linear-gradient(135deg, #e0f7fa, #f0f2f5);
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --text-dark: #2c3e50;
+  --text-muted: #5f6a7d;
+}
+
+/* --- Contenedor principal --- */
+.reserva-container {
+  background: var(--bg-gradient);
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  padding: 100px 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* --- Título --- */
+.titulo {
+  text-align: center;
+  color: var(--text-dark);
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+}
+
+/* --- Tarjeta principal --- */
+.wrap {
+  max-width: 500px;
+  width: 100%;
+}
+
+.wrap .card {
+  background: var(--glass-bg);
+  border-radius: 16px;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.wrap .card:hover {
+  transform: translateY(-4px);
+}
+
+.wrap .card-body {
+  padding: 40px 35px;
+}
+
+/* --- Campos del formulario --- */
+.campo {
+  margin-bottom: 24px;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.campo select,
+.campo input[type="date"],
+.campo input[type="time"] {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-dark);
+  transition: all 0.3s ease;
+}
+
+.campo select:focus,
+.campo input[type="date"]:focus,
+.campo input[type="time"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.2);
+  outline: none;
+}
+
+/* --- Botón principal --- */
+.boton {
+  margin-top: 15px;
+}
+
+.boton-reserva {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, var(--accent), #0097a7);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.boton-reserva:hover {
+  background: linear-gradient(135deg, #00acc1, #007c91);
+  transform: scale(1.02);
+}
+
+/* --- Pequeño efecto de animación al cargar --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wrap .card {
+  animation: fadeInUp 0.6s ease both;
+}

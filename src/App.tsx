@@ -9,6 +9,7 @@ import VentaSeguros from "./pages/ventaSeguros";
 import ComprarSeguroSalud from "./pages/comprar_seguro_salud";
 import ComprarSeguroVida from "./pages/compra_seguro_vida";
 import TerminosCondiciones from "./pages/TyC";
+import FormularioReserva from "./pages/pedirHora";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/registro" element={<Registro />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />
+        <Route path="/pedir-hora" element={<FormularioReserva />} />
 
         {/* --- RUTAS DE SEGUROS --- */}
         
