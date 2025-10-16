@@ -9,6 +9,13 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
    
 }
+.card-main-title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+}
 
 .card .card-body,
 .card .card-header {
@@ -18,9 +25,7 @@
 .card.text-center {
   width: 90%;
   margin: 2rem auto;
-  background-color: #A8E6CF; 
-  border: 4px solid #A8E6CF; 
-  border-radius: 10px;       /* Opcional, esquinas redondeadas */
+  background-color: #70db70; /* Opcional, esquinas redondeadas */
   padding: 10px;   
   box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
 }

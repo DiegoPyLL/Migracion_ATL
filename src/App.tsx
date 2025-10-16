@@ -31,6 +31,8 @@ export default function App() {
         <Route path="/comprar-seguro-vida" element={<ComprarSeguroVida />} />
       </Routes>
       <Footer />
+
+      
     </BrowserRouter>
   );
 }

@@ -32,7 +32,8 @@ const CarouselHome: React.FC = () => {
               type="video/mp4"
             />
           </video>
-          <div className="texto-sobre-imagen">Aprovecha mientras puedas</div>
+          <div className="texto-sobre-imagen"><h1>Aprovecha mientras puedas</h1>
+          <h2>Palabras boinitas</h2></div>
         </div>
 
         {/* Puedes añadir más items según tu HTML */}
