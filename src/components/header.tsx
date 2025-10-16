@@ -20,6 +20,7 @@ function Header() {
             <li className="nav-item"><Link className="nav-link" to="/seguros/venta">Venta Seguros</Link></li>
             <li className="nav-item"><Link className="nav-link" to="/sobre-nosotros">Sobre Nosotros</Link></li>
             <li className="nav-item"><Link className="nav-link" to="/perfil">Mi Perfil</Link></li>
+            <li className="nav-item"><Link className="nav-link" to="/login">Iniciar Sesión</Link></li>
             <li className="nav-item"><Link className="nav-link" to="/registro">Regístrate</Link></li>
           </ul>
         </div>
