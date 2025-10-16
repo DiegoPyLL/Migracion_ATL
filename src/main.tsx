@@ -1,9 +1,21 @@
-import * as React from "react";
+import React from "react";
+import CarouselHome from "./components/carouselHome";
+import BotonReserva from "./components/botonReserva";
+import CardsSeguros from "./components/cardSeguros";
 
-export default function Main(): React.ReactElement{
+const Main: React.FC = () => {
   return (
-    <div>
-      <h1>Página Principal</h1>
-    </div>
+    <main>
+      {/* Carrusel */}
+      <CarouselHome />
+
+      {/* Botón de reserva */}
+      <BotonReserva />
+
+      {/* Tarjetas de seguros */}
+      <CardsSeguros />
+    </main>
   );
-}
+};
+
+export default Main;

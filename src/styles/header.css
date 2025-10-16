@@ -1,0 +1,90 @@
+/* Navbar general */
+.navbar {
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 0.5rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Logo y marca */
+.navbar .navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar .navbar-brand img {
+  max-height: 60px;
+}
+
+/* Links del navbar */
+.navbar .navbar-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Estilo de los links */
+.navbar .nav-link {
+  color: #000;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Hover con fondo azul */
+.navbar .nav-link:hover {
+  background-color: #00B0FF;
+  color: #fff;
+}
+
+/* Efecto de barra animada debajo */
+.navbar .nav-link::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #00B0FF;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.navbar .nav-link:hover::before {
+  transform: scaleX(1);
+}
+
+/* Botón responsive */
+.navbar-toggler {
+  border: none;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280,0,0,0.7%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* Dropdown menu */
+.navbar .dropdown-menu {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar .navbar-nav {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .navbar .nav-link {
+    padding: 0.75rem 1rem;
+  }
+}

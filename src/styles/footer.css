@@ -1,0 +1,67 @@
+/* Footer */
+footer {
+  background-color: #212121;  /* fondo oscuro */
+  color: #fff;                /* texto blanco */
+  padding: 3rem 1rem 1rem 1rem;
+  font-family: 'Roboto', sans-serif;
+}
+
+footer a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: #00B0FF; /* azul de acento */
+}
+
+/* Contenedor interno */
+footer .container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Columnas del footer */
+footer .row > div {
+  margin-bottom: 1.5rem;
+}
+
+/* Títulos de sección */
+footer h5 {
+  font-weight: bold;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+}
+
+/* Redes sociales */
+footer .social-icons {
+  display: flex;
+  gap: 10px;
+  margin-top: 0.5rem;
+}
+
+footer .social-icons a {
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: #333;
+  transition: all 0.3s ease;
+}
+
+footer .social-icons a:hover {
+  background-color: #00B0FF;
+  color: #fff;
+}
+
+/* Texto centrado inferior */
+footer .text-center {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #ccc;
+}
