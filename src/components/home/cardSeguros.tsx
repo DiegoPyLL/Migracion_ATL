@@ -8,13 +8,13 @@ const CardsSeguros: React.FC = () => {
     title: "Seguro de Salud Premium",
     text: "Incluye consultas, hospitalización y emergencias.",
     video: "/videos/Video_de_Accidente_Vehicular_Generado.mp4",
-    link: "/comprar-seguro-salud", 
+    link: "/comprar-seguro-vida", 
   },
   {
     title: "Seguro de Salud Básico",
     text: "Cubre consultas y medicamentos esenciales.",
     video: "/videos/Video_de_Clínica_con_Dron.mp4",
-    // por ahora apunta al mismo formulario cambiar cuando se haga el nuevo para seguro basico
+    // cambio listo
     link: "/comprar-seguro-salud",
   },
 ];

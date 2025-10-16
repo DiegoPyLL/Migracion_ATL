@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import "../styles/stylesSeguros_salud.css"; 
+import "../styles/stylesSeguros_vida.css"; 
 
-const ComprarSeguroSalud = () => {
+const ComprarSeguroVida = () => {
   // --- HOOKS: Para manejar el estado y la navegación ---
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
@@ -31,7 +31,6 @@ const ComprarSeguroSalud = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value, type } = e.target;
     const isCheckbox = type === 'checkbox';
-    // Necesitamos acceder a 'checked' para los checkboxes
     const checkedValue = (e.target as HTMLInputElement).checked;
 
     setFormData(prevState => ({
@@ -40,33 +39,14 @@ const ComprarSeguroSalud = () => {
     }));
   };
 
-  const handleReset = () => {
-    setFormData({ rut: '', nombres: '', fechaNacimiento: '', email: '', celular: '', pago: '', terminos: false });
-    setErrors({ rut: '', nombres: '', fechaNacimiento: '', email: '', pago: '', terminos: '' });
-  };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Lógica de validación
-    const newErrors = { rut: '', nombres: '', fechaNacimiento: '', email: '', pago: '', terminos: ''};
-    let isValid = true;
     
-    // Función para validar el RUT (tomada de tu JS)
-    const validarRut = (rutCompleto: string) => {
-      if (!/^[0-9]+-[0-9kK]{1}$/.test(rutCompleto.replace(/\./g, ''))) return false;
-      const [cuerpo, dv] = rutCompleto.replace(/\./g, '').split('-');
-      let suma = 0; let multiplicador = 2;
-      for (let i = cuerpo.length - 1; i >= 0; i--) {
-        suma += parseInt(cuerpo.charAt(i)) * multiplicador;
-        multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
-      }
-      const dvEsperado = 11 - (suma % 11);
-      let dvCalculado = String(dvEsperado);
-      if (dvEsperado === 11) dvCalculado = '0';
-      else if (dvEsperado === 10) dvCalculado = 'k';
-      return dv.toLowerCase() === dvCalculado;
-    };
+    // La lógica de validación es la misma que en el formulario anterior
+    let isValid = true;
+    const newErrors = { rut: '', nombres: '', fechaNacimiento: '', email: '', pago: '', terminos: ''};
+    
+    const validarRut = (rutCompleto: string) => { /* ...la misma función de validación de RUT... */ if(!/^[0-9]+-[0-9kK]{1}$/.test(rutCompleto.replace(/\./g,'')))return false;const[cuerpo,dv]=rutCompleto.replace(/\./g,'').split('-');let suma=0;let multiplicador=2;for(let i=cuerpo.length-1;i>=0;i--){suma+=parseInt(cuerpo.charAt(i))*multiplicador;multiplicador=multiplicador===7?2:multiplicador+1;}const dvEsperado=11-(suma%11);let dvCalculado=String(dvEsperado);if(dvEsperado===11)dvCalculado='0';else if(dvEsperado===10)dvCalculado='k';return dv.toLowerCase()===dvCalculado;};
     
     if (!validarRut(formData.rut)) { newErrors.rut = 'El RUT no es válido.'; isValid = false; }
     if (!formData.nombres.trim()) { newErrors.nombres = 'El nombre es requerido.'; isValid = false; }
@@ -78,22 +58,18 @@ const ComprarSeguroSalud = () => {
     setErrors(newErrors);
 
     if (isValid) {
-      console.log('Datos del contrato guardados:', formData);
+      console.log('Datos del seguro de vida guardados:', formData);
       setShowSuccess(true);
-      // Opcional: navegar a otra página después de unos segundos
-      setTimeout(() => {
-        navigate('/');
-      }, 5000); // 5 segundos
+      setTimeout(() => navigate('/'), 5000);
     }
   };
-
-  // Si el formulario se envió con éxito, mostramos el mensaje. Si no, el formulario.
+  
   if (showSuccess) {
     return (
-      <div className="seguro-salud-container">
+      <div className="seguro-vida-container">
         <div className="mensaje-exito-react">
           <strong>¡Contratación exitosa!</strong><br />
-          Hemos recibido tus datos y nos pondremos en contacto contigo a la brevedad.
+          Hemos recibido tus datos para el Seguro de Vida y te contactaremos pronto.
         </div>
       </div>
     );
@@ -101,16 +77,18 @@ const ComprarSeguroSalud = () => {
 
   // --- JSX: La estructura visual del componente ---
   return (
-    <div className="seguro-salud-container">
+    <div className="seguro-vida-container">
       <div className="form-container">
-        <form id="seguro-form" onSubmit={handleSubmit} onReset={handleReset} noValidate>
+        <form id="seguro-form" onSubmit={handleSubmit} noValidate>
           <header className="form-header">
-            <h1>Planificador de salud</h1>
-            <p>Ingresa los datos del contratante</p>
+            {/* ✅ CAMBIO: Títulos actualizados */}
+            <h1>Planificador de Vida</h1>
+            <p>Ingresa los datos para contratar tu seguro de vida</p>
           </header>
 
           <section className="form-section">
-            <h2>Datos asegurado</h2>
+            <h2>Datos del asegurado</h2>
+            {/* Los campos de datos personales son idénticos */ }
             <div className="form-row">
               <div className={`form-field ${errors.rut ? 'has-error' : ''}`}>
                 <label htmlFor="rut">Rut</label>
@@ -130,12 +108,12 @@ const ComprarSeguroSalud = () => {
             </div>
             <div className="form-row">
               <div className={`form-field ${errors.email ? 'has-error' : ''}`}>
-                <label htmlFor="email">Ingrese su correo electrónico</label>
+                <label htmlFor="email">Correo electrónico</label>
                 <input type="email" id="email" value={formData.email} onChange={handleChange} placeholder="Ej. correo@dominio.cl" />
                 <span className="error-message">{errors.email}</span>
               </div>
               <div className="form-field">
-                <label htmlFor="celular">Ingrese número de celular</label>
+                <label htmlFor="celular">Número de celular</label>
                 <input type="tel" id="celular" value={formData.celular} onChange={handleChange} placeholder="Ej. +56987654321" />
               </div>
             </div>
@@ -148,15 +126,16 @@ const ComprarSeguroSalud = () => {
             <div className="summary-box">
               <div className="summary-item">
                 <span>Plan seleccionado</span>
-                <strong>Seguro de Salud</strong>
+                <strong>Seguro de Vida Plus</strong>
               </div>
               <div className="summary-item price">
                 <span>Valor mensual</span>
-                <strong>$24.990 CLP</strong>
+                <strong>$54.990 CLP</strong>
               </div>
             </div>
           </section>
 
+          {/* Las secciones de pago y términos son idénticas */}
           <section className="form-section">
             <h2>Datos de pago</h2>
             <div className={`form-field ${errors.pago ? 'has-error' : ''}`}>
@@ -182,7 +161,7 @@ const ComprarSeguroSalud = () => {
           </section>
 
           <div className="form-actions">
-            <button type="reset" className="btn-reset">Limpiar</button>
+            <button type="reset" className="btn-reset" onClick={() => setErrors({rut:'',nombres:'',fechaNacimiento:'',email:'',pago:'',terminos:''})}>Limpiar</button>
             <button type="submit" className="btn-submit">Confirmar Contratación</button>
           </div>
         </form>
@@ -191,4 +170,4 @@ const ComprarSeguroSalud = () => {
   );
 };
 
-export default ComprarSeguroSalud;
+export default ComprarSeguroVida;

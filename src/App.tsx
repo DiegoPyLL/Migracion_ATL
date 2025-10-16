@@ -7,6 +7,7 @@ import Registro from "./pages/registro";
 import Perfil from "./pages/perfil";
 import VentaSeguros from "./pages/ventaSeguros";
 import ComprarSeguroSalud from "./pages/comprar_seguro_salud";
+import ComprarSeguroVida from "./pages/compra_seguro_vida";
 
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
         
         {/* Ruta para el formulario de compra específico */}
         <Route path="/comprar-seguro-salud" element={<ComprarSeguroSalud />} />
+        <Route path="/comprar-seguro-vida" element={<ComprarSeguroVida />} />
       </Routes>
       <Footer />
     </BrowserRouter>
