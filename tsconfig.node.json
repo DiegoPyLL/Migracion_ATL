@@ -1,7 +1,8 @@
-{
-  "extends": "./tsconfig.json",
+{  
   "compilerOptions": {
     "module": "CommonJS",
+    "allowImportingTsExtensions": true,
+    "forceConsistentCasingInFileNames": true,
     "target": "ES2020",
     "strict": true,
     "types": ["node"]

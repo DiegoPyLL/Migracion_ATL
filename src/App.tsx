@@ -1,20 +1,19 @@
-import React from "react";
+import * as React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Header from "./components/header.tsx";
-import Footer from "./components/footer.tsx";
-
-import Home from "./pages/home.tsx";
-import FormularioReserva from "./pages/formularioReserva.tsx";
-import FormularioSeguros from "./pages/formularioSeguros.tsx";
-import Login from "./pages/login.tsx";
-import Main from "./main.tsx";
-import PedirHora from "./pages/pedirHora.tsx";
-import Perfil from "./pages/perfil.tsx";
-import Registro from "./pages/registro.tsx";
-import SobreNosotros from "./pages/sobre_nosotros.tsx";
-import TyC from "./pages/TyC.tsx";
-import VentaSeguros from "./pages/ventaSeguros.tsx";
+import Header from "./components/header";
+import Footer from "./components/footer";
+import Home from "./pages/home";
+import FormularioReserva from "./pages/formularioReserva";
+import FormularioSeguros from "./pages/formularioSeguros";
+import Login from "./pages/login";
+import Main from "./main";
+import PedirHora from "./pages/pedirHora";
+import Perfil from "./pages/perfil";
+import Registro from "./pages/registro";
+import SobreNosotros from "./pages/sobre_nosotros";
+import TyC from "./pages/TyC";
+import VentaSeguros from "./pages/ventaSeguros";
 
 function App() {
   return (
