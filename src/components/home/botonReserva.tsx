@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "../styles/botonReserva.css"; // asegúrate que tu CSS tenga .boton-reserva
-
+import "../../styles/botonReserva.css"; 
 const BotonReserva: React.FC = () => {
   return (
     <div className="text-center my-4">

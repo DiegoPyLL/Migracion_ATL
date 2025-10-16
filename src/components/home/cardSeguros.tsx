@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "../styles/cardSeguros.css"; // asegúrate que tu CSS tenga estilos para .card
+import "../../styles/cardSeguros.css"; // Se agregan dos puntos ..
 
 const CardsSeguros: React.FC = () => {
   const seguros = [

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './styles/login_style.css'; // Importamos nuestros estilos
+import "../styles/login_style.css";
 
 const Login = () => {
   // --- 1. HOOKS: Para manejar el estado y la navegación ---
