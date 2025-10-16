@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Home(): JSX.Element {
+export default function Home(): React.ReactElement{
   return (
     <div>
       <h1>Clínica "A Tu Lado"</h1>

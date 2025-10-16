@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function TyC(): JSX.Element {
+export default function TyC(): React.ReactElement{
   return (
     <div>
       <h1>Términos y Condiciones</h1>

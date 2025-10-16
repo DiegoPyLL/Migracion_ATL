@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Login(): JSX.Element {
+export default function Login(): React.ReactElement{
   return (
     <div>
       <h1>Login</h1>

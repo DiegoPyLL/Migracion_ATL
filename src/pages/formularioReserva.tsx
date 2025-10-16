@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function FormularioReserva(): JSX.Element {
+export default function FormularioReserva(): React.ReactElement{
   return (
     <div>
       <h1>Formulario de Reserva</h1>

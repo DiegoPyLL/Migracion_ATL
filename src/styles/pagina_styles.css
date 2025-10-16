@@ -298,7 +298,6 @@ a:hover {
   border-radius: 8px;
   font-weight: 600;
   font-size: 0.95rem;
-  backdrop-filter: blur(4px);
 }
 
 /* default state */
