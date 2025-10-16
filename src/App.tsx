@@ -4,6 +4,7 @@ import Footer from "./components/footer";
 import Home from "./pages/home";
 import Login from "./pages/login";
 import Registro from "./pages/registro";
+import Perfil from "./pages/perfil";
 
 export default function App() {
   return (
@@ -12,7 +13,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/registro" element={<Registro />} /> {/* 2. Añade la ruta */}
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/perfil" element={<Perfil />} />
       </Routes>
       <Footer />
     </BrowserRouter>
