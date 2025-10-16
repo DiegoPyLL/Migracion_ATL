@@ -1,21 +1,14 @@
+// src/main.tsx  (ENTRY POINT)
 import React from "react";
-import CarouselHome from "./components/carouselHome";
-import BotonReserva from "./components/botonReserva";
-import CardsSeguros from "./components/cardSeguros";
+import ReactDOM from "react-dom/client";
+import App from "./App";
 
-const Main: React.FC = () => {
-  return (
-    <main>
-      {/* Carrusel */}
-      <CarouselHome />
+// (opcional, recomendado) Bootstrap global:
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
-      {/* Botón de reserva */}
-      <BotonReserva />
-
-      {/* Tarjetas de seguros */}
-      <CardsSeguros />
-    </main>
-  );
-};
-
-export default Main;
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
