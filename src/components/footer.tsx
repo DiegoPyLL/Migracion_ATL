@@ -22,11 +22,15 @@ function Footer() {
           </div>
           <div className="col-md-3">
             <h5>Términos y Redes</h5>
-            <p><a href="/terminos-y-condiciones">Términos y Condiciones</a></p>
+            <p>
+              <Link to="/terminos-y-condiciones" className="footer-link">
+                Términos y Condiciones
+              </Link>
+            </p>
             <div className="social-icons">
-              <a href="https://web.facebook.com/" title="Visítanos en Facebook"><i className="bi bi-facebook"></i></a>
-              <a href="https://x.com/?lang=en" title="Síguenos en X (Twitter)"><i className="bi bi-twitter"></i></a>
-              <a href="https://www.instagram.com/" title="Síguenos en Instagram"><i className="bi bi-instagram"></i></a>
+              <a href="https://web.facebook.com/" title="Visítanos en Facebook" target="_blank" rel="noopener noreferrer"><i className="bi bi-facebook"></i></a>
+              <a href="https://x.com/?lang=en" title="Síguenos en X (Twitter)" target="_blank" rel="noopener noreferrer"><i className="bi bi-twitter"></i></a>
+              <a href="https://www.instagram.com/" title="Síguenos en Instagram" target="_blank" rel="noopener noreferrer"><i className="bi bi-instagram"></i></a>
             </div>
           </div>
         </div>
