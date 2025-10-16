@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home";
-import Login from "./pages/login"; // 1. IMPORTA EL COMPONENTE LOGIN
+import Login from "./pages/login";
+import Registro from "./pages/registro";
 
 export default function App() {
   return (
@@ -10,7 +11,8 @@ export default function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} /> {/* 2. AGREGA LA RUTA PARA LOGIN */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Registro />} /> {/* 2. Añade la ruta */}
       </Routes>
       <Footer />
     </BrowserRouter>

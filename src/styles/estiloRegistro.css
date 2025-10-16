@@ -1,24 +1,19 @@
 /* Fuente hospital moderno */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-.form-input input {
-    width: 100%;      /* ocupa todo el ancho disponible */
-    padding: 100px;    /* más espacio interno */
-    border-radius: 8px; /* bordes redondeados */
-}
-
-body {
+/* ✅ CAMBIO CLAVE: En lugar de 'body', usamos una clase para no afectar a toda la web */
+.register-container {
   font-family: 'Poppins', sans-serif;
-  height: 100vh;
+  min-height: 100vh; /* Usamos min-height para mejor flexibilidad */
   margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-
+  position: relative; /* Necesario para que el overlay funcione */
 }
 
 /* Overlay azul translúcido */
-body::after {
+.register-container::after {
   content: '';
   position: absolute;
   top: 0; left: 0;
@@ -27,7 +22,7 @@ body::after {
   z-index: 1;
 }
 
-/* Contenedor centrado */
+/* El resto del CSS es prácticamente idéntico */
 .abs-center {
   position: relative;
   z-index: 4;
@@ -102,8 +97,8 @@ form.form {
   height: 1rem;
 }
 
-/* Botón */
-form.form input[type="submit"] {
+/* ✅ CAMBIO: Adaptamos el selector para el botón */
+form.form button[type="submit"] {
   display: block;
   width: 100%;
   padding: 1rem;
@@ -119,7 +114,7 @@ form.form input[type="submit"] {
   box-shadow: 0 6px 18px rgba(0, 176, 255, 0.35);
 }
 
-form.form input[type="submit"]:hover {
+form.form button[type="submit"]:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(0, 176, 255, 0.45);
 }
