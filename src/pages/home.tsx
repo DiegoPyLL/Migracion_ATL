@@ -1,7 +1,7 @@
 import React from "react";
-import CarouselHome from "../components/carouselHome";
-import BotonReserva from "../components/botonReserva";
-import CardsSeguros from "../components/cardSeguros";
+import CarouselHome from "../components/home/carouselHome";
+import BotonReserva from "../components/home/botonReserva";
+import CardsSeguros from "../components/home/cardSeguros";
 
 const Main: React.FC = () => (
   <>
