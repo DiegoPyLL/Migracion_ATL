@@ -11,4 +11,4 @@ const Main: React.FC = () => (
   </>
 );
 
-export default Main; // ← obligatorio
+export default Main; 

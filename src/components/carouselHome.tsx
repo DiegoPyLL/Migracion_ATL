@@ -1,5 +1,6 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/carouselHome.css";
 
 const CarouselHome: React.FC = () => {
   return (

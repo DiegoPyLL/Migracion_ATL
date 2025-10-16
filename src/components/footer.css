@@ -65,3 +65,9 @@ footer .text-center {
   font-size: 0.9rem;
   color: #ccc;
 }
+
+
+.footer-link {
+  color: inherit;
+  text-decoration: none;
+}

@@ -34,7 +34,7 @@
   padding: 0.5rem 1rem;
   border-radius: 5px;
   position: relative;
-  transition: all 0.3s ease;
+  transition: all 0.1s ease;
 }
 
 /* Hover con fondo azul */
