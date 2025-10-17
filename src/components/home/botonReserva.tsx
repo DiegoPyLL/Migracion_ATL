@@ -4,7 +4,7 @@ import "../../styles/botonReserva.css";
 const BotonReserva: React.FC = () => {
   return (
     <div className="text-center my-4">
-      <Link to="/reserva" className="boton-reserva">
+      <Link to="../pedir-hora" className="boton-reserva">
         Reservar hora Atención Médica
       </Link>
     </div>
