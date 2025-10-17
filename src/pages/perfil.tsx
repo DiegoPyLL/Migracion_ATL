@@ -31,7 +31,7 @@ const Perfil = () => {
 
   return (
     <div className="perfil-container">
-      <div className="container" style={{ paddingTop: '100px', paddingBottom: '100px' }}>
+      <div className="container">
         <div className="row align-items-start bg-white p-4 rounded-4 shadow-lg">
           
           {/* Columna Izquierda: Carrusel de Imágenes */}

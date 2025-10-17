@@ -162,4 +162,3 @@ export default function CombinedReservaForm(): React.ReactElement {
     </form>
   );
 }
-
