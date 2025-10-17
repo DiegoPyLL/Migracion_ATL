@@ -1,12 +1,19 @@
 /* Navbar general */
 .navbar {
   background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   padding: 0.5rem 1rem;
-  position: sticky;
+  position: fixed !important;
   top: 0;
   z-index: 1000;
   font-family: 'Roboto', sans-serif;
+  width: 100%;
+}
+
+/* Compensación para que el contenido no quede debajo del navbar fijo */
+:root { --navbar-offset: 100px; }
+.app-content { padding-top: var(--navbar-offset); }
+@media (max-width: 768px) {
+  :root { --navbar-offset: 120px; }
 }
 
 /* Logo y marca */
@@ -29,48 +36,54 @@
   gap: 0.5rem;
 }
 
-/* Estilo de los links */
+/* Estilo base */
 .navbar .nav-link {
+  position: relative;
   color: #000;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   padding: 0.5rem 1rem;
   border-radius: 5px;
-  position: relative;
-  transition: all 0.1s ease;
+  overflow: hidden;
+  transition: color 0.3s ease;
 }
 
-/* Hover con fondo azul */
+/* Efecto hover: texto blanco */
 .navbar .nav-link:hover {
-  background-color: #00B0FF;
   color: #fff;
 }
 
-/* Efecto de barra animada debajo */
+/* Cuadrado azul animado detrás del texto */
 .navbar .nav-link::before {
-  content: '';
+  content: "";
   position: absolute;
-  bottom: 0;
   left: 0;
-  width: 100%;
-  height: 3px;
-  background-color: #00B0FF;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
+  top: 0;
+  width: 0%;
+  height: 100%;
+  background-color: #007bff;
+  z-index: -1;
+  transition: width 0.3s ease;
 }
 
+/* Expande el cuadrado al hacer hover */
 .navbar .nav-link:hover::before {
-  transform: scaleX(1);
+  width: 100%;
+}
+
+/* Active link mantiene color */
+.navbar .nav-link.active {
+  color: #fff;
+}
+
+.navbar .nav-link.active::before {
+  width: 100%;
+  background-color: #007bff;
 }
 
 /* Botón responsive */
 .navbar-toggler {
   border: none;
-}
-
-.navbar-toggler-icon {
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280,0,0,0.7%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
 
 /* Dropdown menu */
@@ -88,7 +101,7 @@
   }
 
   .navbar .nav-link {
-    padding: 1.75rem 1rem;
+    padding: 1.25rem 1rem;
     font-size: 1.2rem;
   }
 }
