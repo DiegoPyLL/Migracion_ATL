@@ -9,15 +9,12 @@ import VentaSeguros from "./pages/ventaSeguros";
 import ComprarSeguroSalud from "./pages/comprar_seguro_salud";
 import ComprarSeguroVida from "./pages/compra_seguro_vida";
 import TerminosCondiciones from "./pages/TyC";
-import SobreNosotros from "./pages/sobre_nosotros";
-import PedirHora from "./pages/pedirHora";
 import FormularioReserva from "./pages/pedirHora";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Header />
-      <main className="app-content">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -35,7 +32,6 @@ export default function App() {
         <Route path="/comprar-seguro-salud" element={<ComprarSeguroSalud />} />
         <Route path="/comprar-seguro-vida" element={<ComprarSeguroVida />} />
       </Routes>
-      </main>
       <Footer />
 
       
