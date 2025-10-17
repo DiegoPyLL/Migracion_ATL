@@ -3,24 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import "../styles/login_style.css";
 
 const Login = () => {
-  // --- 1. HOOKS: Para manejar el estado y la navegación ---
-  const navigate = useNavigate(); // Hook para redirigir al usuario
 
-  // Estados para guardar lo que el usuario escribe en los inputs
+  const navigate = useNavigate();
+
+
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
 
-  // Un estado para los mensajes de error, más organizado
+ 
   const [errors, setErrors] = useState({ usuario: '', password: '' });
 
-  // --- 2. LÓGICA: Función que se ejecuta al enviar el formulario ---
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Previene que la página se recargue
 
-    // Limpiamos los errores previos
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+
     setErrors({ usuario: '', password: '' });
 
-    // Lógica de validación (traducida de tu validacion.js)
+
     let valido = true;
     const newErrors = { usuario: '', password: '' };
 
@@ -34,7 +34,7 @@ const Login = () => {
       valido = false;
     }
 
-    // Si hay errores de validación, los mostramos y detenemos
+
     if (!valido) {
       setErrors(newErrors);
       return;
@@ -51,15 +51,9 @@ const Login = () => {
     }
   };
 
-  // --- 3. JSX: La estructura visual del componente ---
+
   return (
-    <div className="login-container"> {/* Contenedor principal para el fondo */}
-      <img
-        src="/images/logo.png" // Ruta desde la carpeta 'public'
-        alt="Logo de la empresa"
-        className="logo"
-      />
-      
+    <div className="login-container">      
       <form id="loginForm" onSubmit={handleSubmit} noValidate>
         <h2>Iniciar Sesión</h2>
 

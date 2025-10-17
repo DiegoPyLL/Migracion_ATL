@@ -6,15 +6,19 @@ import EquipoMedico from "../components/sobreNosotros/EquipoMedico";
 const SobreNosotros: React.FC = () => {
   return (
     <>
-      <div className="top-bar">
-        <div className="container">
-          <p className="info-text">Abiertos desde las 8:00am hasta las 23:00pm todos los días</p>
-        </div>
-      </div>
-      <Historia />
-      <hr className="container" />
-      <Collage />
-      <EquipoMedico />
+
+
+      <section className="bg-light py-12">
+        <Historia />
+      </section>    
+
+      <section className="py-4">
+        <Collage />
+      </section>
+
+      <section className="bg-light py-5">
+        <EquipoMedico />
+      </section>
     </>
   );
 };

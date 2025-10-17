@@ -42,7 +42,7 @@ export default function DatosReservaForm(): React.ReactElement {
 
   return (
     <form className="dr-form" onSubmit={onSubmit} noValidate>
-      <h2 className="dr-title">DATOS PARA LA RESERVA</h2>
+      <h2 className="dr-title">Reserva</h2>
 
       <div className="dr-field">
         <label htmlFor="dr-nombre">Nombre</label>

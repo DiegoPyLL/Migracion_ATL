@@ -1,15 +1,14 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../../styles/carouselHome.css"; 
+import "../../styles/carouselHome.css";
 
 const CarouselHome: React.FC = () => {
   return (
     <div id="carouselExample" className="carousel slide" data-bs-ride="carousel" data-bs-interval={5500}>
       <div className="carousel-inner">
-
         <div className="carousel-item active">
           <img
-            src="https://github.com/DiegoPyLL/Pagina_Clinica_a_tu_Lado/blob/main/imagenes/familia_feliz1.png?raw=true"
+            src="/images/familia_feliz1.png"
             className="d-block w-100"
             alt="Familia feliz"
           />
@@ -20,23 +19,59 @@ const CarouselHome: React.FC = () => {
         </div>
 
         <div className="carousel-item">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            //style={{ width: "100%", height: "600px", objectFit: "cover" }}
-          >
-            <source
-              src="https://videos.openai.com/vg-assets/assets%2Ftask_01k5ss54e0fzcrh9hk58655sdd%2Ftask_01k5ss54e0fzcrh9hk58655sdd_genid_d92fb2ef-b903-4408-834a-a07659778292_25_09_22_22_39_916436%2Fvideos%2F00000_198295585%2Fsource.mp4"
-              type="video/mp4"
-            />
-          </video>
-          <div className="texto-sobre-imagen"><h1>Aprovecha mientras puedas</h1>
-          <h2>Palabras boinitas</h2></div>
+          <img
+            src="/images/clinica_4.png"
+            className="d-block w-100"
+            alt="Equipo medico preparando atencion"
+          />
+          <div className="texto-sobre-imagen">
+            <h1>Cuidamos tu salud</h1>
+            <h2>Accede a especialistas certificados</h2>
+          </div>
         </div>
 
-        {/* Puedes añadir más items según tu HTML */}
+        <div className="carousel-item">
+          <video autoPlay muted loop playsInline className="d-block w-100">
+            <source src="/videos/Video_de_pareja_feliz_en_parque.mp4" type="video/mp4" />
+          </video>
+          <div className="texto-sobre-imagen">
+            <h1>Disfruta cada momento</h1>
+          </div>
+        </div>
+
+        <div className="carousel-item">
+          <img
+            src="/images/seguro_vida_2.png"
+            className="d-block w-100"
+            alt="Pareja revisando su cobertura"
+          />
+          <div className="texto-sobre-imagen">
+            <h1>Protege a quienes amas</h1>
+            <h2>Planes flexibles para cada familia</h2>
+          </div>
+        </div>
+
+        <div className="carousel-item">
+          <video autoPlay muted loop playsInline className="d-block w-100">
+            <source src="/videos/Video_De_Atardecer_En_La_Playa.mp4" type="video/mp4" />
+          </video>
+          <div className="texto-sobre-imagen">
+            <h1>Disfruta cada momento</h1>
+            <h2>Estamos contigo en cada etapa</h2>
+          </div>
+        </div>
+
+        <div className="carousel-item">
+          <img
+            src="/images/deporte_3.png"
+            className="d-block w-100"
+            alt="Profesional entregando orientacion"
+          />
+          <div className="texto-sobre-imagen">
+            <h1>Respaldamos tu bienestar</h1>
+            <h2>Consultas presenciales y online</h2>
+          </div>
+        </div>
       </div>
 
       <button className="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
