@@ -24,6 +24,10 @@ footer a:hover {
 footer .container {
   max-width: 1200px;
   margin: 0 auto;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 /* Columnas del footer */
@@ -67,7 +71,7 @@ footer .text-center {
   text-align: center;
   margin-top: 1.5rem;
   font-size: 0.9rem;
-  color: #ccc;
+  color: #fff;
 }
 
 

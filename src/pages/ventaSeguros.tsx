@@ -1,14 +1,22 @@
 import React from 'react';
-// Importamos el componente que tiene las tarjetas
 import CardsSeguros from '../components/home/cardSeguros';
+import SaludCarousel from '../components/seguros/SaludCarousel';
+import VidaCarousel from '../components/seguros/VidaCarousel';
 
-const VentaSeguros = () => {
+const VentaSeguros: React.FC = () => {
   return (
-    // Puedes agregar más elementos aquí si quieres, como un título
     <div>
-      <CardsSeguros /> 
+      <h1 className="card-main-title">Seguros de Salud</h1>
+      <SaludCarousel />
+
+      <h1 className="card-main-title" style={{ paddingTop: 24 }}>Seguros de Vida</h1>
+      <VidaCarousel />
+
+      {/* Sección de tarjetas (opcional) */}
+      <CardsSeguros />
     </div>
   );
 };
 
 export default VentaSeguros;
+

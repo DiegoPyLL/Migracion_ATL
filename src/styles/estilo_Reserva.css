@@ -42,30 +42,20 @@ a:hover {
 .navbar .nav-link {
   color: #000 !important;
   position: relative;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 1.3rem;
+  font-weight: 600;
   padding: 0.5rem 1rem; /* espacio para que el fondo se vea */
   transition: background-color 0.3s;
 }
 
 .navbar .nav-link:hover {
-  background-color: #00B0FF !important;
-  color: #fff !important;         /* blanco cuando se pasa el mouse */
+  background-color: transparent !important;
+  color: inherit !important;
   border-radius: 5px;
 }
 
 .navbar .nav-link::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #00B0FF;
-  z-index: -1;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
+  content: none !important;
 }
 
 .navbar .nav-link:hover::before {
