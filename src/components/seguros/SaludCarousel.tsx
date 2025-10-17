@@ -11,36 +11,32 @@ type Slide = {
 
 const slides: Slide[] = [
   {
-    video:
-      "https://videos.openai.com/vg-assets/assets%2Ftask_01jrdbct23fb7r09jsrds9fha6%2Ftask_01jrdbct23fb7r09jsrds9fha6_genid_dc1aef72-b171-4932-a8c7-113070fbf580_25_04_09_13_26_156928%2Fvideos%2F00000_610388680%2Fsource.mp4",
-    title: "Seguro de Salud Básico",
-    desc: "Plan económico, cubre consultas y medicamentos esenciales.",
+    video: "/videos/Cl\u00EDnica_Tranquila_con_Vista_Panor\u00E1mica.mp4",
+    title: "Seguro de Salud B\u00E1sico",
+    desc: "Plan econ\u00F3mico que cubre consultas y medicamentos esenciales.",
     ctaTo: "/comprar-seguro-salud",
   },
   {
-    video:
-      "https://videos.openai.com/vg-assets/assets%2Ftask_01jt2zvfkyedzsfa2fkce5c3kk%2Ftask_01jt2zvfkyedzsfa2fkce5c3kk_genid_752a4b00-a440-4ea8-84c8-ada1ec6f52fb_25_04_30_09_19_114187%2Fvideos%2F00000_730232400%2Fsource.mp4",
+    video: "/videos/Ahora_un_video_202510171539.mp4",
     title: "Seguro de Salud Avanzado",
     desc: "Cobertura extendida con especialistas, chequeos preventivos y urgencias.",
     ctaTo: "/comprar-seguro-salud",
   },
   {
-    video:
-      "https://videos.openai.com/vg-assets/assets%2Ftask_01k0pxeh57e71sj54frfa9q86q%2Ftask_01k0pxeh57e71sj54frfa9q86q_genid_812b5145-1c33-4a56-af2c-cf190c0e6067_25_07_21_16_36_095906%2Fvideos%2F00000_528914953%2Fsource.mp4",
+    video: "/videos/Video_de_Accidente_Vehicular_Generado.mp4",
     title: "Seguro de Salud Premium",
-    desc: "Cobertura completa. Incluye consultas, hospitalización y emergencias.",
+    desc: "Protecci\u00F3n completa: consultas, hospitalizaci\u00F3n y emergencias.",
     ctaTo: "/comprar-seguro-salud",
   },
   {
-    video:
-      "https://videos.openai.com/vg-assets/assets%2Ftask_01jn2qfbrvf28rfdgdns982xwv%2Ftask_01jn2qfbrvf28rfdgdns982xwv_genid_407e2e80-0731-4cfd-923e-cc005ff8a980_25_02_27_03_34_425850%2Fvideos%2F00000_317979549%2Fsource.mp4",
+    video: "/videos/Ahora_un_video_202510171543.mp4",
     title: "Seguro de Salud Empresarial",
-    desc: "Plan para empleados con atención médica completa y programas de bienestar.",
+    desc: "Plan para colaboradores con atenci\u00F3n integral y programas de bienestar.",
     ctaTo: "/comprar-seguro-salud",
   },
 ];
 
-export default function SaludCarousel(): React.ReactElement {
+const SaludCarousel: React.FC = () => {
   const [idx, setIdx] = useState(0);
   const count = slides.length;
   const prev = () => setIdx((i) => (i - 1 + count) % count);
@@ -50,19 +46,8 @@ export default function SaludCarousel(): React.ReactElement {
     <div className="sc-carousel">
       <div className="sc-viewport">
         {slides.map((s, i) => (
-          <div
-            key={i}
-            className="sc-slide"
-            style={{ transform: `translateX(${(i - idx) * 100}%)` }}
-          >
-            <video
-              src={s.video}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="sc-video"
-            />
+          <div key={i} className={`sc-slide ${i === idx ? "active" : ""}`}>
+            <video src={s.video} autoPlay muted loop playsInline className="sc-video" />
             <div className="sc-caption">
               <h5>{s.title}</h5>
               <p>{s.desc}</p>
@@ -75,10 +60,10 @@ export default function SaludCarousel(): React.ReactElement {
       </div>
 
       <button aria-label="Anterior" className="sc-prev" onClick={prev}>
-        ‹
+        &#10094;
       </button>
       <button aria-label="Siguiente" className="sc-next" onClick={next}>
-        ›
+        &#10095;
       </button>
 
       <div className="sc-dots">
@@ -93,5 +78,6 @@ export default function SaludCarousel(): React.ReactElement {
       </div>
     </div>
   );
-}
+};
 
+export default SaludCarousel;

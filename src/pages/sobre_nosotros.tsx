@@ -6,9 +6,7 @@ import EquipoMedico from "../components/sobreNosotros/EquipoMedico";
 const SobreNosotros: React.FC = () => {
   return (
     <>
-
-
-      <section className="bg-light py-12">
+      <section className="container-fluid my-12 pb-7">
         <Historia />
       </section>    
 
@@ -16,7 +14,7 @@ const SobreNosotros: React.FC = () => {
         <Collage />
       </section>
 
-      <section className="bg-light py-5">
+      <section className="container-fluid my-12 pb-7">
         <EquipoMedico />
       </section>
     </>

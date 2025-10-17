@@ -1,29 +1,100 @@
 /* Carousels para venta de seguros */
 .sc-carousel { position: relative; margin: 0 auto 24px; max-width: 1100px; }
-.sc-viewport { position: relative; overflow: hidden; height: 550px; border-radius: 10px; }
+.sc-viewport { position: relative; overflow: hidden; height: 550px; border-radius: 16px; background: #000; }
+
 .sc-slide {
-  position: absolute; inset: 0; transition: transform 0.4s ease; display: grid; place-items: end start;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
 }
-.sc-video { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+
+.sc-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.sc-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .sc-caption {
-  position: absolute; bottom: 16px; left: 16px; right: 16px; color: #fff;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  position: relative;
+  margin: 24px;
+  padding: 24px;
+  max-width: clamp(260px, 55%, 420px);
+  color: #fff;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(15, 27, 53, 0.85), rgba(4, 21, 45, 0.65));
+  backdrop-filter: blur(2px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
+
+.sc-caption h5 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.35rem; }
+.sc-caption p { margin-bottom: 1rem; line-height: 1.5; }
 
 .sc-prev, .sc-next {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  background: rgba(0,0,0,0.4); color: #fff; border: 0; width: 40px; height: 40px;
-  border-radius: 20px; cursor: pointer; font-size: 22px; line-height: 40px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  border: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 26px;
+  line-height: 44px;
+  transition: background 0.25s ease;
+  z-index: 3;
 }
-.sc-prev { left: 10px; }
-.sc-next { right: 10px; }
-.sc-prev:hover, .sc-next:hover { background: rgba(0,0,0,0.55); }
 
-.sc-dots { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
-.sc-dot { width: 10px; height: 10px; border-radius: 5px; background: #bbb; border: 0; cursor: pointer; }
-.sc-dot.active { background: #00B0FF; }
+.sc-prev { left: 18px; }
+.sc-next { right: 18px; }
+.sc-prev:hover, .sc-next:hover { background: rgba(0, 0, 0, 0.65); }
+
+.sc-dots { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
+.sc-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.25);
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.sc-dot.active {
+  background: #0d6efd;
+  transform: scale(1.2);
+}
+
+@media (max-width: 992px) {
+  .sc-viewport { height: 420px; }
+  .sc-caption { margin: 20px; padding: 20px; max-width: 70%; }
+}
 
 @media (max-width: 768px) {
   .sc-viewport { height: 360px; }
+  .sc-caption {
+    margin: 16px;
+    padding: 18px;
+    max-width: 100%;
+  }
+  .sc-caption h5 { font-size: 1.3rem; }
 }
 
+@media (max-width: 576px) {
+  .sc-viewport { height: 300px; }
+  .sc-prev, .sc-next { width: 38px; height: 38px; font-size: 22px; }
+}
