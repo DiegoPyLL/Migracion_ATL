@@ -29,20 +29,21 @@ const PerfilForm = ({
 }: PerfilFormProps) => (
   <div className="col-lg-7 perfil-info">
     <form onSubmit={onSubmit}>
-      <h1>Perfil de Usuario</h1>
-
-      <div className="d-flex justify-content-end mb-3">
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={onEnableEdition}
-          disabled={isEditing}
-        >
-          Modificar perfil
-        </button>
-      </div>
-
-      <h3>Informacion Personal</h3>
+      
+    
+    <div className="d-flex justify-content-between align-items-center mb-4">
+      <h1 className="m-0">Perfil de Usuario</h1>
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={onEnableEdition}
+        disabled={isEditing}
+      >
+        Modificar perfil
+      </button>
+    </div>
+    
+      <h3>Información Personal</h3>
       <div className="mb-3">
         <label htmlFor="nombre" className="form-label">Nombre Completo:</label>
         <input
@@ -67,7 +68,7 @@ const PerfilForm = ({
       </div>
 
       <div className="mb-3">
-        <label htmlFor="correo" className="form-label">Correo Electronico:</label>
+        <label htmlFor="correo" className="form-label">Correo Electrónico:</label>
         <input
           type="email"
           className="form-control"
@@ -80,7 +81,7 @@ const PerfilForm = ({
 
 
       <div className="mb-3">
-        <label htmlFor="telefono" className="form-label">Numero de Contacto:</label>
+        <label htmlFor="telefono" className="form-label">Número de Contacto:</label>
         <input
           type="tel"
           className="form-control"
@@ -91,9 +92,9 @@ const PerfilForm = ({
         />
       </div>
 
-      <h3>Preferencias de Comunicacion</h3>
+      <h3>Preferencias de Comunicación</h3>
       <div className="mb-3">
-        <label htmlFor="comunicacion" className="form-label">Metodo Preferido:</label>
+        <label htmlFor="comunicacion" className="form-label">Método Preferido:</label>
         <select
           className="form-select"
           id="comunicacion"
@@ -101,17 +102,16 @@ const PerfilForm = ({
           onChange={onChange}
           disabled={!isEditing}
         >
-          <option>Mensajes</option>
-          <option>Correo Electronico</option>
+          <option>WhatsApp</option>
+          <option>Correo Electrónico</option>
           <option>Mensaje de Texto</option>
-          <option>Llamada Telefonica</option>
-          <option>Mensajes misticos via commit</option>
+          <option>Llamada Telefónica</option>
         </select>
       </div>
 
-      <h3>Historial Medico</h3>
+      <h3>Historial Médico</h3>
       <div className="mb-3 d-flex align-items-center gap-2">
-        <label htmlFor="historial" className="form-label mb-0">Ultima actualizacion:</label>
+        <label htmlFor="historial" className="form-label mb-0">Última actualización:</label>
         <FaUpload size={24} color="#007bff" title="Subida mistica completada" />
       </div>
 

@@ -3,20 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import "../styles/estiloPerfil.css";
 import PerfilCarousel from '../components/perfil/PerfilCarousel';
 import PerfilForm, { PerfilData } from '../components/perfil/PerfilForm';
-import SegurosContratadosList, { SeguroContratado } from '../components/perfil/SegurosContratadosList';
 
 const PERFIL_DATA_KEY = 'perfilData';
 
 
 //Datos Base 
 const defaultPerfilData: PerfilData = {
-  nombre: 'Juana Iglesias Negras',
+  nombre: 'Juana Iglesias Torres',
   direccion: 'Palacio de Gitovia, San Petersburgo',
-  telefono: '+7 999 1917 1917',
-  correo: 'correogenerico@Duocuc.cl',
-  comunicacion: 'Mensajes misticos via commit',
+  correo: 'ju.torres@duocuc.cl',
+  telefono: '+56 9 5657 7989',  
+  comunicacion: 'WhatsApp',
   historial: 'upload'
 };
+
+
+
+
 
 const readStoredPerfilData = (): PerfilData => {
   if (typeof window === 'undefined' || !window.sessionStorage) {
@@ -38,6 +41,10 @@ const readStoredPerfilData = (): PerfilData => {
   }
 };
 
+
+
+
+
 const Perfil = () => {
   const navigate = useNavigate();
 
@@ -55,18 +62,21 @@ const Perfil = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+
+
+
+
     try {
       if (typeof window !== 'undefined' && window.sessionStorage) {
         window.sessionStorage.setItem(PERFIL_DATA_KEY, JSON.stringify(perfilData));
       }
     } catch (error) {
-      console.error('No se pudo guardar el perfil en la sesion', error);
+      console.error('No se pudo guardar el perfil en la sesión', error);
     }
 
     console.log('Guardando cambios del perfil:', perfilData);
-    alert('Perfil actualizado con exito!');
+    alert('Perfil actualizado con éxito!');
     setIsEditing(false);
-    navigate('/');
   };
 
   const handleEnableEdition = () => {
@@ -90,36 +100,6 @@ const Perfil = () => {
 
 
 
-
-
-
-
-  const segurosContratados = useMemo<SeguroContratado[]>(() => ([
-    {
-      id: 1,
-      nombre: 'Seguro Salud Integral',
-      descripcion: 'Cobertura medica completa con atencion a domicilio y telemedicina.',
-      precio: 55000
-    },
-    {
-      id: 2,
-      nombre: 'Seguro Vida Familiar',
-      descripcion: 'Proteccion de vida con beneficio para todo el grupo familiar.',
-      precio: 72000
-    },
-    {
-      id: 3,
-      nombre: 'Seguro Dental Premium',
-      descripcion: 'Consultas ilimitadas y cobertura completa de ortodoncia y periodoncia.',
-      precio: 38000
-    }
-  ]), []);
-
-  const totalSeguros = useMemo(
-    () => segurosContratados.reduce((acc, seguro) => acc + seguro.precio, 0),
-    [segurosContratados]
-  );
-
   return (
     <div className="perfil-container">
       <div className="container-fluid perfil-wrapper">
@@ -138,9 +118,7 @@ const Perfil = () => {
         </div>
       </div>
 
-      <div className="container-fluid perfil-wrapper mt-5 seguros-contratados">
-        <SegurosContratadosList seguros={segurosContratados} total={totalSeguros} />
-      </div>
+
     </div>
   );
 };
