@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["vite/client", "vitest", "node"],
     "target": "ES6",
     "module": "ESNext",
     "moduleResolution": "node",
