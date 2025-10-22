@@ -1,16 +1,10 @@
-/* Importar fuente */
+/* Import brand font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* --- ✅ NUEVA PALETA DE COLOR INSPIRADA EN CLÍNICAS MODERNAS --- */
 :root {
-    /* Colores base que ya teníamos */
-    --color-primario: #3A8EF5;       /* Azul principal */
-    --color-secundario: #1A237E;    /* Azul oscuro */
-
-    /* ✅ NUEVO color de acento */
-    --color-acento-salud: #00BFA5; /* Verde azulado (Teal) para llamados a la acción y detalles */
-    
-    /* Tonos neutros y de texto */
+    --color-primario: #3A8EF5;
+    --color-secundario: #1A237E;
+    --color-acento-salud: #00BFA5;
     --color-fondo-pagina: #f4f7f9;
     --color-texto-principal: #343A40;
     --color-texto-secundario: #6C757D;
@@ -23,30 +17,35 @@ body {
     margin: 0;
 }
 
-/* --- Contenedor principal sin cambios --- */
 .perfil-container {
     font-family: 'Poppins', sans-serif;
     background-color: var(--color-fondo-pagina);
     min-height: 100vh;
-    padding: 40px 20px;
+    padding: 40px 20px 60px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 40px;
+    align-items: stretch;
+    justify-content: flex-start;
 }
 
-/* --- La Tarjeta Principal --- */
+.perfil-wrapper {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
 .perfil-card {
     background-color: var(--color-blanco-puro);
     border-radius: 16px;
     box-shadow: var(--sombra-suave);
     border: var(--borde-delicado);
-    /* ✅ NUEVO: Borde superior de color para un toque distintivo */
     border-top: 5px solid var(--color-primario);
-    padding: 0;
-    max-width: 950px;
+    max-width: 1200px;
     width: 100%;
+    margin: 0 auto;
     overflow: hidden;
-    display: flex;
 }
 
 .perfil-card .row {
@@ -54,9 +53,7 @@ body {
     margin: 0;
 }
 
-/* --- Estilos de la Columna Izquierda (Avatar) --- */
 .perfil-avatar-container {
-    /* ✅ CAMBIO: Usamos un gradiente más rico con el nuevo color */
     background: linear-gradient(145deg, var(--color-primario), var(--color-acento-salud));
     padding: 40px 20px;
     display: flex;
@@ -64,26 +61,25 @@ body {
     align-items: center;
     justify-content: center;
     height: 100%;
+    border-radius: 10px;
 }
 
 .perfil-avatar img {
     max-width: 150px;
     border-radius: 50%;
-    border: 6px solid rgba(255, 255, 255, 0.8); /* Borde blanco semitransparente */
+    border: 6px solid rgba(255, 255, 255, 0.8);
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
 .perfil-avatar h5 {
     font-weight: 700;
-    /* ✅ CAMBIO: El texto ahora es blanco para contrastar con el nuevo fondo */
     color: var(--color-blanco-puro);
     margin-top: 1rem;
-    background-color: rgba(0, 0, 0, 0.15); /* Pequeño fondo para darle profundidad */
+    background-color: rgba(0, 0, 0, 0.15);
     padding: 5px 15px;
     border-radius: 20px;
 }
 
-/* --- Estilos de la Columna Derecha (Información) --- */
 .perfil-info {
     padding: 40px;
 }
@@ -93,7 +89,6 @@ body {
     font-weight: 700;
     color: var(--color-secundario);
     margin-bottom: 25px;
-    /* ✅ CAMBIO: Borde inferior más grueso y con el nuevo color de acento */
     border-bottom: 4px solid var(--color-acento-salud);
     padding-bottom: 10px;
     display: inline-block;
@@ -104,12 +99,10 @@ body {
     font-size: 1.2rem;
     font-weight: 600;
     color: var(--color-primario);
-    /* ✅ NUEVO: Icono decorativo antes del subtítulo */
     display: flex;
     align-items: center;
 }
 
-/* ✅ NUEVO: Añadimos un pequeño icono con CSS puro */
 .perfil-info h3::before {
     content: '';
     display: inline-block;
@@ -119,7 +112,6 @@ body {
     margin-right: 12px;
     border-radius: 4px;
 }
-
 
 .perfil-info p {
     font-size: 1rem;
@@ -133,7 +125,7 @@ body {
 }
 
 .perfil-info a {
-    color: var(--color-acento-salud); /* ✅ Usamos el nuevo color para los enlaces */
+    color: var(--color-acento-salud);
     text-decoration: none;
     font-weight: 600;
 }
@@ -143,9 +135,6 @@ body {
     text-decoration: underline;
 }
 
-
-/* --- Estilo para el botón --- */
-/* ✅ CAMBIO CLAVE: El botón ahora usa el color de acento para destacar más */
 .btn-primary {
     background-color: var(--color-acento-salud);
     border-color: var(--color-acento-salud);
@@ -157,8 +146,36 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: #008c7a; /* Un tono más oscuro del color de acento */
+    background-color: #008c7a;
     border-color: #008c7a;
     transform: translateY(-3px);
     box-shadow: 0 4px 15px rgba(0, 191, 165, 0.4);
+}
+
+.btn-outline-secondary {
+    padding: 12px 28px;
+    border-radius: 8px;
+}
+
+.seguros-contratados {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.seguros-contratados h2 {
+    color: var(--color-secundario);
+    font-weight: 700;
+}
+
+.seguros-contratados .card {
+    border-radius: 14px;
+}
+
+.seguros-contratados .card-title {
+    font-weight: 600;
+    color: var(--color-secundario);
+}
+
+.seguros-contratados .card-text {
+    color: var(--color-texto-secundario);
 }

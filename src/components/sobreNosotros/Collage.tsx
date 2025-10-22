@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import "../../styles/sobreNosotros/collage.css";
+import "../../styles/collage.css";
 
 const Collage: React.FC = () => {
   const rootRef = useRef<HTMLDivElement | null>(null);
