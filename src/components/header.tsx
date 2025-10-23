@@ -8,7 +8,7 @@ function Header() {
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
             <img
-              src="https://github.com/DiegoPyLL/Pagina_Clinica_a_tu_Lado/blob/main/imagenes/logo.png?raw=true"
+              src="/images/logo.png"
               alt="Logo"
             />
             Clínica a tu Lado

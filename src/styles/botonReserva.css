@@ -1,20 +1,41 @@
 /* Botón reservar hora */
 .boton-reserva {
-  display: block;
+  display: inline-block;
   margin: 2rem auto;
-  padding: 1rem 6rem;
+  padding: 1.2rem 6rem;
   font-size: 1.8rem;
   border-radius: 50px;
   width: 60%;
   max-width: 600px;
   text-align: center;
-  background-color: #007bff;
+  background: linear-gradient(135deg, #007bff, #00c6ff);
   color: white;
   text-decoration: none;
-  transition: background-color 0.3s;
+  box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+  transition: all 0.3s ease;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .boton-reserva:hover {
-  background-color: #0056b3;
+  background: linear-gradient(135deg, #0056b3, #0090e3);
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.5);
+  color: #ffffff !important;
 }
 
+
+.boton-reserva:active {
+  transform: scale(0.98);
+}
+
+/* Animación de aparición */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

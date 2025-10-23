@@ -65,10 +65,7 @@ const DoctorsShowcase: React.FC = () => {
     <section className="doctors-section" aria-labelledby="doctors-section-title">
       <div className="doctors-wrapper">
         <h2 id="doctors-section-title">Conoce a nuestros especialistas</h2>
-        <p className="doctors-lead">
-          Profesionalismo, cercanía y tecnología para cuidar de tu salud en cada etapa
-          de la vida.
-        </p>
+
         <div className="doctors-grid">
           {doctors.map(
             ({ name, specialty, description, icon: Icon, highlight, schedule, accent, img }) => (

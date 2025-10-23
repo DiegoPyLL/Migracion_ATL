@@ -48,20 +48,16 @@ const EquipoMedico: React.FC = () => {
     <section className="equipo-bg py-5">
   <div className="container-fluid px-4 px-lg-5">
     <div className="text-center mb-5">
-      <span className="badge rounded-pill text-primary-emphasis bg-primary-subtle fw-semibold px-3 py-2 shadow-sm">
-        Profesionales a tu lado
-      </span>
+
       <h1 className="fw-bold mt-3 lh-1">Nuestro Equipo Médico</h1>
-      <p className="text-muted mb-0">
-        Acompañamiento integral con calidez y excelencia clínica.
-      </p>
+
     </div>
 
     {sections.map((section) => (
       <article key={section.titulo} className="mb-5 px-3 px-lg-5">
         <div className="section-head d-flex flex-column flex-lg-row align-items-lg-end justify-content-lg-between gap-2 mb-3">
           <h2 className="h4 fw-bold mb-0">{section.titulo}</h2>
-          <p className="text-muted small mb-0">{section.resumen}</p>
+          
         </div>
 
         <div className="row g-4">

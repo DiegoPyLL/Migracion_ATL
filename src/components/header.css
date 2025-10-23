@@ -17,6 +17,8 @@
   gap: 0.5rem;
   font-size: 1.8rem;
   font-weight: 600;
+  color: #000;
+  text-decoration: none;
 }
 
 .navbar .navbar-brand img {
@@ -30,99 +32,77 @@
   gap: 0.5rem;
 }
 
-/* Link base */
-.navbar .nav-link {
-  position: relative; /* necesario para el pseudo-elemento */
-  color: #000;
+/* Link base - aplicado directamente al Link de React Router */
+.navbar .nav-link,
+.navbar a.nav-link {
+  position: relative;
+  display: inline-block;
+  color: #000 !important;
   font-weight: 600;
   font-size: 1.2rem;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.25rem;
   border-radius: 6px;
-  overflow: hidden;
-  transition: color 0.3s ease;
-  z-index: 1; /* texto sobre el fondo azul */
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
-/* Rectángulo azul detrás del texto */
-.navbar .nav-link::before {
+/* Cuadrado de fondo con borde */
+.navbar .nav-link::after,
+.navbar a.nav-link::after {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
-  width: 0;
-  height: 100%;
-  background-color: #00B0FF; /* azul institucional */
-  transition: width 0.3s ease;
-  z-index: -1;
-  border-radius: 6px;
-}
-
-/* Hover */
-.navbar .nav-link:hover {
-  color: #fff !important; /* texto blanco */
-}
-
-.navbar .nav-link:hover::before {
-  width: 100%; /* expande el fondo azul */
-}
-
-/* Activo */
-.navbar .nav-link.active {
-  color: #fff;
-}
-
-.navbar .nav-link.active::before {
   width: 100%;
-  background-color: #00B0FF;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .navbar .navbar-nav {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .navbar .nav-link {
-    padding: 1.25rem 1rem;
-    font-size: 1.1rem;
-  }
-}
-
-/* Links del navbar */
-.navbar .nav-link {
-  display: inline-block;
-  position: relative;
-  color: #ffffff !important;
-  font-weight: 600;
-  font-size: 1.2rem;
-  padding: 0.5rem 1rem;
+  height: 100%;
+  background-color: transparent;
+  border: 2px solid transparent;
   border-radius: 6px;
-  background-image: linear-gradient(#00B0FF, #ffffff);
-  background-repeat: no-repeat;
-  background-position: 0 0;
-  background-size: 0% 100%;
-  transition: background-size 0.3s ease, color 0.3s ease;
+  transition: all 0.3s ease;
+  z-index: -1;
 }
 
-/* Hover: rectángulo azul + texto blanco */
-.navbar .nav-link:hover {
-  background-size: 100% 100%;
+/* Hover - cuadrado azul aparece y texto azul */
+.navbar .nav-link:hover,
+.navbar a.nav-link:hover {
+  color: #00B0FF !important;
+}
+
+.navbar .nav-link:hover::after,
+.navbar a.nav-link:hover::after {
+  background-color: rgba(0, 176, 255, 0.1);
+
 }
 
 /* Link activo */
-.navbar .nav-link.active {
-  background-size: 100% 100%;
+.navbar .nav-link.active,
+.navbar a.nav-link.active {
+  color: #fff !important;
 }
 
+.navbar .nav-link.active::after,
+.navbar a.nav-link.active::after {
+  background-color: #00B0FF;
+}
 
 /* Espaciador debajo del navbar */
 .navbar-spacer {
-  height: 100px; /* ajusta según la altura real del navbar */
+  height: 100px;
 }
 
 @media (max-width: 768px) {
   .navbar-spacer {
-    height: 50px;
+    height: 80px;
+  }
+
+  .navbar .navbar-nav {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .navbar .nav-link,
+  .navbar a.nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
   }
 }
