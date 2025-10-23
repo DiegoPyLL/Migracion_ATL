@@ -12,6 +12,7 @@ type Doctor = {
   highlight: string;
   schedule: string;
   accent: string;
+  img: string;
 };
 const doctors: Doctor[] = [
   {
@@ -23,6 +24,7 @@ const doctors: Doctor[] = [
     highlight: "10 a\u00f1os de experiencia",
     schedule: "Disponible esta semana",
     accent: "linear-gradient(135deg, #d6ecff 0%, #f2f8ff 100%)",
+    img: "/images/doctor_medgen_1.png",
   },
   {
     name: "Dr. Mart\u00edn Salazar",
@@ -33,9 +35,10 @@ const doctors: Doctor[] = [
     highlight: "Unidad Coraz\u00f3n Saludable",
     schedule: "Agenda mi\u00e9rcoles y viernes",
     accent: "linear-gradient(135deg, #ffe7e0 0%, #fff5f1 100%)",
+    img: "/images/doctor_cardio_2.png",
   },
   {
-    name: "Dra. Camila R\u00edos",
+    name: "Dr. Aleksei Ivanov",
     specialty: "Pediatr\u00eda Integral",
     description:
       "Gu\u00eda a los m\u00e1s peque\u00f1os con un enfoque c\u00e1lido y personalizado para cada familia.",
@@ -43,6 +46,7 @@ const doctors: Doctor[] = [
     highlight: "Consultas familiares",
     schedule: "Turnos ma\u00f1ana y tarde",
     accent: "linear-gradient(135deg, #e8f8f1 0%, #f4fffb 100%)",
+    img: "/images/doctor_pedi_1.png",
   },
   {
     name: "Dr. Felipe Arancibia",
@@ -53,25 +57,26 @@ const doctors: Doctor[] = [
     highlight: "Referente en casos integrales",
     schedule: "Pr\u00f3ximas horas martes",
     accent: "linear-gradient(135deg, #ede7ff 0%, #f7f4ff 100%)",
+    img: "/images/doctor_medgen_5.png",
   },
 ];
 const DoctorsShowcase: React.FC = () => {
   return (
     <section className="doctors-section" aria-labelledby="doctors-section-title">
       <div className="doctors-wrapper">
-        <span className="doctors-kicker">Nuestro equipo</span>
         <h2 id="doctors-section-title">Conoce a nuestros especialistas</h2>
         <p className="doctors-lead">
-          Profesionalismo, cercan\u00eda y tecnolog\u00eda para cuidar de tu salud en cada etapa
+          Profesionalismo, cercanía y tecnología para cuidar de tu salud en cada etapa
           de la vida.
         </p>
         <div className="doctors-grid">
           {doctors.map(
-            ({ name, specialty, description, icon: Icon, highlight, schedule, accent }) => (
+            ({ name, specialty, description, icon: Icon, highlight, schedule, accent, img }) => (
               <article key={name} className="doctor-card">
                 <div className="doctor-hero" style={{ background: accent }}>
-                  <Icon className="doctor-icon" aria-hidden="true" />
                   <span className="doctor-highlight">{highlight}</span>
+                  <Icon className="doctor-icon" aria-hidden="true" />
+                  <img className="doctor-photo" src={img} alt={`Foto de ${name}`} />
                 </div>
                 <div className="doctor-body">
                   <h3>{name}</h3>
