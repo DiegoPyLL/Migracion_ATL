@@ -1,23 +1,16 @@
 /* Navbar general */
 .navbar {
   background-color: #ffffff;
-  padding: 0.5rem;
-  padding-bottom: 1rem;
+  padding: 0.5rem 1rem 1rem 1rem;
   position: fixed !important;
   top: 0;
   z-index: 1000;
   font-family: 'Roboto', sans-serif;
   width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Compensación para que el contenido no quede debajo del navbar fijo */
-:root { --navbar-offset: 100px; }
-.app-content { padding-top: var(--navbar-offset); }
-@media (max-width: 768px) {
-  :root { --navbar-offset: 120px; }
-}
-
-/* Logo y marca */
+/* Marca */
 .navbar .navbar-brand {
   display: flex;
   align-items: center;
@@ -30,68 +23,57 @@
   max-height: 60px;
 }
 
-/* Links del navbar */
+/* Contenedor de links */
 .navbar .navbar-nav {
   margin-left: auto;
   display: flex;
   gap: 0.5rem;
 }
 
-/* Estilo base */
+/* Link base */
 .navbar .nav-link {
-  position: relative;
+  position: relative; /* necesario para el pseudo-elemento */
   color: #000;
   font-weight: 600;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   padding: 0.5rem 1rem;
-  border-radius: 5px;
+  border-radius: 6px;
   overflow: hidden;
   transition: color 0.3s ease;
+  z-index: 1; /* texto sobre el fondo azul */
 }
 
-/* Efecto hover: texto blanco */
-.navbar .nav-link:hover {
-  color: #fff;
-}
-
-/* Cuadrado azul animado detrás del texto */
+/* Rectángulo azul detrás del texto */
 .navbar .nav-link::before {
   content: "";
   position: absolute;
-  left: 0;
   top: 0;
-  width: 0%;
+  left: 0;
+  width: 0;
   height: 100%;
-  background-color: #007bff;
-  z-index: -1;
+  background-color: #00B0FF; /* azul institucional */
   transition: width 0.3s ease;
+  z-index: -1;
+  border-radius: 6px;
 }
 
-/* Expande el cuadrado al hacer hover */
+/* Hover */
+.navbar .nav-link:hover {
+  color: #fff; /* texto blanco */
+}
+
 .navbar .nav-link:hover::before {
-  width: 100%;
+  width: 100%; /* expande el fondo azul */
 }
 
-/* Active link mantiene color */
+/* Activo */
 .navbar .nav-link.active {
   color: #fff;
 }
 
 .navbar .nav-link.active::before {
   width: 100%;
-  background-color: #007bff;
-}
-
-/* Botón responsive */
-.navbar-toggler {
-  border: none;
-}
-
-/* Dropdown menu */
-.navbar .dropdown-menu {
-  border-radius: 10px;
-  border: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  background-color: #00B0FF;
 }
 
 /* Responsive */
@@ -103,6 +85,46 @@
 
   .navbar .nav-link {
     padding: 1.25rem 1rem;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+  }
+}
+
+/* Links del navbar */
+.navbar .nav-link {
+  display: inline-block;
+  position: relative;
+  color: #000 !important;
+  font-weight: 600;
+  font-size: 1.2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background-image: linear-gradient(#00B0FF, #ffffff);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 0% 100%;
+  transition: background-size 0.3s ease, color 0.3s ease;
+}
+
+/* Hover: rectángulo azul + texto blanco */
+.navbar .nav-link:hover {
+  background-size: 100% 100%;
+  color: #fff !important;
+}
+
+/* Link activo */
+.navbar .nav-link.active {
+  background-size: 100% 100%;
+  color: #fff !important;
+}
+
+
+/* Espaciador debajo del navbar */
+.navbar-spacer {
+  height: 100px; /* ajusta según la altura real del navbar */
+}
+
+@media (max-width: 768px) {
+  .navbar-spacer {
+    height: 50px;
   }
 }

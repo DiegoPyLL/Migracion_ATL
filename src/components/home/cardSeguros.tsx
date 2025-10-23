@@ -13,7 +13,7 @@ const seguros: Seguro[] = [
   {
     title: "Seguro de Salud Premium",
     text: "Incluye consultas, hospitalización y emergencias.",
-    video: "/videos/Video_de_Accidente_Vehicular_Generado.mp4", // reemplaza si usas otro origen
+    video: "/videos/Video_de_Accidente_Vehicular_Generado.mp4",
     link: "/comprar-seguro-salud",
   },
   {
@@ -25,37 +25,36 @@ const seguros: Seguro[] = [
   {
     title: "Seguro de Vida Familiar",
     text: "Cobertura completa en caso de fallecimiento.",
-    video: "/videos/familiaFeliz_1.mp4", // agrega el archivo al /videos
+    video: "/videos/familiaFeliz_1.mp4",
     link: "/comprar-seguro-vida",
   },
   {
     title: "Seguro de Vida Individual",
     text: "Protección adaptada a tus necesidades individuales.",
-    video: "/videos/Joven_en_Restaurante_de_Playa.mp4", // agrega el archivo al /videos
+    video: "/videos/Joven_en_Restaurante_de_Playa.mp4",
     link: "/comprar-seguro-vida",
   },
 ];
 
 const CardsSeguros: React.FC = () => {
   return (
-    <div className="card text-center">
+    <div className="seguros-container">
       <h1 className="card-main-title">Contrata tu Seguro 100% Online</h1>
-      <div className="card-body">
+      <div className="seguros-grid">
         {seguros.map((seguro) => (
-          <div key={seguro.title} className="card mb-5">
-            <div className="card-header">{seguro.title}</div>
-            <div className="card-body">
-              <video
-                className="seg-card-video"
-                src={seguro.video}
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-              <h5 className="card-title mt-2">{seguro.title}</h5>
-              <p className="card-text">{seguro.text}</p>
-              <Link to={seguro.link} className="btn btn-primary">
+          <div key={seguro.title} className="seguro-card">
+            <video
+              className="seg-card-video"
+              src={seguro.video}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+            <div className="seguro-card-content">
+              <h3>{seguro.title}</h3>
+              <p>{seguro.text}</p>
+              <Link to={seguro.link} className="btn-contratar">
                 Contrátalo aquí
               </Link>
             </div>

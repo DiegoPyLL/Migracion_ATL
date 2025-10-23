@@ -34,9 +34,10 @@ function Footer() {
             </div>
           </div>
         </div>
-        <div className="text-center">
+        <div className="copyright">
           &copy; 2025 Clínica a tu Lado. Todos los derechos reservados.
         </div>
+
       </div>
     </footer>
   );

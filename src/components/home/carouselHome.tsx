@@ -13,17 +13,15 @@ const CarouselHome: React.FC = () => {
             alt="Familia feliz"
           />
           <div className="texto-sobre-imagen">
-            <h1>Nunca sabes cuando termina</h1>
+            <h1>Nunca sabrás cuando termina</h1>
             <h2>Contrata nuestro seguro de vida con nosotros</h2>
           </div>
         </div>
 
         <div className="carousel-item">
-          <img
-            src="/images/clinica_4.png"
-            className="d-block w-100"
-            alt="Equipo medico preparando atencion"
-          />
+          <video autoPlay muted loop playsInline className="d-block w-100">
+            <source src="/videos/Video_Cinematográfico_de_Clínica_Exterior_a_interior.mp4" type="video/mp4" />
+          </video>
           <div className="texto-sobre-imagen">
             <h1>Cuidamos tu salud</h1>
             <h2>Accede a especialistas certificados</h2>
@@ -35,7 +33,7 @@ const CarouselHome: React.FC = () => {
             <source src="/videos/Video_de_pareja_feliz_en_parque.mp4" type="video/mp4" />
           </video>
           <div className="texto-sobre-imagen">
-            <h1>Disfruta cada momento</h1>
+            <h1>El tiempo se agota.</h1>
           </div>
         </div>
 

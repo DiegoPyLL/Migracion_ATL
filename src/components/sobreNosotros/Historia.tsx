@@ -10,14 +10,34 @@ const Historia: React.FC = () => {
           <h2 className="fw-bold mb-4">Nuestra Historia</h2>
           
             <p>
-              Desde 2010, <strong>Clínica a tu Lado</strong> ha trabajado con un solo propósito: poner la salud de calidad al alcance de cada persona. 
-              Lo que comenzó como un pequeño centro en Santiago, con un equipo reducido pero apasionado, hoy se ha transformado en un espacio integral 
-              de cuidado médico, con especialidades diversas, tecnología de vanguardia y profesionales comprometidos con tu bienestar.
+              Desde 2010, <strong>Clínica a tu Lado</strong> ha evolucionado de un pequeño centro en Santiago a una red de atención médica integral reconocida por su cercanía y calidad. 
+              Nació con una misión clara: ofrecer una salud accesible, humana y confiable. Lo que comenzó con un grupo reducido de profesionales se transformó en una institución moderna, 
+              con especialidades diversas, tecnología avanzada y un compromiso constante con el bienestar de las personas.
             </p>
+
+            <p>
+              Con los años, expandimos nuestras áreas de atención, incorporando diagnóstico digital, telemedicina, programas de prevención y campañas comunitarias como “Salud en tu Barrio”. 
+              Durante la pandemia, nos adaptamos rápidamente, fortaleciendo la atención remota y demostrando que la empatía y la innovación pueden coexistir. 
+              Hoy atendemos a miles de pacientes al año, con más de 120 especialistas y sedes que combinan infraestructura moderna con un trato cálido y humano.
+            </p>
+
+            <p>
+              La pandemia de 2020 fue una prueba decisiva para <strong>Clínica a tu Lado</strong>. En cuestión de semanas, transformamos nuestros espacios, reforzamos la atención de urgencia 
+              y lanzamos un servicio de telemedicina que permitió mantener el vínculo con nuestros pacientes cuando más lo necesitaban. Atendimos miles de consultas a distancia, 
+              entregando apoyo médico y contención emocional en tiempos de incertidumbre. Esa experiencia marcó un punto de inflexión: aprendimos que estar “a tu lado” no depende de la distancia, 
+              sino del compromiso y la vocación por cuidar. Desde entonces, la innovación tecnológica se convirtió en parte esencial de nuestra forma de trabajar, sin perder nunca la calidez humana que nos define.
+            </p>
+
+
             <p className="mb-0">
-              Cada paciente es el centro de nuestra atención. Nos esforzamos por ofrecer un servicio cercano, humano y confiable, porque creemos 
-              que la salud no solo se trata de tratamientos, sino de estar verdaderamente a tu lado en cada paso de tu camino hacia el bienestar.
+              En <strong>Clínica a tu Lado</strong>, creemos que la salud no se limita a curar, sino a acompañar. 
+              Cada paciente es escuchado, comprendido y guiado con dedicación. Somos una clínica construida sobre la confianza, 
+              la experiencia y el deseo genuino de estar siempre, literalmente, a tu lado.
             </p>
+
+
+
+
 
         </div>
         <div className="col-12 col-lg-5 d-flex justify-content-center">
