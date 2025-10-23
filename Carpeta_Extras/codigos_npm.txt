@@ -1,0 +1,8 @@
+
+
+npm install bootstrap
+npm install -g typescript
+npm install vite --save-dev
+npm install -g vite
+npm install bootstrap-icons
+npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom
