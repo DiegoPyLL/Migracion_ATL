@@ -23,25 +23,25 @@ const Collage: React.FC = () => {
     <section className="collage" id="collage" ref={rootRef}>
       <div className="item span-9 effect-scale parallax" data-speed="0.12">
         <div className="parallax-inner">
-          <img src="https://github.com/DiegoPyLL/Pagina_Clinica_a_tu_Lado/blob/main/imagenes/clinica_10.png?raw=true" alt="" />
+          <img src="public/images/clinica_2.png" alt="" />
         </div>
       </div>
       <div className="item span-3 effect-desat">
-        <img src="https://github.com/DiegoPyLL/Pagina_Clinica_a_tu_Lado/blob/main/imagenes/clinica_6.png?raw=true" alt="" />
+        <img src="public/images/clinica_6.png" alt="" />
       </div>
       <div className="item span-6 effect-rotate">
-        <img src="https://github.com/DiegoPyLL/Pagina_Clinica_a_tu_Lado/blob/main/imagenes/clinica_7.png?raw=true" alt="" />
+        <img src="public/images/clinica_7.png" alt="" />
       </div>
       <div className="item span-6 effect-desat parallax" data-speed="-0.08">
         <div className="parallax-inner">
-          <img src="https://github.com/DiegoPyLL/Pagina_Clinica_a_tu_Lado/blob/main/imagenes/clinica_4.png?raw=true" alt="" />
+          <img src="public/images/clinica_4.png" alt="" />
         </div>
       </div>
       <div className="item span-4 effect-zoom">
-        <img src="https://github.com/DiegoPyLL/Pagina_Clinica_a_tu_Lado/blob/main/imagenes/clinica_10.png?raw=true" alt="" />
+        <img src="public/images/clinica_10.png" alt="" />
       </div>
       <div className="item span-8 effect-desat">
-        <img src="https://github.com/DiegoPyLL/Pagina_Clinica_a_tu_Lado/blob/main/imagenes/clinica_8.png?raw=true" alt="" />
+        <img src="public/images/clinica_8.png" alt="" />
       </div>
     </section>
   );

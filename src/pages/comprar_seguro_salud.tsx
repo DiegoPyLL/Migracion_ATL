@@ -99,6 +99,9 @@ const ComprarSeguroSalud = () => {
     );
   }
 
+
+
+  
   // --- JSX: La estructura visual del componente ---
   return (
     <div className="seguro-salud-container">
@@ -162,7 +165,7 @@ const ComprarSeguroSalud = () => {
             <div className={`form-field ${errors.pago ? 'has-error' : ''}`}>
               <label htmlFor="pago">Seleccione un método de pago</label>
               <select id="pago" value={formData.pago} onChange={handleChange}>
-                <option value="" disabled>Seleccione un método de pago</option>
+                
                 <option value="tarjeta-credito">Tarjeta de crédito</option>
                 <option value="tarjeta-debito">Tarjeta de débito</option>
                 <option value="transferencia">Transferencia bancaria</option>
