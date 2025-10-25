@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-import ComprarSeguroSalud from '../pages/comprar_seguro_salud';
+import ComprarSeguroVida from '../pages/compra_seguro_vida';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -13,7 +13,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-describe('ComprarSeguroSalud Component', () => {
+describe('ComprarSeguroVida Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -26,7 +26,7 @@ describe('ComprarSeguroSalud Component', () => {
   it('muestra los campos principales del formulario de seguro de vida', () => {
     render(
       <MemoryRouter>
-        <ComprarSeguroSalud />
+        <ComprarSeguroVida />
       </MemoryRouter>
     );
 
@@ -45,13 +45,13 @@ describe('ComprarSeguroSalud Component', () => {
   it('muestra errores si se intenta enviar sin datos', async () => {
     render(
       <MemoryRouter>
-        <ComprarSeguroSalud />
+        <ComprarSeguroVida />
       </MemoryRouter>
     );
 
     fireEvent.click(screen.getByRole('button', { name: /Confirmar Contratación/i }));
 
-    expect(await screen.findByText(/El RUT no es válido./i)).toBeInTheDocument();
+    expect(await screen.findByText(/El RUT no es válido/i)).toBeInTheDocument();
     expect(await screen.findByText(/El nombre es requerido/i)).toBeInTheDocument();
     expect(await screen.findByText(/La fecha es requerida/i)).toBeInTheDocument();
     expect(await screen.findByText(/formato del correo no es válido/i)).toBeInTheDocument();
@@ -63,11 +63,11 @@ describe('ComprarSeguroSalud Component', () => {
   it('muestra error cuando el RUT es inválido aunque el resto sea válido', async () => {
     render(
       <MemoryRouter>
-        <ComprarSeguroSalud />
+        <ComprarSeguroVida />
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/Rut/i), { target: { value: '1dsfsdsfd1111-1' } });
+    fireEvent.change(screen.getByLabelText(/Rut/i), { target: { value: '11hgghghghfcj1111-1' } });
     fireEvent.change(screen.getByLabelText(/Nombres y apellidos/i), { target: { value: 'Paciente Vida' } });
     fireEvent.change(screen.getByLabelText(/Fecha de nacimiento/i), { target: { value: '1985-08-20' } });
     fireEvent.change(screen.getByLabelText(/Correo electrónico/i), { target: { value: 'vida@correo.com' } });
@@ -77,7 +77,7 @@ describe('ComprarSeguroSalud Component', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Confirmar Contrataci/i }));
 
-    expect(await screen.findByText(/El RUT no es válido./i)).toBeInTheDocument();
+    expect(await screen.findByText(/El RUT no es válido/i)).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
@@ -86,7 +86,7 @@ describe('ComprarSeguroSalud Component', () => {
     
       render(
         <MemoryRouter>
-          <ComprarSeguroSalud />
+          <ComprarSeguroVida />
         </MemoryRouter>
       );
 

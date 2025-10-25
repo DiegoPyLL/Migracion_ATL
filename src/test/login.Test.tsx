@@ -24,29 +24,27 @@ vi.mock('react-router-dom', async () => {
     useNavigate: () => mockNavigate, // Sobrescribimos 'useNavigate' con nuestro espía
   };
 });
-// ------------------------------
 
 
-// Bloque principal de pruebas para el componente Login [cite: 46]
+
+
 describe('Login Component', () => {
 
-  // PRUEBA 1: Verificar que los campos se muestren correctamente
+  // PRUEBA 1: Verificar que los campos de usuario y contraseña se rendericen
   it('muestra los campos de usuario y contraseña', () => {
-    // Renderizamos el componente (siempre dentro de MemoryRouter por el 'useNavigate') [cite: 46]
     render(
       <MemoryRouter>
         <Login />
       </MemoryRouter>
     );
 
-    // Verificamos que los inputs (identificados por su label) estén en el documento [cite: 46]
-    // Usamos los textos de TU componente: "Usuario" y "Contraseña"
+
+
     expect(screen.getByLabelText(/Usuario/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Contraseña/i)).toBeInTheDocument();
-    
-    // Verificamos que el botón "Ingresar" esté visible [cite: 46]
     expect(screen.getByRole('button', { name: /Ingresar/i })).toBeInTheDocument();
   });
+
 
 
   // PRUEBA 2: Validar comportamiento cuando los campos están vacíos
@@ -57,14 +55,12 @@ describe('Login Component', () => {
       </MemoryRouter>
     );
 
-    // Simulamos que el usuario presiona el botón 'Ingresar' [cite: 47]
+    // Simulamos que el usuario presiona el botón 'Ingresar'
     fireEvent.click(screen.getByRole('button', { name: /Ingresar/i }));
-
-    // Esperamos que aparezcan los mensajes de error de TU componente [cite: 47]
-    // 'findByText' es asíncrono, por eso usamos 'await'
     expect(await screen.findByText(/Por favor ingresa el usuario/i)).toBeInTheDocument();
     expect(await screen.findByText(/Por favor ingresa la contraseña/i)).toBeInTheDocument();
   });
+
 
 
   // PRUEBA 3: Validar credenciales incorrectas
@@ -74,17 +70,13 @@ describe('Login Component', () => {
         <Login />
       </MemoryRouter>
     );
-
-    // Simulamos que el usuario escribe en los campos [cite: 48]
+    // Simulamos que el usuario escribe credenciales incorrectas de TU componente
     fireEvent.change(screen.getByLabelText(/Usuario/i), { target: { value: 'usuarioErroneo' } });
     fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: '123' } });
-
-    // Simula que el usuario hace clic en el botón [cite: 48]
     fireEvent.click(screen.getByRole('button', { name: /Ingresar/i }));
-
-    // Verificamos que aparezca el error específico de TU componente
     expect(await screen.findByText(/Usuario o contraseña incorrectos/i)).toBeInTheDocument();
   });
+
 
 
   // PRUEBA 4: Comprobar el flujo con credenciales correctas
@@ -98,12 +90,7 @@ describe('Login Component', () => {
     // Simulamos que el usuario escribe las credenciales correctas de TU componente [cite: 48]
     fireEvent.change(screen.getByLabelText(/Usuario/i), { target: { value: 'admin' } });
     fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: '1234' } });
-
-    // Simula que el usuario hace clic en el botón [cite: 48]
     fireEvent.click(screen.getByRole('button', { name: /Ingresar/i }));
-
-    // Verificamos que nuestro 'mock' de navigate haya sido llamado
-    // con la ruta '/perfil', tal como lo hace tu componente.
     expect(mockNavigate).toHaveBeenCalledWith('/perfil');
   });
 

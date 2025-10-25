@@ -164,8 +164,7 @@ const ComprarSeguroSalud = () => {
             <h2>Datos de pago</h2>
             <div className={`form-field ${errors.pago ? 'has-error' : ''}`}>
               <label htmlFor="pago">Seleccione un método de pago</label>
-              <select id="pago" value={formData.pago} onChange={handleChange}>
-                
+              <select id="pago" value={formData.pago} onChange={handleChange}>                
                 <option value="tarjeta-credito">Tarjeta de crédito</option>
                 <option value="tarjeta-debito">Tarjeta de débito</option>
                 <option value="transferencia">Transferencia bancaria</option>
