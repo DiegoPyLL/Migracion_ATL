@@ -81,7 +81,7 @@ const ComprarSeguroVida = () => {
       <div className="form-container">
         <form id="seguro-form" onSubmit={handleSubmit} noValidate>
           <header className="form-header">
-            {/* ✅ CAMBIO: Títulos actualizados */}
+
             <h1>Planificador de Vida</h1>
             <p>Ingresa los datos para contratar tu seguro de vida</p>
           </header>
@@ -135,7 +135,7 @@ const ComprarSeguroVida = () => {
             </div>
           </section>
 
-          {/* Las secciones de pago y términos son idénticas */}
+
           <section className="form-section">
             <h2>Datos de pago</h2>
             <div className={`form-field ${errors.pago ? 'has-error' : ''}`}>

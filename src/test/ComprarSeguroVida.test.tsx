@@ -14,15 +14,15 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('ComprarSeguroVida Component', () => {
+
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockNavigate.mockReset();
   });
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
-  // PRUEBA 1: Verificar que los campos de usuario y contraseña se rendericen
   it('muestra los campos principales del formulario de seguro de vida', () => {
     render(
       <MemoryRouter>
@@ -83,6 +83,7 @@ describe('ComprarSeguroVida Component', () => {
 
   // PRUEBA 4: Comprobar el flujo con credenciales correctas
   it('acepta datos válidos y navega al home después de confirmar', async () => {
+      vi.useFakeTimers();
     
       render(
         <MemoryRouter>
@@ -100,7 +101,8 @@ describe('ComprarSeguroVida Component', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /Confirmar Contrataci/i }));
 
-      expect(await screen.findByText(/Contratación exitosa/i)).toBeInTheDocument();
+      expect(screen.getByText(/Contratación exitosa/i)).toBeInTheDocument();
+      await vi.advanceTimersByTimeAsync(5000);
       expect(mockNavigate).toHaveBeenCalledWith('/');
 
     }

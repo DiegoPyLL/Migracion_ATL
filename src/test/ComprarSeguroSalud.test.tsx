@@ -14,8 +14,9 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('ComprarSeguroSalud Component', () => {
+
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockNavigate.mockReset();
   });
 
   afterEach(() => {
@@ -83,6 +84,7 @@ describe('ComprarSeguroSalud Component', () => {
 
   // PRUEBA 4: Comprobar el flujo con credenciales correctas
   it('acepta datos válidos y navega al home después de confirmar', async () => {
+      vi.useFakeTimers();
     
       render(
         <MemoryRouter>
@@ -100,7 +102,8 @@ describe('ComprarSeguroSalud Component', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /Confirmar Contrataci/i }));
 
-      expect(await screen.findByText(/Contratación exitosa/i)).toBeInTheDocument();
+      expect(screen.getByText(/Contratación exitosa/i)).toBeInTheDocument();
+      await vi.advanceTimersByTimeAsync(5000);
       expect(mockNavigate).toHaveBeenCalledWith('/');
 
     }
