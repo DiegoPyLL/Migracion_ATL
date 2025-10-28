@@ -3,18 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/estiloRegistro.css';
 import { savePerfilData } from '../utils/perfilStorage';
 
+
+//se definen los tipos para los datos del formulario y los errores
 type RegistroFormData = {
   rut: string;
   nombre: string;
   correo: string;
   nombre_usu: string;
   password: string;
-  password2: string;
+  password2: string; //la repeticion de la contraseña
   telefono: string;
 };
 
 type RegistroFormErrors = RegistroFormData;
 
+
+//inicializa los estados vacios para el formulario y los errores
 const emptyForm: RegistroFormData = {
   rut: '',
   nombre: '',
@@ -35,11 +39,15 @@ const emptyErrors: RegistroFormErrors = {
   telefono: '',
 };
 
+
+
 const Registro = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<RegistroFormData>(emptyForm);
-  const [errors, setErrors] = useState<RegistroFormErrors>(emptyErrors);
+  const [formData, setFormData] = useState<RegistroFormData>(emptyForm); // no tiene datos iniciales
+  const [errors, setErrors] = useState<RegistroFormErrors>(emptyErrors); // no tiene errores iniciales
 
+
+  //Fucnión que permite modificar los datos del formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData(prevState => ({
@@ -48,9 +56,13 @@ const Registro = () => {
     }));
   };
 
+
+  //valida los datos del formulario al enviarlo
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+
+    //manejo de errores
     const newErrors: RegistroFormErrors = { ...emptyErrors };
     let isValid = true;
 
@@ -91,6 +103,8 @@ const Registro = () => {
 
     setErrors(newErrors);
 
+
+    //si no se cumple niguna condición del error, se guardan los datos y se navega al perfil
     if (isValid) {
       savePerfilData({
         nombre: formData.nombre,
@@ -110,7 +124,7 @@ const Registro = () => {
 
 
 
-
+//Inicio del componente
   return (
     <div className="register-container">
       <div className="abs-center">

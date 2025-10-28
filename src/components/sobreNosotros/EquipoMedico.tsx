@@ -35,6 +35,10 @@ const nutri: Doc[] = [
   { nombre: "Dr. Felipe Lagos", cargo: "Nutriólogo", desde: "2012", img: "/images/doctor_nutri_2.png" },
 ];
 
+
+
+
+
 const sections: { titulo: string; resumen: string; docs: Doc[] }[] = [
   { titulo: "Medicina General", resumen: "Diagnóstico integral y acompañamiento para toda la familia.", docs: medGen },
   { titulo: "Cardiología", resumen: "Especialistas en cuidar tu corazón con tecnología de punta.", docs: cardio },
@@ -42,6 +46,22 @@ const sections: { titulo: string; resumen: string; docs: Doc[] }[] = [
   { titulo: "Pediatría", resumen: "Atención cercana para los más pequeños del hogar.", docs: pedi },
   { titulo: "Nutrición", resumen: "Planes alimenticios adaptados a tu estilo de vida.", docs: nutri },
 ];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const EquipoMedico: React.FC = () => {
   return (
@@ -52,7 +72,8 @@ const EquipoMedico: React.FC = () => {
       <h1 className="fw-bold mt-3 lh-1">Nuestro Equipo Médico</h1>
 
     </div>
-
+    
+    {/*un for dentro de otro for*/}
     {sections.map((section) => (
       <article key={section.titulo} className="mb-5 px-3 px-lg-5">
         <div className="section-head d-flex flex-column flex-lg-row align-items-lg-end justify-content-lg-between gap-2 mb-3">

@@ -2,6 +2,8 @@ import type { PerfilData } from '../components/perfil/PerfilForm';
 
 export const PERFIL_DATA_KEY = 'perfilData';
 
+
+//PlaceHolders
 export const defaultPerfilData: PerfilData = {
   nombre: 'Juana Iglesias Torres',
   direccion: 'Palacio de Gitovia, San Petersburgo',
@@ -11,6 +13,9 @@ export const defaultPerfilData: PerfilData = {
   historial: 'upload',
 };
 
+
+//Comprueba si el navegador puede usar sessionStorage sin errores.
+//Sirve para evitar fallos al acceder a sessionStorage
 const isSessionStorageAvailable = (): boolean => {
   if (typeof window === 'undefined' || !window.sessionStorage) {
     return false;
@@ -28,8 +33,7 @@ const isSessionStorageAvailable = (): boolean => {
 
 
 
-
-
+// Leer datos del perfil desde sessionStorage
 export const readStoredPerfilData = (): PerfilData => {
   if (!isSessionStorageAvailable()) {
     return { ...defaultPerfilData };
@@ -52,7 +56,7 @@ export const readStoredPerfilData = (): PerfilData => {
 
 
 
-
+// Modifica los datos existenetes del perfil en sessionStorage
 export const savePerfilData = (data: Partial<PerfilData>): PerfilData => {
   const mergedData = { ...defaultPerfilData, ...data };
 

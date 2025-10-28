@@ -4,10 +4,13 @@ import PerfilCarousel from '../components/perfil/PerfilCarousel';
 import PerfilForm from '../components/perfil/PerfilForm';
 import { readStoredPerfilData, savePerfilData } from '../utils/perfilStorage';
 
+
 const Perfil = () => {
   const [perfilData, setPerfilData] = useState(readStoredPerfilData);
   const [isEditing, setIsEditing] = useState(false);
 
+
+  //perimitir la edición de los datos del perfil
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -18,6 +21,8 @@ const Perfil = () => {
     }));
   };
 
+
+  //Fucnión que permite modificar los datos del formulario
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 

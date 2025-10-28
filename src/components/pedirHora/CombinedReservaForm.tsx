@@ -35,6 +35,8 @@ function validaTelefono(tel: string): boolean {
   return digits >= 8 && digits <= 15;
 }
 
+
+//almacenar la información del formulario
 const CombinedReservaForm: React.FC = () => {
   const [nombre, setNombre] = useState("");
   const [password, setPassword] = useState("");
@@ -49,13 +51,14 @@ const CombinedReservaForm: React.FC = () => {
 
   const validar = () => {
     const e: Errors = {};
-    if (!nombre.trim()) e.nombre = "Ingresa tu nombre";
+    if (!nombre.trim()) e.nombre = "Ingresa tu nombre y apellido";
+    
     if (password.trim().length < 6)
       e.password = "La contraseña debe tener al menos 6 caracteres";
 
     // --- Validación de teléfono implementada ---
     if (!validaTelefono(telefono)) {
-      e.telefono = "Ingresa un teléfono válido (mín. 8 dígitos)";
+      e.telefono = "Ingresa un teléfono válido. mín. 9 dígitos";
     }
 
     if (!area) e.area = "Selecciona un área";

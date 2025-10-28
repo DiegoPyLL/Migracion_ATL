@@ -54,6 +54,8 @@ const PerfilForm = ({
           onChange={onChange}
           disabled={!isEditing}
         />
+
+        
       </div>
       <div className="mb-3">
         <label htmlFor="direccion" className="form-label">Dirección de Domicilio:</label>
@@ -66,6 +68,7 @@ const PerfilForm = ({
           disabled={!isEditing}
         />
       </div>
+
 
       <div className="mb-3">
         <label htmlFor="correo" className="form-label">Correo Electrónico:</label>
@@ -92,6 +95,7 @@ const PerfilForm = ({
         />
       </div>
 
+
       <h3>Preferencias de Comunicación</h3>
       <div className="mb-3">
         <label htmlFor="comunicacion" className="form-label">Método Preferido:</label>
@@ -112,7 +116,7 @@ const PerfilForm = ({
       <h3>Historial Médico</h3>
       <div className="mb-3 d-flex align-items-center gap-2">
         <label htmlFor="historial" className="form-label mb-0">Última actualización:</label>
-        <FaUpload size={24} color="#007bff" title="Subida mistica completada" />
+        <FaUpload size={24} color="#007bff" title="Subida completada" />
       </div>
 
       {isEditing && (
