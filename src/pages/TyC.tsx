@@ -1,6 +1,6 @@
 import React from 'react';
 import "../styles/stylesTerminos.css";
-
+// prueba de commit
 const TerminosCondiciones = () => {
   // Como esta página es solo informativa, no necesitamos hooks ni lógica.
   // Directamente retornamos la estructura JSX.
