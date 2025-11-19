@@ -4,6 +4,7 @@ import axios from 'axios';
 import '../styles/estiloPerfil.css';
 import PerfilCarousel from '../components/perfil/PerfilCarousel';
 import PerfilForm from '../components/perfil/PerfilForm';
+import MisSeguros, { Seguro } from '../components/perfil/MisSeguros'; 
 
 export interface PerfilData {
   id?: number;
@@ -20,17 +21,19 @@ const Perfil = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Estado de Usuario
   const [perfilData, setPerfilData] = useState<PerfilData>({
-    nombre: '',
-    apellido: '',
-    correo: '',
-    telefono: '',
-    fechaNacimiento: ''
+    nombre: '', apellido: '', correo: '', telefono: '', fechaNacimiento: ''
   });
 
-  const API_URL = 'http://localhost:8082/api/v1/usuarios';
+  // Estado de Seguros (Lista)
+  const [listaSeguros, setListaSeguros] = useState<Seguro[]>([]);
 
-  // --- 1. CARGAR DATOS ---
+  // URLs de las APIs
+  const USUARIOS_API_URL = 'http://localhost:8082/api/v1/usuarios';
+  const SEGUROS_API_URL = 'http://localhost:8081/api/v1/seguros';
+
+  // --- 1. CARGAR DATOS (USUARIO + SEGUROS) ---
   useEffect(() => {
     const cargarDatos = async () => {
       const usuarioSesion = localStorage.getItem('usuario');
@@ -44,8 +47,9 @@ const Perfil = () => {
       const userId = usuarioObj.userId || usuarioObj.id;
 
       try {
-        const response = await axios.get(`${API_URL}/${userId}`);
-        const u = response.data;
+        // Llamada 1: Datos del Usuario (Puerto 8082)
+        const respUsuario = await axios.get(`${USUARIOS_API_URL}/${userId}`);
+        const u = respUsuario.data;
 
         setPerfilData({
           id: u.id,
@@ -57,8 +61,18 @@ const Perfil = () => {
           rol: u.rol
         });
 
-      } catch (error) {
-        console.error("Error cargando perfil:", error);
+        // Llamada 2: Seguros Contratados (Puerto 8081)
+        // Usamos el endpoint findByUsuarioId de tu Backend
+        const respSeguros = await axios.get(`${SEGUROS_API_URL}/usuario/${userId}`);
+        setListaSeguros(respSeguros.data);
+
+      } catch (error: any) {
+        console.error("Error cargando datos:", error);
+        // Si falla seguros, no rompemos todo, solo dejamos la lista vacía
+        if (error.response && error.response.status === 404) {
+             // Es normal si no tiene seguros
+             setListaSeguros([]); 
+        }
       } finally {
         setLoading(false);
       }
@@ -67,59 +81,41 @@ const Perfil = () => {
     cargarDatos();
   }, [navigate]);
 
-  // --- 2. LOGICA DE CERRAR SESIÓN (NUEVO) ---
+  // --- LÓGICA DE CERRAR SESIÓN ---
   const handleLogout = () => {
-    // 1. Borramos los datos del navegador
     localStorage.removeItem('usuario');
-    // 2. Lo mandamos al login
     navigate('/login');
   };
 
-  // --- 3. MANEJO DEL FORMULARIO ---
+  // --- LÓGICA DE CANCELAR SEGURO ---
+  const handleCancelSeguro = async (idSeguro: number) => {
+    try {
+        // Llamamos al endpoint PATCH de tu controlador Java
+        await axios.patch(`${SEGUROS_API_URL}/${idSeguro}/cancelacion`, {
+            motivo: "Cancelado por el usuario desde la web"
+        });
+        
+        // Actualizamos la lista visualmente sin recargar
+        setListaSeguros(prevLista => prevLista.map(seg => 
+            seg.id === idSeguro ? { ...seg, estado: "CANCELADO" } : seg
+        ));
+        
+        alert("Seguro cancelado correctamente.");
+    } catch (error) {
+        console.error("Error al cancelar:", error);
+        alert("No se pudo cancelar el seguro. Intente más tarde.");
+    }
+  };
+
+  // --- MANEJO DEL FORMULARIO DE PERFIL ---
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
-    setPerfilData(prevState => ({
-      ...prevState,
-      [id]: value,
-    }));
+    setPerfilData(prevState => ({ ...prevState, [id]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!perfilData.id) return;
-
-    // --- VALIDACIONES PREVIAS ---
-    
-    if (!perfilData.nombre.trim()) {
-        alert("El nombre es obligatorio.");
-        return;
-    }
-    
-    if (!perfilData.apellido.trim()) {
-        alert("El apellido es obligatorio.");
-        return;
-    }
-
-    // Validamos que haya fecha
-    if (!perfilData.fechaNacimiento) {
-        alert("La fecha de nacimiento es obligatoria.");
-        return;
-    }
-
-    // Validamos formato de correo básico
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!perfilData.correo.trim() || !emailRegex.test(perfilData.correo)) {
-        alert("Por favor ingresa un correo válido.");
-        return;
-    }
-
-    // Validamos teléfono (opcional: que no esté vacío y tenga largo decente)
-    if (!perfilData.telefono.trim() || perfilData.telefono.trim().length < 8) {
-        alert("Por favor ingresa un teléfono válido.");
-        return;
-    }
-
-    // --- FIN VALIDACIONES ---
 
     try {
       const payload = {
@@ -130,47 +126,33 @@ const Perfil = () => {
         fechaNacimiento: perfilData.fechaNacimiento ? `${perfilData.fechaNacimiento}T00:00:00` : null,
       };
 
-      await axios.put(`${API_URL}/${perfilData.id}`, payload);
-      
+      await axios.put(`${USUARIOS_API_URL}/${perfilData.id}`, payload);
       alert('¡Perfil actualizado con éxito!');
       setIsEditing(false);
       
-      // Actualizamos el nombre en el header/localStorage
       const usuarioSesion = JSON.parse(localStorage.getItem('usuario') || '{}');
       usuarioSesion.nombre = perfilData.nombre;
       usuarioSesion.apellido = perfilData.apellido;
       localStorage.setItem('usuario', JSON.stringify(usuarioSesion));
 
-    } catch (error: any) {
-      console.error("Error actualizando:", error);
-      if (error.response && error.response.status === 400) {
-        alert("Error: Revisa que los datos (especialmente el correo) sean correctos.");
-      } else {
-        alert("Error al guardar los cambios. Inténtalo de nuevo.");
-      }
+    } catch (error) {
+      alert("Error al guardar los cambios.");
     }
   };
 
-  const handleEnableEdition = () => {
-    setIsEditing(true);
-  };
+  const handleEnableEdition = () => setIsEditing(true);
+  const handleClear = () => setPerfilData(prev => ({ ...prev, telefono: '' }));
 
-  const handleClear = () => {
-    setPerfilData(prev => ({
-      ...prev,
-      telefono: '',
-    }));
-  };
-
-  if (loading) return <div className="text-center mt-5 p-5">Cargando tus datos...</div>;
+  if (loading) return <div className="text-center mt-5 p-5">Cargando perfil...</div>;
 
   return (
     <div className="perfil-container">
       <div className="container-fluid perfil-wrapper">
         <div className="perfil-card">
-          <div className="row align-items-start g-0">
+          
+          {/* SECCIÓN SUPERIOR: FORMULARIO + CAROUSEL */}
+          <div className="row align-items-start g-0 mb-5">
             <PerfilCarousel />
-            
             <PerfilForm
               perfilData={perfilData}
               isEditing={isEditing}
@@ -178,9 +160,20 @@ const Perfil = () => {
               onEnableEdition={handleEnableEdition}
               onClear={handleClear}
               onSubmit={handleSubmit}
-              onLogout={handleLogout} // <--- Pasamos la función nueva aquí
+              onLogout={handleLogout}
             />
           </div>
+
+          {/* SECCIÓN INFERIOR: LISTA DE SEGUROS (NUEVO) */}
+          <div className="row g-0 px-4 pb-4">
+             <div className="col-12">
+                <MisSeguros 
+                    seguros={listaSeguros} 
+                    onCancel={handleCancelSeguro} 
+                />
+             </div>
+          </div>
+
         </div>
       </div>
     </div>

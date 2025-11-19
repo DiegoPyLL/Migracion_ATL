@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import "../styles/stylesSeguros_salud.css"; 
+import axios from 'axios';
+import "../styles/stylesSeguros_salud.css"; // Asegúrate de tener este archivo o usa el de vida
 
 const ComprarSeguroSalud = () => {
-  // --- HOOKS: Para manejar el estado y la navegación ---
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [loadingDatos, setLoadingDatos] = useState(true);
   
+  // URLs de las APIs
+  const SEGUROS_API_URL = 'http://localhost:8081/api/v1/seguros';
+  const USUARIOS_API_URL = 'http://localhost:8082/api/v1/usuarios';
+
   const [formData, setFormData] = useState({
     rut: '',
     nombres: '',
     fechaNacimiento: '',
     email: '',
     celular: '',
+    prevision: '', // Campo extra específico de salud (Fonasa/Isapre)
     pago: '',
     terminos: false
   });
@@ -22,16 +29,46 @@ const ComprarSeguroSalud = () => {
     nombres: '',
     fechaNacimiento: '',
     email: '',
+    prevision: '',
     pago: '',
     terminos: ''
   });
 
-  // --- LÓGICA: Funciones para manejar cambios y envíos ---
+  // --- 1. Cargar Usuario Logueado ---
+  useEffect(() => {
+    const usuarioSesion = localStorage.getItem('usuario');
+    
+    if (!usuarioSesion) {
+        alert("Debes iniciar sesión para contratar.");
+        navigate('/login');
+        return;
+      }
+
+      const usuarioJson = JSON.parse(usuarioSesion);
+      const id = usuarioJson.id || usuarioJson.userId;
+      setUserId(id);
+
+      try {
+          // Rellenamos datos base desde el localStorage o podríamos llamar a la API
+          // Para hacerlo rápido, usamos lo que ya tenemos en sesión si es suficiente
+          setFormData(prev => ({
+              ...prev,
+              nombres: usuarioJson.nombre ? `${usuarioJson.nombre} ${usuarioJson.apellido || ''}` : '',
+              email: usuarioJson.correo || '',
+              celular: usuarioJson.telefono || '',
+              fechaNacimiento: usuarioJson.fechaNacimiento ? usuarioJson.fechaNacimiento.split('T')[0] : ''
+          }));
+      } catch (error) {
+          console.error("Error cargando datos usuario", error);
+      } finally {
+          setLoadingDatos(false);
+      }
+  }, [navigate]);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value, type } = e.target;
     const isCheckbox = type === 'checkbox';
-    // Necesitamos acceder a 'checked' para los checkboxes
     const checkedValue = (e.target as HTMLInputElement).checked;
 
     setFormData(prevState => ({
@@ -40,106 +77,104 @@ const ComprarSeguroSalud = () => {
     }));
   };
 
-  const handleReset = () => {
-    setFormData({ rut: '', nombres: '', fechaNacimiento: '', email: '', celular: '', pago: '', terminos: false });
-    setErrors({ rut: '', nombres: '', fechaNacimiento: '', email: '', pago: '', terminos: '' });
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Lógica de validación
-    const newErrors = { rut: '', nombres: '', fechaNacimiento: '', email: '', pago: '', terminos: ''};
-    let isValid = true;
     
-    // Función para validar el RUT (tomada de tu JS)
-    const validarRut = (rutCompleto: string) => {
-      if (!/^[0-9]+-[0-9kK]{1}$/.test(rutCompleto.replace(/\./g, ''))) return false;
-      const [cuerpo, dv] = rutCompleto.replace(/\./g, '').split('-');
-      let suma = 0; let multiplicador = 2;
-      for (let i = cuerpo.length - 1; i >= 0; i--) {
-        suma += parseInt(cuerpo.charAt(i)) * multiplicador;
-        multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
-      }
-      const dvEsperado = 11 - (suma % 11);
-      let dvCalculado = String(dvEsperado);
-      if (dvEsperado === 11) dvCalculado = '0';
-      else if (dvEsperado === 10) dvCalculado = 'k';
-      return dv.toLowerCase() === dvCalculado;
+    let isValid = true;
+    const newErrors = { rut: '', nombres: '', fechaNacimiento: '', email: '', prevision: '', pago: '', terminos: ''};
+    
+    // Validación de RUT
+    const validarRut = (rutCompleto: string) => { 
+        if(!/^[0-9]+-[0-9kK]{1}$/.test(rutCompleto.replace(/\./g,'')))return false;
+        const[cuerpo,dv]=rutCompleto.replace(/\./g,'').split('-');
+        let suma=0;let multiplicador=2;
+        for(let i=cuerpo.length-1;i>=0;i--){suma+=parseInt(cuerpo.charAt(i))*multiplicador;multiplicador=multiplicador===7?2:multiplicador+1;}
+        const dvEsperado=11-(suma%11);
+        let dvCalculado=String(dvEsperado);
+        if(dvEsperado===11)dvCalculado='0';else if(dvEsperado===10)dvCalculado='k';
+        return dv.toLowerCase()===dvCalculado;
     };
     
     if (!validarRut(formData.rut)) { newErrors.rut = 'El RUT no es válido.'; isValid = false; }
-    if (!formData.nombres.trim()) { newErrors.nombres = 'El nombre es requerido.'; isValid = false; }
-    if (!formData.fechaNacimiento) { newErrors.fechaNacimiento = 'La fecha es requerida.'; isValid = false; }
-    if (!/^\S+@\S+\.\S+$/.test(formData.email)) { newErrors.email = 'El formato del correo no es válido.'; isValid = false; }
+    if (!formData.prevision) { newErrors.prevision = 'Selecciona tu previsión actual.'; isValid = false; }
     if (!formData.pago) { newErrors.pago = 'Seleccione un método de pago.'; isValid = false; }
-    if (!formData.terminos) { newErrors.terminos = 'Debes aceptar los términos y condiciones.'; isValid = false; }
+    if (!formData.terminos) { newErrors.terminos = 'Debes aceptar los términos.'; isValid = false; }
     
     setErrors(newErrors);
 
-    if (isValid) {
-      console.log('Datos del contrato guardados:', formData);
-      setShowSuccess(true);
-      // Opcional: navegar a otra página después de unos segundos
-      setTimeout(() => {
-        navigate('/');
-      }, 5000); // 5 segundos
+    if (isValid && userId) {
+      try {
+          const payload = {
+            nombreSeguro: "Seguro de Salud Familiar", // Nombre del producto
+            // Guardamos Previsión y RUT en la descripción
+            descripcion: `Salud Full. RUT: ${formData.rut}. Previsión: ${formData.prevision}. Pago: ${formData.pago}. Contacto: ${formData.celular}`,
+            usuarioId: userId,
+            estado: "ACTIVO"
+          };
+
+          await axios.post(SEGUROS_API_URL, payload);
+          setShowSuccess(true);
+          setTimeout(() => navigate('/perfil'), 3000);
+
+      } catch (error) {
+          console.error("Error al contratar:", error);
+          alert("Error al procesar. Verifique que la API de Seguros (8081) esté corriendo.");
+      }
     }
   };
-
-  // Si el formulario se envió con éxito, mostramos el mensaje. Si no, el formulario.
+  
   if (showSuccess) {
     return (
       <div className="seguro-salud-container">
         <div className="mensaje-exito-react">
-          <strong>¡Contratación exitosa!</strong><br />
-          Hemos recibido tus datos y nos pondremos en contacto contigo a la brevedad.
+          <strong>¡Cobertura Activada!</strong><br />
+          Tu Seguro de Salud ya está disponible en tu perfil.
         </div>
       </div>
     );
   }
 
+  if (loadingDatos) return <div className="text-center mt-5">Cargando tus datos...</div>;
 
-
-  
-  // --- JSX: La estructura visual del componente ---
   return (
     <div className="seguro-salud-container">
       <div className="form-container">
-        <form id="seguro-form" onSubmit={handleSubmit} onReset={handleReset} noValidate>
+        <form id="seguro-form" onSubmit={handleSubmit} noValidate>
           <header className="form-header">
-            <h1>Planificador de salud</h1>
-            <p>Ingresa los datos del contratante</p>
+            <h1>Contratar Seguro de Salud</h1>
+            <p>Protección completa para ti y tu familia</p>
           </header>
 
           <section className="form-section">
-            <h2>Datos asegurado</h2>
+            <h2>Datos del Asegurado</h2>
+            
             <div className="form-row">
               <div className={`form-field ${errors.rut ? 'has-error' : ''}`}>
-                <label htmlFor="rut">Rut</label>
+                <label htmlFor="rut">Rut (Requerido)</label>
                 <input type="text" id="rut" value={formData.rut} onChange={handleChange} placeholder="Ej. 11.111.111-k" />
                 <span className="error-message">{errors.rut}</span>
               </div>
-              <div className={`form-field ${errors.nombres ? 'has-error' : ''}`}>
-                <label htmlFor="nombres">Nombres y apellidos</label>
-                <input type="text" id="nombres" value={formData.nombres} onChange={handleChange} placeholder="Ej. Jose Perez" />
-                <span className="error-message">{errors.nombres}</span>
-              </div>
-              <div className={`form-field ${errors.fechaNacimiento ? 'has-error' : ''}`}>
-                <label htmlFor="fechaNacimiento">Fecha de nacimiento</label>
-                <input type="date" id="fechaNacimiento" value={formData.fechaNacimiento} onChange={handleChange} />
-                <span className="error-message">{errors.fechaNacimiento}</span>
+
+              <div className="form-field">
+                <label>Nombre Completo</label>
+                <input type="text" value={formData.nombres} disabled className="bg-light" />
               </div>
             </div>
+
             <div className="form-row">
-              <div className={`form-field ${errors.email ? 'has-error' : ''}`}>
-                <label htmlFor="email">Ingrese su correo electrónico</label>
-                <input type="email" id="email" value={formData.email} onChange={handleChange} placeholder="Ej. correo@dominio.cl" />
-                <span className="error-message">{errors.email}</span>
-              </div>
               <div className="form-field">
-                <label htmlFor="celular">Ingrese número de celular</label>
-                <input type="tel" id="celular" value={formData.celular} onChange={handleChange} placeholder="Ej. +56987654321" />
+                <label>Correo electrónico</label>
+                <input type="email" value={formData.email} disabled className="bg-light" />
+              </div>
+              <div className={`form-field ${errors.prevision ? 'has-error' : ''}`}>
+                <label htmlFor="prevision">Previsión Actual</label>
+                <select id="prevision" value={formData.prevision} onChange={handleChange}>
+                    <option value="" disabled>Selecciona...</option>
+                    <option value="Fonasa">Fonasa</option>
+                    <option value="Isapre">Isapre</option>
+                    <option value="Particular">Particular</option>
+                </select>
+                <span className="error-message">{errors.prevision}</span>
               </div>
             </div>
           </section>
@@ -147,27 +182,28 @@ const ComprarSeguroSalud = () => {
           <hr className="separator" />
 
           <section className="form-section">
-            <h2>Resumen de tu Seguro</h2>
+            <h2>Plan Salud Familiar</h2>
             <div className="summary-box">
               <div className="summary-item">
-                <span>Plan seleccionado</span>
-                <strong>Seguro de Salud</strong>
+                <span>Cobertura</span>
+                <strong>Ambulatoria y Hospitalaria</strong>
               </div>
               <div className="summary-item price">
                 <span>Valor mensual</span>
-                <strong>$24.990 CLP</strong>
+                <strong>$35.000 CLP</strong>
               </div>
             </div>
           </section>
 
           <section className="form-section">
-            <h2>Datos de pago</h2>
+            <h2>Pago</h2>
             <div className={`form-field ${errors.pago ? 'has-error' : ''}`}>
-              <label htmlFor="pago">Seleccione un método de pago</label>
-              <select id="pago" value={formData.pago} onChange={handleChange}>                
-                <option value="tarjeta-credito">Tarjeta de crédito</option>
-                <option value="tarjeta-debito">Tarjeta de débito</option>
-                <option value="transferencia">Transferencia bancaria</option>
+              <label>Método de Pago</label>
+              <select id="pago" value={formData.pago} onChange={handleChange}>
+                <option value="" disabled>Selecciona...</option>
+                <option value="tarjeta-credito">Tarjeta de Crédito</option>
+                <option value="tarjeta-debito">Tarjeta de Débito</option>
+                <option value="pat">Pago Automático (PAT)</option>
               </select>
               <span className="error-message">{errors.pago}</span>
             </div>
@@ -177,15 +213,14 @@ const ComprarSeguroSalud = () => {
             <div className="form-field-checkbox">
               <input type="checkbox" id="terminos" checked={formData.terminos} onChange={handleChange} />
               <label htmlFor="terminos">
-                He leído y acepto los <Link to="/terminos-y-condiciones" target="_blank">Términos y Condiciones</Link> del servicio.
+                Acepto los <Link to="/terminos-y-condiciones" target="_blank">Términos y Condiciones</Link>.
               </label>
             </div>
             <span className="error-message">{errors.terminos}</span>
           </section>
 
           <div className="form-actions">
-            <button type="reset" className="btn-reset">Limpiar</button>
-            <button type="submit" className="btn-submit">Confirmar Contratación</button>
+            <button type="submit" className="btn-submit w-100">Confirmar Contratación</button>
           </div>
         </form>
       </div>
