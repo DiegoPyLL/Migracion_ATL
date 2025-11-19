@@ -10,7 +10,7 @@ const ComprarSeguroVida = () => {
   const [loadingDatos, setLoadingDatos] = useState(true);
   
   // URLs de las APIs
-  const SEGUROS_API_URL = 'http://localhost:8081/api/v1/seguros';
+  const SEGUROS_API_URL = 'http://localhost:8084/api/v1/seguros';
   const USUARIOS_API_URL = 'http://localhost:8082/api/v1/usuarios';
 
   const [formData, setFormData] = useState({
