@@ -1,130 +1,208 @@
-/* 🌐 Importar fuente más elegante */
+/* Importar fuentes necesarias */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* --- Variables globales --- */
+/* --- Variables globales (Nuevo diseño) --- */
 :root {
-  --accent: #00bcd4;
-  --bg-gradient: linear-gradient(135deg, #e0f7fa, #f0f2f5);
-  --glass-bg: rgba(255, 255, 255, 0.25);
+  --accent: #00bcd4; /* Color de acento moderno (Cyan) */
+  --bg-gradient: linear-gradient(135deg, #e0f7fa, #f0f2f5); /* Fondo degradado claro */
+  --glass-bg: rgba(255, 255, 255, 0.25); /* Fondo translúcido para tarjetas */
   --glass-border: rgba(255, 255, 255, 0.18);
-  --text-dark: #2c3e50;
-  --text-muted: #5f6a7d;
+  --text-dark: #2c3e50; /* Texto principal */
+  --text-muted: #5f6a7d; /* Texto secundario */
 }
 
-/* --- Contenedor principal --- */
-.reserva-container {
-  background: var(--bg-gradient);
-  font-family: 'Poppins', sans-serif;
-  min-height: 100vh;
-  padding: 100px 1rem;
+/* Estilos generales del cuerpo y CENTRADO */
+body {
+    background: var(--bg-gradient);
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding-top: 100px; /* Espacio para el navbar fijo */
+    
+    /* === LÓGICA DE CENTRADO 1/2: Configura el contenedor principal === */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra el contenido (título y sección) horizontalmente */
+}
+
+/* El elemento <section> que envuelve el formulario y el título */
+/* (Este es el que hace el trabajo de centrado vertical en el espacio restante) */
+section { 
+    width: 100%;
+    flex-grow: 1; /* Ocupa todo el espacio vertical restante */
+    
+    /* === LÓGICA DE CENTRADO 2/2: Centra el contenido vertical y horizontalmente en el espacio restante === */
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; 
+    padding: 20px 0; /* Padding general para la sección */
+}
+
+
+/* --- Estilos de Navbar (Mantenidos) --- */
+.navbar {
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgb(0, 0, 0);
+  padding: 0.5rem 1rem;
+}
+
+.navbar .navbar-brand {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  align-items: center;
 }
 
-/* --- Título --- */
-.titulo {
-  text-align: center;
-  color: var(--text-dark);
-  margin-bottom: 30px;
-  font-size: 1.8rem;
-  letter-spacing: 1px;
+.navbar .navbar-brand img {
+  margin-right: 0.5rem;
+  max-height: 60px;
 }
 
-/* --- Tarjeta principal --- */
-.wrap {
-  max-width: 500px;
+.navbar .navbar-nav {
+  margin-left: auto;
+}
+
+.navbar .nav-link {
+  color: #000 !important;
+  position: relative;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.3s;
+}
+
+.navbar .nav-link:hover {
+  background-color: #00B0FF !important;
+  color: #fff !important;
+  border-radius: 5px;
+}
+
+.navbar .nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-}
-
-.wrap .card {
-  background: var(--glass-bg);
-  border-radius: 16px;
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  height: 100%;
+  background-color: #00B0FF;
+  z-index: -1;
+  transform: scaleX(0);
+  transform-origin: left;
   transition: transform 0.3s ease;
 }
 
+.navbar .nav-link:hover::before {
+  transform: scaleX(1);
+}
+
+/* --- Estilos del Formulario de Pedir Hora (p_pedirHora.html) --- */
+
+/* Título "Reserva tu Hora Médica" */
+.titulo {
+    text-align: center;
+    color: var(--text-dark); 
+    margin-bottom: 30px; 
+    font-weight: 700;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    width: 100%;
+}
+
+/* Contenedor que centra la tarjeta del formulario */
+.wrap {
+    max-width: 500px;
+    width: 100%;
+    margin: 0; /* Eliminado el margen que interfería con el centrado de Flexbox */
+}
+
+/* Tarjeta principal (Efecto Glassmorphism) */
+.wrap .card {
+    background: var(--glass-bg);
+    border-radius: 16px;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    animation: fadeInUp 0.6s ease both;
+    border: none;
+}
+
 .wrap .card:hover {
-  transform: translateY(-4px);
+    transform: translateY(-4px);
 }
 
 .wrap .card-body {
-  padding: 40px 35px;
+    padding: 40px 35px;
 }
 
-/* --- Campos del formulario --- */
+/* Campos del formulario */
 .campo {
-  margin-bottom: 24px;
+    margin-bottom: 24px;
+    text-align: left;
 }
 
 .campo label {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--text-dark);
-  font-weight: 600;
-  font-size: 0.95rem;
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
 }
 
 .campo select,
 .campo input[type="date"],
 .campo input[type="time"] {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  font-size: 1rem;
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--text-dark);
-  transition: all 0.3s ease;
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    appearance: none; 
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-dark);
 }
 
+/* Estilo para la flecha de select */
+.campo select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px 12px;
+}
+
+/* Efecto de foco para los campos */
 .campo select:focus,
 .campo input[type="date"]:focus,
 .campo input[type="time"]:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.2);
-  outline: none;
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.2);
 }
 
-/* --- Botón principal --- */
+/* Botón de confirmación */
 .boton {
-  margin-top: 15px;
+    margin-top: 15px;
 }
 
 .boton-reserva {
-  width: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, var(--accent), #0097a7);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--accent), #0097a7);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .boton-reserva:hover {
-  background: linear-gradient(135deg, #00acc1, #007c91);
-  transform: scale(1.02);
-}
-
-/* --- Pequeño efecto de animación al cargar --- */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(25px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.wrap .card {
-  animation: fadeInUp 0.6s ease both;
+    background: linear-gradient(135deg, #00acc1, #007c91);
+    transform: scale(1.02);
 }

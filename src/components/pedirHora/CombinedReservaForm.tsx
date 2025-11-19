@@ -17,30 +17,19 @@ const DOCTORES_POR_AREA: Record<AreaKey, string[]> = {
   nutricion: ["Nut. Valentina Ortiz", "Nut. Diego Ramirez"],
 };
 
+// Tipo de errores simplificado (ya no incluye datos personales)
 type Errors = Partial<{
-  nombre: string;
-  password: string;
-  telefono: string;
   area: string;
   doctor: string;
   fecha: string;
   hora: string;
 }>;
 
-// --- función validadora de teléfono ---
-function validaTelefono(tel: string): boolean {
-  const s = tel.trim();
-  if (!/^[+]?[\d\s()-]+$/.test(s)) return false;
-  const digits = s.replace(/\D/g, "").length;
-  return digits >= 8 && digits <= 15;
-}
-
+// No es necesaria la función validaTelefono al eliminar el campo.
 
 //almacenar la información del formulario
 const CombinedReservaForm: React.FC = () => {
-  const [nombre, setNombre] = useState("");
-  const [password, setPassword] = useState("");
-  const [telefono, setTelefono] = useState("");
+  // Estados de datos personales eliminados
   const [area, setArea] = useState<AreaKey | "">("");
   const [doctor, setDoctor] = useState("");
   const [fecha, setFecha] = useState("");
@@ -51,15 +40,7 @@ const CombinedReservaForm: React.FC = () => {
 
   const validar = () => {
     const e: Errors = {};
-    if (!nombre.trim()) e.nombre = "Ingresa tu nombre y apellido";
-    
-    if (password.trim().length < 6)
-      e.password = "La contraseña debe tener al menos 6 caracteres";
-
-    // --- Validación de teléfono implementada ---
-    if (!validaTelefono(telefono)) {
-      e.telefono = "Ingresa un teléfono válido. mín. 9 dígitos";
-    }
+    // La validación de datos personales ha sido eliminada.
 
     if (!area) e.area = "Selecciona un área";
     if (!doctor) e.doctor = "Selecciona un doctor";
@@ -74,8 +55,7 @@ const CombinedReservaForm: React.FC = () => {
     event.preventDefault();
     if (!validar()) return;
     console.log("Reserva confirmada", {
-      nombre,
-      telefono,
+      // nombre, telefono, y password eliminados del log
       area,
       doctor,
       fecha,
@@ -88,58 +68,11 @@ const CombinedReservaForm: React.FC = () => {
     <p className="ph-error">{value || "\u00A0"}</p>
   );
 
-
-
-  
   return (
     <form className="ph-form" onSubmit={onSubmit} noValidate>
       <div className="ph-card">
         <div className="ph-form-grid">
-          {/* DATOS PERSONALES */}
-          <section className="ph-section">
-            <header className="ph-section-header">
-              <h2 className="ph-section-title">Datos personales</h2>
-              <p className="ph-section-subtitle">
-                Completa tu información de contacto.
-              </p>
-            </header>
-
-            <div className="ph-field">
-              <label htmlFor="ph-nombre">Nombre y apellido</label>
-              <input
-                id="ph-nombre"
-                type="text"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                placeholder="Ej: Alicia Torres"
-              />
-              {renderError(errors.nombre)}
-            </div>
-
-            <div className="ph-field">
-              <label htmlFor="ph-password">Contraseña de paciente</label>
-              <input
-                id="ph-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-              />
-              {renderError(errors.password)}
-            </div>
-
-            <div className="ph-field">
-              <label htmlFor="ph-telefono">Teléfono</label>
-              <input
-                id="ph-telefono"
-                type="text"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                placeholder="+56 9 1234 5678"
-              />
-              {renderError(errors.telefono)}
-            </div>
-          </section>
+          {/* La sección de DATOS PERSONALES ha sido eliminada */}
 
           {/* HORA MÉDICA */}
           <section className="ph-section">
