@@ -88,6 +88,39 @@ const Perfil = () => {
     e.preventDefault();
     if (!perfilData.id) return;
 
+    // --- VALIDACIONES PREVIAS ---
+    
+    if (!perfilData.nombre.trim()) {
+        alert("El nombre es obligatorio.");
+        return;
+    }
+    
+    if (!perfilData.apellido.trim()) {
+        alert("El apellido es obligatorio.");
+        return;
+    }
+
+    // Validamos que haya fecha
+    if (!perfilData.fechaNacimiento) {
+        alert("La fecha de nacimiento es obligatoria.");
+        return;
+    }
+
+    // Validamos formato de correo básico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!perfilData.correo.trim() || !emailRegex.test(perfilData.correo)) {
+        alert("Por favor ingresa un correo válido.");
+        return;
+    }
+
+    // Validamos teléfono (opcional: que no esté vacío y tenga largo decente)
+    if (!perfilData.telefono.trim() || perfilData.telefono.trim().length < 8) {
+        alert("Por favor ingresa un teléfono válido.");
+        return;
+    }
+
+    // --- FIN VALIDACIONES ---
+
     try {
       const payload = {
         nombre: perfilData.nombre,
@@ -95,13 +128,14 @@ const Perfil = () => {
         correo: perfilData.correo,
         telefono: perfilData.telefono,
         fechaNacimiento: perfilData.fechaNacimiento ? `${perfilData.fechaNacimiento}T00:00:00` : null,
-        // No enviamos rol para mantener el actual
       };
 
       await axios.put(`${API_URL}/${perfilData.id}`, payload);
+      
       alert('¡Perfil actualizado con éxito!');
       setIsEditing(false);
       
+      // Actualizamos el nombre en el header/localStorage
       const usuarioSesion = JSON.parse(localStorage.getItem('usuario') || '{}');
       usuarioSesion.nombre = perfilData.nombre;
       usuarioSesion.apellido = perfilData.apellido;
@@ -110,9 +144,9 @@ const Perfil = () => {
     } catch (error: any) {
       console.error("Error actualizando:", error);
       if (error.response && error.response.status === 400) {
-        alert("Error en los datos enviados.");
+        alert("Error: Revisa que los datos (especialmente el correo) sean correctos.");
       } else {
-        alert("Error al guardar los cambios.");
+        alert("Error al guardar los cambios. Inténtalo de nuevo.");
       }
     }
   };
