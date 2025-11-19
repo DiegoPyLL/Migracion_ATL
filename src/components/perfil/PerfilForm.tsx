@@ -1,13 +1,11 @@
 import React from 'react';
 
-// Definimos la estructura REAL que viene desde el padre (Perfil.tsx)
 export type PerfilData = {
   nombre: string;
-  apellido: string;        // [NUEVO] Vital para tu BD
-  fechaNacimiento: string; // [NUEVO] Vital para tu BD
+  apellido: string;
+  fechaNacimiento: string;
   telefono: string;
   correo: string;
-  // Eliminados: direccion, comunicacion, historial
 };
 
 type PerfilFormProps = {
@@ -17,6 +15,7 @@ type PerfilFormProps = {
   onEnableEdition: () => void;
   onClear: () => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onLogout: () => void; // <--- Recibimos la función nueva
 };
 
 const PerfilForm = ({
@@ -26,38 +25,52 @@ const PerfilForm = ({
   onEnableEdition,
   onClear,
   onSubmit,
+  onLogout, // <--- La desestructuramos
 }: PerfilFormProps) => (
   <div className="col-lg-7 perfil-info">
     <form onSubmit={onSubmit}>
       
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="m-0">Perfil de Usuario</h1>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={onEnableEdition}
-          disabled={isEditing}
-        >
-          Modificar perfil
-        </button>
+        
+        {/* Botonera Superior */}
+        <div className="d-flex gap-2">
+            {!isEditing && (
+                <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={onLogout}
+                    title="Salir de la cuenta"
+                >
+                    Cerrar Sesión
+                </button>
+            )}
+            
+            <button
+            type="button"
+            className="btn btn-primary"
+            onClick={onEnableEdition}
+            disabled={isEditing}
+            >
+            Modificar perfil
+            </button>
+        </div>
       </div>
     
       <h3>Información Personal</h3>
       
-      {/* NOMBRE */}
       <div className="mb-3">
         <label htmlFor="nombre" className="form-label">Nombre:</label>
         <input
           type="text"
           className="form-control"
-          id="nombre" // Debe coincidir con la key en PerfilData
+          id="nombre"
           value={perfilData.nombre}
           onChange={onChange}
           disabled={!isEditing}
         />
       </div>
 
-      {/* APELLIDO (Agregado para cumplir con tu BD) */}
       <div className="mb-3">
         <label htmlFor="apellido" className="form-label">Apellido:</label>
         <input
@@ -70,7 +83,6 @@ const PerfilForm = ({
         />
       </div>
 
-      {/* FECHA NACIMIENTO (Agregado para cumplir con tu BD) */}
       <div className="mb-3">
         <label htmlFor="fechaNacimiento" className="form-label">Fecha de Nacimiento:</label>
         <input
@@ -83,7 +95,6 @@ const PerfilForm = ({
         />
       </div>
 
-      {/* CORREO */}
       <div className="mb-3">
         <label htmlFor="correo" className="form-label">Correo Electrónico:</label>
         <input
@@ -96,7 +107,6 @@ const PerfilForm = ({
         />
       </div>
 
-      {/* TELÉFONO */}
       <div className="mb-3">
         <label htmlFor="telefono" className="form-label">Número de Contacto:</label>
         <input
@@ -109,7 +119,6 @@ const PerfilForm = ({
         />
       </div>
 
-      {/* BOTONES DE ACCIÓN (Solo visibles al editar) */}
       {isEditing && (
         <div className="d-flex flex-column flex-md-row gap-3 mt-4">
           <button

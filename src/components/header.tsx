@@ -6,6 +6,8 @@ function Header() {
     <>
       <nav className="navbar navbar-expand-md">
         <div className="container-fluid">
+          
+          {/* [CORRECCIÓN] Apuntamos a /inicio para evitar el bucle del Login */}
           <Link className="navbar-brand" to="/">
             <img
               src="/images/logo.png"
@@ -48,6 +50,9 @@ function Header() {
                   Mi Perfil
                 </Link>
               </li>
+              
+              {/* Nota: Podrías ocultar estos dos si el usuario ya está logueado, 
+                  pero por ahora funcionalmente no rompen nada */}
               <li className="nav-item">
                 <Link className="nav-link" to="/login">
                   Iniciar Sesión
@@ -62,7 +67,6 @@ function Header() {
           </div>
         </div>
       </nav>
-
 
       <div className="navbar-spacer"></div>
     </>

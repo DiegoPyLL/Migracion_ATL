@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/header";
 import Footer from "./components/footer";
-import Home from "./pages/home"; // Lo mantengo importado por si quieres usarlo dentro como "/inicio"
+import Home from "./pages/home"; 
 import Login from "./pages/login";
 import Registro from "./pages/registro";
 import Perfil from "./pages/perfil";
@@ -21,44 +21,36 @@ export default function App() {
       <Header />
       <main className="app-content">
         <Routes>
-          {/* --- ZONA PÚBLICA (Acceso libre) --- */}
+          {/* --- ZONA PÚBLICA (Visible para todos) --- */}
           
-          {/* 1. La entrada principal es el LOGIN */}
-          <Route path="/" element={<Login />} />
+          {/* 1. [CAMBIO] El inicio "/" ahora es el HOME público */}
+          <Route path="/" element={<Home />} />
           
-          {/* 2. Registro público */}
+          <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
-          
-          {/* 3. Páginas informativas públicas */}
+          <Route path="/seguros/venta" element={<VentaSeguros />} />
           <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
 
 
           {/* --- ZONA PRIVADA (Requiere Login) --- */}
-          {/* El componente ProtectedRoute actúa como guardia aquí */}
           <Route element={<ProtectedRoute />}>
             
-              {/* Si quieres que 'Home' sea la bienvenida tras loguearse, puedes usar esta ruta: */}
-              <Route path="/inicio" element={<Home />} />
-
+              {/* Aquí están las páginas que SÍ requieren cuenta */}
               <Route path="/perfil" element={<Perfil />} />
-              
-              {/* Paneles de Roles */}
               <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               
-              {/* Funcionalidades protegidas */}
+              {/* Si alguien en el Home público da clic en "Pedir Hora", 
+                  el sistema lo detendrá aquí y lo mandará al Login */}
               <Route path="/pedir-hora" element={<PedirHora />} />
 
-              {/* Rutas de Seguros */}
-              <Route path="/seguros/venta" element={<VentaSeguros />} />
               <Route path="/comprar-seguro-salud" element={<ComprarSeguroSalud />} />
               <Route path="/comprar-seguro-vida" element={<ComprarSeguroVida />} />
           
           </Route>
 
-          {/* --- SEGURIDAD EXTRA --- */}
-          {/* Si alguien escribe una ruta loca (ej: /loquesea), lo mandamos al Login */}
+          {/* Si escriben una ruta loca, los mandamos al Home */}
           <Route path="*" element={<Navigate to="/" replace />} />
 
         </Routes>

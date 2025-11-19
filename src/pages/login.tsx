@@ -25,9 +25,10 @@ const Login = () => {
             
             if (rol === "administrador") navigate('/admin-dashboard');
             else if (rol === "doctor") navigate('/doctor-dashboard');
-            else navigate('/perfil');
+            
+            else navigate('/'); 
+            
         } catch (e) {
-            // Si el JSON está corrupto, lo limpiamos
             localStorage.removeItem('usuario');
         }
     }
@@ -81,7 +82,7 @@ const Login = () => {
         } else if (rol === "doctor") {
             navigate('/doctor-dashboard');
         } else {
-            navigate('/perfil');
+            navigate('/'); 
         }
       }
 
