@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/estiloPerfil.css';
+
+// Componentes
 import PerfilCarousel from '../components/perfil/PerfilCarousel';
 import PerfilForm from '../components/perfil/PerfilForm';
-import MisSeguros, { Seguro } from '../components/perfil/MisSeguros'; 
+import MisSeguros, { Seguro } from '../components/perfil/MisSeguros';
+import MisCitas, { Cita } from '../components/perfil/MisCitas';
 
 export interface PerfilData {
   id?: number;
@@ -21,19 +24,20 @@ const Perfil = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Estado de Usuario
+  // Estados de Datos
   const [perfilData, setPerfilData] = useState<PerfilData>({
     nombre: '', apellido: '', correo: '', telefono: '', fechaNacimiento: ''
   });
-
-  // Estado de Seguros (Lista)
   const [listaSeguros, setListaSeguros] = useState<Seguro[]>([]);
+  const [listaCitas, setListaCitas] = useState<Cita[]>([]);
 
-  // URLs de las APIs
+  // URLs de las 3 APIs
   const USUARIOS_API_URL = 'http://localhost:8082/api/v1/usuarios';
+  const DOCTORES_API_URL = 'http://localhost:8082/api/v1/doctores'; // Para obtener nombres
   const SEGUROS_API_URL = 'http://localhost:8084/api/v1/seguros';
+  const CITAS_API_URL = 'http://localhost:8080/api/v1/citas';
 
-  // --- 1. CARGAR DATOS (USUARIO + SEGUROS) ---
+  // --- 1. CARGAR DATOS (USUARIO + SEGUROS + CITAS + DOCTORES) ---
   useEffect(() => {
     const cargarDatos = async () => {
       const usuarioSesion = localStorage.getItem('usuario');
@@ -47,10 +51,9 @@ const Perfil = () => {
       const userId = usuarioObj.userId || usuarioObj.id;
 
       try {
-        // Llamada 1: Datos del Usuario (Puerto 8082)
+        // A) Cargar Datos del Usuario
         const respUsuario = await axios.get(`${USUARIOS_API_URL}/${userId}`);
         const u = respUsuario.data;
-
         setPerfilData({
           id: u.id,
           nombre: u.nombre || '',
@@ -61,18 +64,59 @@ const Perfil = () => {
           rol: u.rol
         });
 
-        // Llamada 2: Seguros Contratados (Puerto 8081)
-        // Usamos el endpoint findByUsuarioId de tu Backend
-        const respSeguros = await axios.get(`${SEGUROS_API_URL}/usuario/${userId}`);
-        setListaSeguros(respSeguros.data);
+        // B) Cargar Seguros
+        try {
+            const respSeguros = await axios.get(`${SEGUROS_API_URL}/usuario/${userId}`);
+            setListaSeguros(respSeguros.data || []);
+        } catch (e) { console.warn("Sin seguros o API Seguros apagada"); }
 
-      } catch (error: any) {
-        console.error("Error cargando datos:", error);
-        // Si falla seguros, no rompemos todo, solo dejamos la lista vacía
-        if (error.response && error.response.status === 404) {
-             // Es normal si no tiene seguros
-             setListaSeguros([]); 
+        // C) Cargar Citas + Doctores (Magia de Cruzamiento)
+        try {
+            // 1. Pedimos las citas (Tienen ID doctor pero no nombre)
+            const respCitas = await axios.get(`${CITAS_API_URL}/usuario/${userId}`);
+            const citasRaw = respCitas.data || [];
+
+            if (citasRaw.length > 0) {
+                // 2. Pedimos la lista de doctores reales (Tienen nombres)
+                const respDoctores = await axios.get(DOCTORES_API_URL);
+                const doctoresReales = respDoctores.data;
+
+                // 3. Cruzamos los datos
+                const citasCompletas = citasRaw.map((cita: any) => {
+                    // Buscamos el doctor real usando el ID que viene en la cita
+                    // La cita puede traer 'idDoctor' o 'doctor.id', revisamos ambos
+                    const doctorIdEnCita = cita.idDoctor || (cita.doctor ? cita.doctor.id : null);
+                    
+                    const doctorReal = doctoresReales.find((d: any) => d.id === doctorIdEnCita);
+
+                    // Reconstruimos la cita con el nombre correcto
+                    return {
+                        id: cita.id,
+                        fechaCita: cita.fechaCita,
+                        estado: cita.estado,
+                        doctor: {
+                            id: doctorIdEnCita,
+                            usuario: {
+                                nombre: doctorReal ? doctorReal.usuario.nombre : "Doctor",
+                                apellido: doctorReal ? doctorReal.usuario.apellido : "No Encontrado"
+                            }
+                        }
+                    };
+                });
+
+                setListaCitas(citasCompletas);
+            } else {
+                setListaCitas([]);
+            }
+
+        } catch (e) { 
+            console.error("Error cargando citas:", e); 
+            // Si falla, dejamos la lista vacía pero no rompemos la página
+            setListaCitas([]);
         }
+
+      } catch (error) { 
+        console.error("Error general:", error); 
       } finally {
         setLoading(false);
       }
@@ -81,42 +125,41 @@ const Perfil = () => {
     cargarDatos();
   }, [navigate]);
 
-  // --- LÓGICA DE CERRAR SESIÓN ---
+  // --- ACCIONES ---
+
   const handleLogout = () => {
     localStorage.removeItem('usuario');
     navigate('/login');
   };
 
-  // --- LÓGICA DE CANCELAR SEGURO ---
   const handleCancelSeguro = async (idSeguro: number) => {
     try {
-        // Llamamos al endpoint PATCH de tu controlador Java
-        await axios.patch(`${SEGUROS_API_URL}/${idSeguro}/cancelacion`, {
-            motivo: "Cancelado por el usuario desde la web"
-        });
-        
-        // Actualizamos la lista visualmente sin recargar
-        setListaSeguros(prevLista => prevLista.map(seg => 
-            seg.id === idSeguro ? { ...seg, estado: "CANCELADO" } : seg
-        ));
-        
-        alert("Seguro cancelado correctamente.");
+        await axios.patch(`${SEGUROS_API_URL}/${idSeguro}/cancelacion`, { motivo: "Web" });
+        setListaSeguros(prev => prev.map(s => s.id === idSeguro ? { ...s, estado: "CANCELADO" } : s));
+        alert("Seguro cancelado.");
+    } catch (error) { alert("Error al cancelar seguro."); }
+  };
+
+  const handleCancelCita = async (idCita: number) => {
+    try {
+        await axios.delete(`${CITAS_API_URL}/${idCita}`);
+        setListaCitas(prev => prev.filter(c => c.id !== idCita));
+        alert("Cita cancelada correctamente.");
     } catch (error) {
-        console.error("Error al cancelar:", error);
-        alert("No se pudo cancelar el seguro. Intente más tarde.");
+        console.error("Error al cancelar cita:", error);
+        alert("Error al cancelar la cita.");
     }
   };
 
-  // --- MANEJO DEL FORMULARIO DE PERFIL ---
+  // --- FORMULARIO PERFIL ---
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
-    setPerfilData(prevState => ({ ...prevState, [id]: value }));
+    setPerfilData(prev => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!perfilData.id) return;
-
     try {
       const payload = {
         nombre: perfilData.nombre,
@@ -125,19 +168,10 @@ const Perfil = () => {
         telefono: perfilData.telefono,
         fechaNacimiento: perfilData.fechaNacimiento ? `${perfilData.fechaNacimiento}T00:00:00` : null,
       };
-
       await axios.put(`${USUARIOS_API_URL}/${perfilData.id}`, payload);
-      alert('¡Perfil actualizado con éxito!');
+      alert('Perfil actualizado.');
       setIsEditing(false);
-      
-      const usuarioSesion = JSON.parse(localStorage.getItem('usuario') || '{}');
-      usuarioSesion.nombre = perfilData.nombre;
-      usuarioSesion.apellido = perfilData.apellido;
-      localStorage.setItem('usuario', JSON.stringify(usuarioSesion));
-
-    } catch (error) {
-      alert("Error al guardar los cambios.");
-    }
+    } catch (error) { alert("Error al guardar."); }
   };
 
   const handleEnableEdition = () => setIsEditing(true);
@@ -150,7 +184,7 @@ const Perfil = () => {
       <div className="container-fluid perfil-wrapper">
         <div className="perfil-card">
           
-          {/* SECCIÓN SUPERIOR: FORMULARIO + CAROUSEL */}
+          {/* BLOQUE 1: DATOS PERSONALES */}
           <div className="row align-items-start g-0 mb-5">
             <PerfilCarousel />
             <PerfilForm
@@ -164,8 +198,18 @@ const Perfil = () => {
             />
           </div>
 
-          {/* SECCIÓN INFERIOR: LISTA DE SEGUROS (NUEVO) */}
+          {/* BLOQUE 2: LISTA DE CITAS (PRIORIDAD) */}
           <div className="row g-0 px-4 pb-4">
+             <div className="col-12">
+                <MisCitas 
+                    citas={listaCitas} 
+                    onCancel={handleCancelCita} 
+                />
+             </div>
+          </div>
+
+          {/* BLOQUE 3: LISTA DE SEGUROS */}
+          <div className="row g-0 px-4 pb-2">
              <div className="col-12">
                 <MisSeguros 
                     seguros={listaSeguros} 
