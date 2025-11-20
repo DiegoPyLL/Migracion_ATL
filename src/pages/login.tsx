@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; 
+import axios from 'axios';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // [NUEVO] Importamos los íconos
 import "../styles/login_style.css";
 
 const Login = () => {
@@ -12,6 +13,10 @@ const Login = () => {
 
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
+  
+  // [NUEVO] Estado para controlar la visibilidad
+  const [showPassword, setShowPassword] = useState(false);
+
   const [errors, setErrors] = useState({ usuario: '', password: '' });
   const [generalError, setGeneralError] = useState(''); 
 
@@ -25,9 +30,7 @@ const Login = () => {
             
             if (rol === "administrador") navigate('/admin-dashboard');
             else if (rol === "doctor") navigate('/doctor-dashboard');
-            
             else navigate('/'); 
-            
         } catch (e) {
             localStorage.removeItem('usuario');
         }
@@ -38,11 +41,9 @@ const Login = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Limpiamos errores previos
     setErrors({ usuario: '', password: '' });
     setGeneralError('');
 
-    // Validaciones locales
     let valido = true;
     const newErrors = { usuario: '', password: '' };
 
@@ -62,7 +63,6 @@ const Login = () => {
     }
 
     try {
-      // Conexión con el Backend
       const response = await axios.post(API_URL, {
         correo: usuario, 
         contrasena: password
@@ -70,11 +70,8 @@ const Login = () => {
 
       if (response.status === 200) {
         console.log("Login exitoso:", response.data);
-        
-        // Guardar sesión
         localStorage.setItem('usuario', JSON.stringify(response.data));
         
-        // REDIRECCIÓN POR ROL
         const rol = response.data.role ? response.data.role.toLowerCase() : "";
 
         if (rol === "administrador") {
@@ -89,7 +86,6 @@ const Login = () => {
     } catch (error: any) {
       console.error("Error de login:", error);
 
-      // Manejo de Errores Específicos
       if (error.response && (error.response.status === 401 || error.response.status === 404)) {
         setErrors({ ...newErrors, password: "Correo o contraseña incorrectos" });
       } else if (error.code === "ERR_NETWORK") {
@@ -105,7 +101,6 @@ const Login = () => {
       <form id="loginForm" onSubmit={handleSubmit} noValidate>
         <h2>Iniciar Sesión</h2>
 
-        {/* Error general (Servidor caído, etc.) */}
         {generalError && <div className="alert alert-danger" style={{color: 'red', marginBottom: '10px'}}>{generalError}</div>}
 
         <div className="form-input usuario">
@@ -121,15 +116,39 @@ const Login = () => {
           <p className="mensajeError">{errors.usuario}</p>
         </div>
 
+        {/* [MODIFICADO] Campo de contraseña con ícono */}
         <div className="form-input password">
           <label htmlFor="password">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          
+          <div style={{ position: 'relative' }}>
+            <input
+              // Aquí ocurre la magia: cambiamos el tipo según el estado
+              type={showPassword ? "text" : "password"}
+              id="password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ paddingRight: '40px' }} // Espacio para que el texto no choque con el ojo
+            />
+            
+            {/* Botón del Ojo */}
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                cursor: 'pointer',
+                color: '#666',
+                fontSize: '1.2rem'
+              }}
+              title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+
           <p className="mensajeError">{errors.password}</p>
         </div>
 
