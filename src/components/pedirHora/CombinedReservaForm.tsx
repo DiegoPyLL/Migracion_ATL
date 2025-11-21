@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+// Interfaces actualizadas según tus DTOs
 interface Doctor {
   id: number;
   especialidad?: string;
@@ -11,7 +12,7 @@ interface Doctor {
   };
 }
 
-// Horarios disponibles (Saltando horario de almuerzo 12:30-14:00)
+// Horarios disponibles (Bloques de 30 min)
 const HORARIOS_DISPONIBLES = [
   "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00",
   "14:00", "14:30", "15:00", "15:30", "16:00", "16:30" 
@@ -20,7 +21,7 @@ const HORARIOS_DISPONIBLES = [
 const CombinedReservaForm: React.FC = () => {
   const navigate = useNavigate();
   
-  // --- ESTADOS ---
+  // Estados
   const [userId, setUserId] = useState<number | null>(null);
   const [doctores, setDoctores] = useState<Doctor[]>([]);
   const [loadingDoctores, setLoadingDoctores] = useState(true);
@@ -32,7 +33,7 @@ const CombinedReservaForm: React.FC = () => {
   const [hora, setHora] = useState("");
   const [error, setError] = useState("");
 
-  // URLs de las APIs
+  // URLs EXACTAS (Basadas en tus properties)
   const CITAS_API_URL = "http://localhost:8080/api/v1/citas"; 
   const DOCTORES_API_URL = "http://localhost:8082/api/v1/doctores";
 
@@ -43,24 +44,24 @@ const CombinedReservaForm: React.FC = () => {
     return hoy.toISOString().split("T")[0];
   }, []);
 
-  // 1. CARGA INICIAL (Usuario y Doctores)
   useEffect(() => {
     const usuarioSesion = localStorage.getItem("usuario");
     if (usuarioSesion) {
       const usuario = JSON.parse(usuarioSesion);
       setUserId(usuario.id || usuario.userId);
     } else {
-      navigate("/login"); // Si no hay sesión, fuera.
+      navigate("/login");
       return;
     }
 
     const cargarDoctores = async () => {
       try {
         const response = await axios.get(DOCTORES_API_URL);
+        // Filtramos solo doctores activos si es necesario
         setDoctores(response.data);
       } catch (err) {
         console.error("Error cargando doctores", err);
-        setError("No se pudo conectar con el servicio de médicos (8082).");
+        setError("No se pudo cargar la lista de médicos (API 8082).");
       } finally {
         setLoadingDoctores(false);
       }
@@ -69,7 +70,6 @@ const CombinedReservaForm: React.FC = () => {
     cargarDoctores();
   }, [navigate]);
 
-  // 2. FILTROS DINÁMICOS
   const areasDisponibles = useMemo(() => {
     const especialidades = doctores
       .map(d => d.especialidad)
@@ -82,7 +82,6 @@ const CombinedReservaForm: React.FC = () => {
     return doctores.filter(d => d.especialidad === areaSeleccionada);
   }, [doctores, areaSeleccionada]);
 
-  // 3. ENVÍO DE RESERVA
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
@@ -93,35 +92,31 @@ const CombinedReservaForm: React.FC = () => {
     }
 
     try {
-      // --- PREPARAR EL PAQUETE PARA JAVA ---
+      // --- PREPARACIÓN DE DATOS PARA JAVA ---
       
-      // A. Hora Inicio (HH:mm:ss)
+      // 1. Hora Inicio (HH:mm:ss) -> Java LocalTime es estricto
       const horaInicioStr = `${hora}:00`; 
       
-      // B. Hora Fin (+45 minutos)
+      // 2. Hora Fin (+45 min)
       const [h, m] = hora.split(':').map(Number);
       const finDate = new Date();
       finDate.setHours(h, m + 45);
-      // Obtenemos la parte de la hora "HH:mm:ss"
-      const horaFinStr = finDate.toTimeString().split(' ')[0]; 
+      const horaFinStr = finDate.toTimeString().split(' ')[0]; // "HH:mm:ss"
 
-      // C. Construir JSON
+      // 3. Payload Limpio (Solo lo necesario)
+      // NO enviamos nulos explícitos para evitar problemas con el serializador
       const payload = {
-        // Importante: Enviamos la fecha sola, sin hora, porque ahora Java usa LocalDate
-        fechaCita: fecha, 
-        
+        fechaCita: `${fecha}T00:00:00`, // Formato LocalDateTime
         horaInicio: horaInicioStr,
         horaFin: horaFinStr,
         duracionMinutos: 45,
         estado: "PROGRAMADA",
-        disponible: false, // Queda ocupada
-        
-        // IDs de referencia
+        disponible: false,
         idUsuario: userId,
-        idDoctor: parseInt(doctorSeleccionado),
+        idDoctor: parseInt(doctorSeleccionado)
       };
 
-      console.log("Enviando Reserva:", payload);
+      console.log("Enviando Payload:", payload);
 
       await axios.post(CITAS_API_URL, payload);
       
@@ -129,13 +124,20 @@ const CombinedReservaForm: React.FC = () => {
       navigate("/perfil");
 
     } catch (err: any) {
-      console.error("Error al reservar:", err);
-      if (err.response && err.response.status === 500) {
-          setError("Error del servidor (500). Revisa que la base de datos acepte los datos.");
+      console.error("Error completo:", err);
+      
+      // DIAGNÓSTICO DE ERROR MEJORADO
+      if (err.response) {
+          console.log("Datos del error servidor:", err.response.data);
+          if (err.response.status === 400) {
+              setError("Error de datos (400). Revisa la consola para ver qué campo rechazó Java.");
+          } else {
+              setError(`Error del servidor: ${err.response.status}`);
+          }
       } else if (err.code === "ERR_NETWORK") {
-          setError("Error de conexión. Verifica que CitasAPI (8080) esté encendida.");
+          setError("No se pudo conectar con CitasAPI (Puerto 8080).");
       } else {
-          setError("No se pudo agendar la hora. Intenta nuevamente.");
+          setError("Error desconocido al reservar.");
       }
     }
   };
@@ -148,7 +150,7 @@ const CombinedReservaForm: React.FC = () => {
             <header className="ph-section-header">
               <h2 className="ph-section-title">Reserva de Hora</h2>
               <p className="ph-section-subtitle">
-                Selecciona especialidad, médico y horario disponible.
+                Selecciona especialidad, médico y horario.
               </p>
             </header>
 

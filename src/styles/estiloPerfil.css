@@ -180,3 +180,105 @@ body {
 .seguros-contratados .card-text {
     color: var(--color-texto-secundario);
 }
+/* --- NUEVOS ESTILOS DASHBOARD DOCTOR --- */
+
+/* Header del Dashboard */
+.dashboard-header {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    margin-bottom: 2rem;
+}
+
+/* Contenedor del Avatar */
+.avatar-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin-right: 1.5rem;
+    cursor: pointer;
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.avatar-container:hover .avatar-image {
+    filter: brightness(0.8);
+}
+
+.avatar-edit-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: white;
+    color: #0d6efd;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Tarjetas de Citas (Agenda) */
+.cita-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 1rem;
+    border-left: 4px solid #0d6efd; /* Borde azul a la izquierda */
+    background-color: #fff;
+}
+
+.cita-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.cita-card-body {
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cita-paciente-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.cita-info-item {
+    display: flex;
+    align-items: center;
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.cita-info-item i {
+    margin-right: 8px;
+    color: #0d6efd;
+}
+
+/* Tarjetas de Historial (Canceladas) */
+.historial-card-item {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid #dc3545; /* Borde rojo */
+}

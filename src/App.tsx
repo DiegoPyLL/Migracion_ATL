@@ -13,7 +13,35 @@ import SobreNosotros from "./pages/sobre_nosotros";
 import PedirHora from "./pages/pedirHora";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import ProtectedRoute from "./pages/ProtectedRoute";
+import RoleProtectedRoute from "./components/RoleProtectedRoute";
+
+// --- COMPONENTE NUEVO: EL PORTERO DEL HOME ---
+// Este componente decide si muestras el Home o rediriges al dashboard
+const HomeRedirector = () => {
+  const usuarioSesion = localStorage.getItem('usuario');
+
+  if (usuarioSesion) {
+    try {
+      const usuario = JSON.parse(usuarioSesion);
+      const rol = usuario.role ? usuario.role.toLowerCase() : '';
+
+      // Si es personal médico/admin, NO deben estar en el Home público
+      if (rol === 'doctor') {
+        return <Navigate to="/doctor-dashboard" replace />;
+      }
+      if (rol === 'administrador') {
+        return <Navigate to="/admin-dashboard" replace />;
+      }
+      // Si es paciente, dejamos que vea el Home (es útil para ellos)
+    } catch (e) {
+      // Si el JSON está mal, borramos y mostramos Home normal
+      localStorage.removeItem('usuario');
+    }
+  }
+
+  // Si no es doctor/admin, mostramos el Home
+  return <Home />;
+};
 
 export default function App() {
   return (
@@ -21,10 +49,10 @@ export default function App() {
       <Header />
       <main className="app-content">
         <Routes>
-          {/* --- ZONA PÚBLICA (Visible para todos) --- */}
+          {/* --- ZONA PÚBLICA --- */}
           
-          {/* 1. [CAMBIO] El inicio "/" ahora es el HOME público */}
-          <Route path="/" element={<Home />} />
+          {/* [CAMBIO] Usamos el Redirector en lugar de Home directo */}
+          <Route path="/" element={<HomeRedirector />} />
           
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
@@ -32,27 +60,26 @@ export default function App() {
           <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
 
-
-          {/* --- ZONA PRIVADA (Requiere Login) --- */}
-          <Route element={<ProtectedRoute />}>
-            
-              {/* Aquí están las páginas que SÍ requieren cuenta */}
+          {/* --- ZONA PACIENTES --- */}
+          <Route element={<RoleProtectedRoute allowedRole="paciente" />}>
               <Route path="/perfil" element={<Perfil />} />
-              <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
-              
-              {/* Si alguien en el Home público da clic en "Pedir Hora", 
-                  el sistema lo detendrá aquí y lo mandará al Login */}
               <Route path="/pedir-hora" element={<PedirHora />} />
-
               <Route path="/comprar-seguro-salud" element={<ComprarSeguroSalud />} />
               <Route path="/comprar-seguro-vida" element={<ComprarSeguroVida />} />
-          
           </Route>
 
-          {/* Si escriben una ruta loca, los mandamos al Home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* --- ZONA DOCTORES --- */}
+          <Route element={<RoleProtectedRoute allowedRole="doctor" />}>
+              <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+          </Route>
 
+          {/* --- ZONA ADMIN --- */}
+          <Route element={<RoleProtectedRoute allowedRole="administrador" />}>
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          </Route>
+
+          {/* Redirección por defecto al raíz (que ahora es inteligente) */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
       <Footer />

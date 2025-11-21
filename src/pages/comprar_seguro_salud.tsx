@@ -118,7 +118,7 @@ const ComprarSeguroSalud = () => {
 
       } catch (error) {
           console.error("Error al contratar:", error);
-          alert("Error al procesar. Verifique que la API de Seguros (8081) esté corriendo.");
+          alert("Error al procesar. Verifique que la API de Seguros (8084) esté corriendo.");
       }
     }
   };
