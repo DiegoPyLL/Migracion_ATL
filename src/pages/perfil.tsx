@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/estiloPerfil.css';
 
+// Componentes
 import PerfilCarousel from '../components/perfil/PerfilCarousel';
 import PerfilForm from '../components/perfil/PerfilForm';
 import MisSeguros, { Seguro } from '../components/perfil/MisSeguros';
 import MisCitas, { Cita } from '../components/perfil/MisCitas';
+import MisFichas, { Ficha } from '../components/perfil/MisFichas';
 
 export interface PerfilData {
   id?: number;
@@ -27,19 +29,20 @@ const Perfil = () => {
   const [perfilData, setPerfilData] = useState<PerfilData>({
     nombre: '', apellido: '', correo: '', telefono: '', fechaNacimiento: ''
   });
-  
-  // [NUEVO] Estado para guardar la copia original (Backup)
   const [originalData, setOriginalData] = useState<PerfilData | null>(null);
-
+  
   const [listaSeguros, setListaSeguros] = useState<Seguro[]>([]);
   const [listaCitas, setListaCitas] = useState<Cita[]>([]);
+  const [listaFichas, setListaFichas] = useState<Ficha[]>([]);
 
+  // --- URLS DE APIS ---
   const USUARIOS_API_URL = 'http://localhost:8082/api/v1/usuarios';
   const DOCTORES_API_URL = 'http://localhost:8082/api/v1/doctores';
   const SEGUROS_API_URL = 'http://localhost:8084/api/v1/seguros';
   const CITAS_API_URL = 'http://localhost:8080/api/v1/citas';
+  const HISTORIAL_API_URL = 'http://localhost:8083/api/v1/historial';
 
-  // --- 1. CARGAR DATOS ---
+  // --- CARGA DATOS (useEffect) ---
   useEffect(() => {
     const cargarDatos = async () => {
       const usuarioSesion = localStorage.getItem('usuario');
@@ -49,22 +52,18 @@ const Perfil = () => {
       const userId = usuarioObj.userId || usuarioObj.id;
 
       try {
-        // A) Usuario
+        // A) Datos Personales
         const respUsuario = await axios.get(`${USUARIOS_API_URL}/${userId}`);
         const u = respUsuario.data;
-        
         const datosCargados = {
           id: u.id,
-          nombre: u.nombre || '',
-          apellido: u.apellido || '',
-          correo: u.correo || '',
-          telefono: u.telefono || '', // Aseguramos que no sea null
+          nombre: u.nombre || '', apellido: u.apellido || '', correo: u.correo || '',
+          telefono: u.telefono || '',
           fechaNacimiento: u.fechaNacimiento ? u.fechaNacimiento.split('T')[0] : '',
           rol: u.rol
         };
-
         setPerfilData(datosCargados);
-        setOriginalData(datosCargados); // [IMPORTANTE] Guardamos el backup aquí
+        setOriginalData(datosCargados);
 
         // B) Seguros
         try {
@@ -91,13 +90,21 @@ const Perfil = () => {
             } else { setListaCitas([]); }
         } catch (e) { setListaCitas([]); }
 
+        // D) Historial Médico
+        try {
+            const respHistorial = await axios.get(`${HISTORIAL_API_URL}/usuario/${userId}`);
+            setListaFichas(respHistorial.data || []);
+        } catch (e) { 
+            console.warn("Sin historial médico"); 
+            setListaFichas([]);
+        }
+
       } catch (error) { console.error("Error general:", error); } finally { setLoading(false); }
     };
-
     cargarDatos();
   }, [navigate]);
 
-  // --- ACCIONES ---
+  // --- ACCIONES (Handlers) ---
   const handleLogout = () => { localStorage.removeItem('usuario'); navigate('/login'); };
 
   const handleCancelSeguro = async (idSeguro: number) => {
@@ -122,11 +129,10 @@ const Perfil = () => {
     setPerfilData(prev => ({ ...prev, [id]: value }));
   };
 
-  // [CORREGIDO] Función Restaurar (Antes borraba, ahora restaura)
   const handleRestore = () => {
     if (originalData) {
-        setPerfilData(originalData); // Volvemos a la copia original
-        alert("Cambios revertidos a los valores guardados.");
+        setPerfilData(originalData);
+        alert("Datos restaurados.");
     }
   };
 
@@ -134,50 +140,98 @@ const Perfil = () => {
     e.preventDefault();
     if (!perfilData.id) return;
     if (!perfilData.nombre.trim() || !perfilData.apellido.trim() || !perfilData.correo.trim()) {
-      alert("Por favor completa los campos obligatorios.");
-      return;
+      alert("Por favor completa los campos obligatorios."); return;
     }
-
     try {
-      const payload = {
-        nombre: perfilData.nombre, apellido: perfilData.apellido, correo: perfilData.correo,
-        telefono: perfilData.telefono,
-        fechaNacimiento: perfilData.fechaNacimiento ? `${perfilData.fechaNacimiento}T00:00:00` : null,
-      };
+      const payload = { ...perfilData, fechaNacimiento: `${perfilData.fechaNacimiento}T00:00:00` };
       await axios.put(`${USUARIOS_API_URL}/${perfilData.id}`, payload);
-      alert('Perfil actualizado exitosamente.');
+      alert('Perfil actualizado.');
       setIsEditing(false);
-      
-      // Actualizamos también el backup por si quiere restaurar de nuevo después
       setOriginalData(perfilData);
-
       const sesion = JSON.parse(localStorage.getItem('usuario') || '{}');
       sesion.nombre = perfilData.nombre; sesion.apellido = perfilData.apellido;
       localStorage.setItem('usuario', JSON.stringify(sesion));
-
-    } catch (error) { alert("Error al guardar cambios."); }
+    } catch (error) { alert("Error al guardar."); }
   };
 
-  if (loading) return <div className="text-center mt-5 p-5">Cargando...</div>;
+  if (loading) return <div className="text-center mt-5 p-5"><div className="spinner-border text-primary"></div></div>;
 
   return (
-    <div className="perfil-container">
+    <div className="perfil-container bg-light" style={{minHeight: '100vh'}}>
       <div className="container-fluid px-lg-5 py-5">
-        <div className="perfil-card">
-          <div className="row align-items-start g-0 mb-5">
-            <PerfilCarousel />
-            <PerfilForm
-              perfilData={perfilData}
-              isEditing={isEditing}
-              onChange={handleChange}
-              onEnableEdition={() => setIsEditing(true)}
-              onClear={handleRestore} // [CORREGIDO] Usamos la función nueva
-              onSubmit={handleSubmit}
-              onLogout={handleLogout}
-            />
+        
+        <h2 className="mb-4 fw-bold text-primary"><i className="bi bi-person-circle me-2"></i>Mi Portal Paciente</h2>
+
+        {/* --- SECCIÓN SUPERIOR: IDENTIDAD (Carrusel + Formulario lado a lado) --- */}
+        <div className="row g-4 mb-5 align-items-stretch">
+            {/* Columna Visual (Izquierda) - AHORA CIRCULAR */}
+            <div className="col-lg-5 col-xl-4 mb-4 mb-lg-0 d-flex justify-content-center align-items-center">
+              <div className="perfil-carousel-container-wrapper">
+                <div className="perfil-carousel-circle">
+                  <PerfilCarousel />
+                </div>
+              </div>
+            </div>
+
+            {/* Columna de Datos (Derecha) */}
+            <div className="col-lg-7 col-xl-8">
+                <div className="card shadow-sm border-0 h-100">
+                    <div className="card-body p-4 p-lg-5 bg-white rounded">
+                        <PerfilForm
+                          perfilData={perfilData}
+                          isEditing={isEditing}
+                          onChange={handleChange}
+                          onEnableEdition={() => setIsEditing(true)}
+                          onClear={handleRestore}
+                          onSubmit={handleSubmit}
+                          onLogout={handleLogout}
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/* --- SECCIÓN INFERIOR: ACTIVIDAD CLÍNICA (3 Columnas) --- */}
+        <h4 className="mb-4 fw-bold text-secondary"><i className="bi bi-activity me-2"></i>Resumen de Actividad</h4>
+        <div className="row g-4">
+          
+          {/* Columna 1: Próximas Citas */}
+          <div className="col-md-6 col-xl-4">
+             <div className="card shadow-sm border-0 h-100">
+                <div className="card-header bg-white border-0 pt-4 px-4">
+                    <h5 className="text-primary fw-bold mb-0"><i className="bi bi-calendar-check me-2"></i>Mis Citas</h5>
+                </div>
+                <div className="card-body p-4">
+                    <MisCitas citas={listaCitas} onCancel={handleCancelCita} />
+                </div>
+             </div>
           </div>
-          <div className="row g-0 px-4 pb-4"><div className="col-12"><MisCitas citas={listaCitas} onCancel={handleCancelCita} /></div></div>
-          <div className="row g-0 px-4 pb-2"><div className="col-12"><MisSeguros seguros={listaSeguros} onCancel={handleCancelSeguro} /></div></div>
+
+          {/* Columna 2: Historial Médico */}
+          <div className="col-md-6 col-xl-4">
+             <div className="card shadow-sm border-0 h-100">
+                <div className="card-header bg-white border-0 pt-4 px-4">
+                    <h5 className="text-info fw-bold mb-0"><i className="bi bi-file-medical me-2"></i>Historial</h5>
+                </div>
+                <div className="card-body p-4">
+                    <MisFichas fichas={listaFichas} />
+                </div>
+             </div>
+          </div>
+
+          {/* Columna 3: Seguros */}
+          {/* En pantallas medianas ocupa todo el ancho, en grandes 1/3 */}
+          <div className="col-md-12 col-xl-4">
+             <div className="card shadow-sm border-0 h-100">
+                <div className="card-header bg-white border-0 pt-4 px-4">
+                    <h5 className="text-success fw-bold mb-0"><i className="bi bi-shield-check me-2"></i>Mis Seguros</h5>
+                </div>
+                <div className="card-body p-4">
+                    <MisSeguros seguros={listaSeguros} onCancel={handleCancelSeguro} />
+                </div>
+             </div>
+          </div>
+
         </div>
       </div>
     </div>

@@ -176,9 +176,13 @@ const DoctorDashboard = () => {
         <div className="dashboard-header d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             <div className="avatar-container" onClick={handleAvatarClick}>
-                <img src={avatarPreview} alt="Perfil" className="avatar-image" />
-                <div className="avatar-edit-icon"><i className="bi bi-camera-fill"></i></div>
-                <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" style={{ display: 'none' }} />
+              {/* CAMBIO: Usamos un div con imagen de fondo en lugar de img */}
+              <div 
+                className="avatar-image" 
+                style={{ backgroundImage: `url(${avatarPreview})` }}
+              ></div>
+              <div className="avatar-edit-icon"><i className="bi bi-camera-fill"></i></div>
+              <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" style={{ display: 'none' }} />
             </div>
             <div><h2 className="fw-bold mb-0">Panel Médico</h2><p className="mb-0 opacity-75">Dr/a. {doctorName}</p></div>
           </div>
