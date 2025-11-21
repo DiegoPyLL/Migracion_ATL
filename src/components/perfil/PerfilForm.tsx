@@ -15,7 +15,7 @@ type PerfilFormProps = {
   onEnableEdition: () => void;
   onClear: () => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  onLogout: () => void; // <--- Recibimos la función nueva
+  onLogout: () => void;
 };
 
 const PerfilForm = ({
@@ -25,33 +25,20 @@ const PerfilForm = ({
   onEnableEdition,
   onClear,
   onSubmit,
-  onLogout, // <--- La desestructuramos
+  onLogout,
 }: PerfilFormProps) => (
   <div className="col-lg-7 perfil-info">
     <form onSubmit={onSubmit}>
       
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="m-0">Perfil de Usuario</h1>
-        
-        {/* Botonera Superior */}
         <div className="d-flex gap-2">
             {!isEditing && (
-                <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={onLogout}
-                    title="Salir de la cuenta"
-                >
+                <button type="button" className="btn btn-danger" onClick={onLogout} title="Salir">
                     Cerrar Sesión
                 </button>
             )}
-            
-            <button
-            type="button"
-            className="btn btn-primary"
-            onClick={onEnableEdition}
-            disabled={isEditing}
-            >
+            <button type="button" className="btn btn-primary" onClick={onEnableEdition} disabled={isEditing}>
             Modificar perfil
             </button>
         </div>
@@ -112,10 +99,11 @@ const PerfilForm = ({
         <input
           type="tel"
           className="form-control"
-          id="telefono"
+          id="telefono" // [IMPORTANTE] Este ID conecta con handleChange
           value={perfilData.telefono}
           onChange={onChange}
           disabled={!isEditing}
+          placeholder="+569..."
         />
       </div>
 
@@ -126,7 +114,7 @@ const PerfilForm = ({
             className="btn btn-outline-secondary"
             onClick={onClear}
           >
-            Restaurar
+            Restaurar Originales
           </button>
           <button type="submit" className="btn btn-primary">
             Guardar Cambios

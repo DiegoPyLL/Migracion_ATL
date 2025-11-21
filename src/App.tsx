@@ -15,8 +15,8 @@ import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 
-// --- COMPONENTE NUEVO: EL PORTERO DEL HOME ---
-// Este componente decide si muestras el Home o rediriges al dashboard
+// --- COMPONENTE: PORTERO DEL HOME ---
+// Decide si muestra el Home público o redirige al dashboard si ya tienes rol de "empleado"
 const HomeRedirector = () => {
   const usuarioSesion = localStorage.getItem('usuario');
 
@@ -25,21 +25,19 @@ const HomeRedirector = () => {
       const usuario = JSON.parse(usuarioSesion);
       const rol = usuario.role ? usuario.role.toLowerCase() : '';
 
-      // Si es personal médico/admin, NO deben estar en el Home público
+      // Si es doctor, a su oficina
       if (rol === 'doctor') {
         return <Navigate to="/doctor-dashboard" replace />;
       }
-      if (rol === 'administrador') {
+      // Si es administrativo (así se llama en tu BD), a su panel
+      if (rol === 'administrativo') {
         return <Navigate to="/admin-dashboard" replace />;
       }
-      // Si es paciente, dejamos que vea el Home (es útil para ellos)
+      // Si es paciente, puede ver el Home
     } catch (e) {
-      // Si el JSON está mal, borramos y mostramos Home normal
       localStorage.removeItem('usuario');
     }
   }
-
-  // Si no es doctor/admin, mostramos el Home
   return <Home />;
 };
 
@@ -51,7 +49,7 @@ export default function App() {
         <Routes>
           {/* --- ZONA PÚBLICA --- */}
           
-          {/* [CAMBIO] Usamos el Redirector en lugar de Home directo */}
+          {/* Inicio Inteligente */}
           <Route path="/" element={<HomeRedirector />} />
           
           <Route path="/login" element={<Login />} />
@@ -61,6 +59,7 @@ export default function App() {
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
 
           {/* --- ZONA PACIENTES --- */}
+          {/* Solo entran Pacientes (o usuarios sin rol definido como 'doctor/admin') */}
           <Route element={<RoleProtectedRoute allowedRole="paciente" />}>
               <Route path="/perfil" element={<Perfil />} />
               <Route path="/pedir-hora" element={<PedirHora />} />
@@ -69,17 +68,20 @@ export default function App() {
           </Route>
 
           {/* --- ZONA DOCTORES --- */}
+          {/* Solo entran Doctores */}
           <Route element={<RoleProtectedRoute allowedRole="doctor" />}>
               <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
           </Route>
 
-          {/* --- ZONA ADMIN --- */}
-          <Route element={<RoleProtectedRoute allowedRole="administrador" />}>
+          {/* --- ZONA ADMINISTRATIVA --- */}
+          {/* Solo entran Administrativos */}
+          <Route element={<RoleProtectedRoute allowedRole="administrativo" />}>
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
           </Route>
 
-          {/* Redirección por defecto al raíz (que ahora es inteligente) */}
+          {/* CATCH-ALL: Si la ruta no existe, vuelve al inicio */}
           <Route path="*" element={<Navigate to="/" replace />} />
+
         </Routes>
       </main>
       <Footer />
