@@ -11,19 +11,16 @@ interface Doctor {
   };
 }
 
-// --- LÓGICA DE HORARIOS ---
-// Definimos manualmente los bloques para saltarnos el almuerzo (12:30 - 14:00)
+// Horarios disponibles (Saltando horario de almuerzo 12:30-14:00)
 const HORARIOS_DISPONIBLES = [
   "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00",
-  // -- ALMUERZO (12:30 a 14:00 bloqueado) --
   "14:00", "14:30", "15:00", "15:30", "16:00", "16:30" 
-  // La última cita es 16:30 para terminar a las 17:00
 ];
 
 const CombinedReservaForm: React.FC = () => {
   const navigate = useNavigate();
   
-  // Estados
+  // --- ESTADOS ---
   const [userId, setUserId] = useState<number | null>(null);
   const [doctores, setDoctores] = useState<Doctor[]>([]);
   const [loadingDoctores, setLoadingDoctores] = useState(true);
@@ -35,28 +32,25 @@ const CombinedReservaForm: React.FC = () => {
   const [hora, setHora] = useState("");
   const [error, setError] = useState("");
 
-  // URLs
+  // URLs de las APIs
   const CITAS_API_URL = "http://localhost:8080/api/v1/citas"; 
   const DOCTORES_API_URL = "http://localhost:8082/api/v1/doctores";
 
-  // --- CÁLCULO DE FECHA MÍNIMA (+3 DÍAS) ---
+  // Fecha mínima (Hoy + 3 días)
   const fechaMinima = useMemo(() => {
     const hoy = new Date();
-    // Sumamos 3 días a la fecha actual
     hoy.setDate(hoy.getDate() + 3); 
-    // Formateamos a YYYY-MM-DD para el input HTML
     return hoy.toISOString().split("T")[0];
   }, []);
 
-  // 1. Carga Inicial
+  // 1. CARGA INICIAL (Usuario y Doctores)
   useEffect(() => {
     const usuarioSesion = localStorage.getItem("usuario");
     if (usuarioSesion) {
       const usuario = JSON.parse(usuarioSesion);
       setUserId(usuario.id || usuario.userId);
     } else {
-      alert("Inicia sesión para reservar.");
-      navigate("/login");
+      navigate("/login"); // Si no hay sesión, fuera.
       return;
     }
 
@@ -66,7 +60,7 @@ const CombinedReservaForm: React.FC = () => {
         setDoctores(response.data);
       } catch (err) {
         console.error("Error cargando doctores", err);
-        setError("No se pudo cargar la lista de médicos.");
+        setError("No se pudo conectar con el servicio de médicos (8082).");
       } finally {
         setLoadingDoctores(false);
       }
@@ -75,7 +69,7 @@ const CombinedReservaForm: React.FC = () => {
     cargarDoctores();
   }, [navigate]);
 
-  // 2. Lógica Dinámica de Áreas
+  // 2. FILTROS DINÁMICOS
   const areasDisponibles = useMemo(() => {
     const especialidades = doctores
       .map(d => d.especialidad)
@@ -83,13 +77,12 @@ const CombinedReservaForm: React.FC = () => {
     return Array.from(new Set(especialidades)); 
   }, [doctores]);
 
-  // 3. Filtrar Doctores
   const doctoresFiltrados = useMemo(() => {
     if (!areaSeleccionada) return [];
     return doctores.filter(d => d.especialidad === areaSeleccionada);
   }, [doctores, areaSeleccionada]);
 
-  // 4. Envío
+  // 3. ENVÍO DE RESERVA
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
@@ -100,20 +93,50 @@ const CombinedReservaForm: React.FC = () => {
     }
 
     try {
-      const fechaCitaISO = `${fecha}T${hora}:00`;
+      // --- PREPARAR EL PAQUETE PARA JAVA ---
+      
+      // A. Hora Inicio (HH:mm:ss)
+      const horaInicioStr = `${hora}:00`; 
+      
+      // B. Hora Fin (+45 minutos)
+      const [h, m] = hora.split(':').map(Number);
+      const finDate = new Date();
+      finDate.setHours(h, m + 45);
+      // Obtenemos la parte de la hora "HH:mm:ss"
+      const horaFinStr = finDate.toTimeString().split(' ')[0]; 
+
+      // C. Construir JSON
       const payload = {
-        fechaCita: fechaCitaISO,
+        // Importante: Enviamos la fecha sola, sin hora, porque ahora Java usa LocalDate
+        fechaCita: fecha, 
+        
+        horaInicio: horaInicioStr,
+        horaFin: horaFinStr,
+        duracionMinutos: 45,
         estado: "PROGRAMADA",
+        disponible: false, // Queda ocupada
+        
+        // IDs de referencia
         idUsuario: userId,
         idDoctor: parseInt(doctorSeleccionado),
       };
 
+      console.log("Enviando Reserva:", payload);
+
       await axios.post(CITAS_API_URL, payload);
+      
       alert("¡Cita reservada con éxito!");
       navigate("/perfil");
 
-    } catch (err) {
-      setError("Error al reservar. Verifica la conexión.");
+    } catch (err: any) {
+      console.error("Error al reservar:", err);
+      if (err.response && err.response.status === 500) {
+          setError("Error del servidor (500). Revisa que la base de datos acepte los datos.");
+      } else if (err.code === "ERR_NETWORK") {
+          setError("Error de conexión. Verifica que CitasAPI (8080) esté encendida.");
+      } else {
+          setError("No se pudo agendar la hora. Intenta nuevamente.");
+      }
     }
   };
 
@@ -125,7 +148,7 @@ const CombinedReservaForm: React.FC = () => {
             <header className="ph-section-header">
               <h2 className="ph-section-title">Reserva de Hora</h2>
               <p className="ph-section-subtitle">
-                Recuerda que las horas se deben tomar con al menos 3 días de anticipación.
+                Selecciona especialidad, médico y horario disponible.
               </p>
             </header>
 
@@ -142,7 +165,7 @@ const CombinedReservaForm: React.FC = () => {
                 className="form-select"
                 disabled={loadingDoctores}
               >
-                <option value="" disabled>Selecciona una especialidad</option>
+                <option value="" disabled>Selecciona especialidad</option>
                 {areasDisponibles.map(area => (
                     <option key={area} value={area}>{area}</option>
                 ))}
@@ -158,7 +181,7 @@ const CombinedReservaForm: React.FC = () => {
                 disabled={!areaSeleccionada} 
               >
                 <option value="" disabled>
-                    {areaSeleccionada ? "Selecciona un profesional" : "Primero elige especialidad"}
+                    {areaSeleccionada ? "Selecciona profesional" : "Primero elige especialidad"}
                 </option>
                 {doctoresFiltrados.map((doc) => (
                   <option key={doc.id} value={doc.id}>
@@ -169,25 +192,25 @@ const CombinedReservaForm: React.FC = () => {
             </div>
 
             <div className="ph-field">
-              <label>Fecha (Mínimo {fechaMinima})</label>
+              <label>Fecha (Mínimo: {fechaMinima})</label>
               <input
                 type="date"
                 value={fecha}
                 onChange={(e) => setFecha(e.target.value)}
-                // AQUÍ APLICAMOS LA REGLA DE LOS 3 DÍAS
                 min={fechaMinima}
+                required
               />
             </div>
 
             <div className="ph-field">
-              <label>Hora (09:00 - 17:00)</label>
-              {/* CAMBIAMOS INPUT POR SELECT PARA CONTROLAR BLOQUES */}
+              <label>Hora</label>
               <select
                 value={hora}
                 onChange={(e) => setHora(e.target.value)}
                 className="form-select"
+                required
               >
-                <option value="" disabled>Selecciona una hora</option>
+                <option value="" disabled>Selecciona hora</option>
                 {HORARIOS_DISPONIBLES.map((h) => (
                     <option key={h} value={h}>{h}</option>
                 ))}
