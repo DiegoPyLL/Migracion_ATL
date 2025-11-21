@@ -50,29 +50,82 @@ const Perfil = () => {
   const CITAS_API_URL = 'http://localhost:8080/api/v1/citas';
   const HISTORIAL_API_URL = 'http://localhost:8083/api/v1/historial';
 
+  // --- 1. CARGAR DATOS (OPTIMIZADO CON PROMISE.ALL) ---
   useEffect(() => {
     const cargarDatos = async () => {
+      // 1. Verificar Sesión
       const usuarioSesion = localStorage.getItem('usuario');
-      if (!usuarioSesion) { navigate('/login'); return; }
+      if (!usuarioSesion) {
+        navigate('/login');
+        return;
+      }
 
       const usuarioObj = JSON.parse(usuarioSesion);
       const userId = usuarioObj.userId || usuarioObj.id;
 
-      try {
-        // 1. Cargar Doctores (Para traducir IDs a Nombres en Citas e Historial)
-        let doctoresReales: DoctorMap[] = [];
-        try {
-            const respDoc = await axios.get(DOCTORES_API_URL);
-            doctoresReales = respDoc.data;
-            setListaDoctores(doctoresReales);
-        } catch (e) { console.warn("No se pudieron cargar doctores"); }
+      setLoading(true);
 
-        // 2. Datos Personales
-        const respUsuario = await axios.get(`${USUARIOS_API_URL}/${userId}`);
+      try {
+        // ---------------------------------------------------------------------
+        // PASO A: Disparar todas las peticiones en PARALELO
+        // Usamos .catch() en las secundarias para retornar { data: [] } si fallan,
+        // así no rompen la carga principal del usuario.
+        // ---------------------------------------------------------------------
+
+        // 1. Doctores (Para mapear nombres)
+        const reqDoctores = axios.get(DOCTORES_API_URL).catch(e => {
+            console.warn("API Doctores no disponible o vacía");
+            return { data: [] }; 
+        });
+
+        // 2. Usuario (CRÍTICO: Si falla, dejamos que salte al catch general)
+        const reqUsuario = axios.get(`${USUARIOS_API_URL}/${userId}`);
+
+        // 3. Seguros
+        const reqSeguros = axios.get(`${SEGUROS_API_URL}/usuario/${userId}`).catch(e => {
+            console.warn("API Seguros no disponible (Posible error 500 resuelto o servicio apagado)");
+            return { data: [] };
+        });
+
+        // 4. Historial
+        const reqHistorial = axios.get(`${HISTORIAL_API_URL}/usuario/${userId}`).catch(e => {
+            console.warn("API Historial no disponible");
+            return { data: [] };
+        });
+
+        // 5. Citas
+        const reqCitas = axios.get(`${CITAS_API_URL}/usuario/${userId}`).catch(e => {
+            console.warn("API Citas no disponible");
+            return { data: [] };
+        });
+
+        // ---------------------------------------------------------------------
+        // PASO B: Esperar a que TODAS terminen (Promise.all)
+        // Esto reduce el tiempo de espera a la petición más lenta, no a la suma de todas.
+        // ---------------------------------------------------------------------
+        const [respDoctores, respUsuario, respSeguros, respHistorial, respCitas] = await Promise.all([
+            reqDoctores,
+            reqUsuario,
+            reqSeguros,
+            reqHistorial,
+            reqCitas
+        ]);
+
+        // ---------------------------------------------------------------------
+        // PASO C: Procesar la información recibida
+        // ---------------------------------------------------------------------
+
+        // C.1: Doctores (Guardamos en variable local para usar en el mapeo de citas)
+        const doctoresReales: DoctorMap[] = respDoctores.data;
+        setListaDoctores(doctoresReales);
+
+        // C.2: Usuario (Datos del perfil)
         const u = respUsuario.data;
         const datosCargados = {
           id: u.id,
-          nombre: u.nombre || '', apellido: u.apellido || '', correo: u.correo || '',
+          nombre: u.nombre || '',
+          apellido: u.apellido || '',
+          correo: u.correo || '',
           telefono: u.telefono || '',
           fechaNacimiento: u.fechaNacimiento ? u.fechaNacimiento.split('T')[0] : '',
           rol: u.rol
@@ -80,42 +133,51 @@ const Perfil = () => {
         setPerfilData(datosCargados);
         setOriginalData(datosCargados);
 
-        // 3. Seguros
-        try {
-            const respSeguros = await axios.get(`${SEGUROS_API_URL}/usuario/${userId}`);
-            setListaSeguros(respSeguros.data || []);
-        } catch (e) { console.warn("Sin seguros"); }
+        // C.3: Seguros
+        setListaSeguros(respSeguros.data);
 
-        // 4. Historial Médico (Pasamos doctores después)
-        try {
-            const respHistorial = await axios.get(`${HISTORIAL_API_URL}/usuario/${userId}`);
-            setListaFichas(respHistorial.data || []);
-        } catch (e) { console.warn("Sin historial"); }
+        // C.4: Historial (Fichas)
+        setListaFichas(respHistorial.data);
 
-        // 5. Citas + Cruzamiento
-        try {
-            const respCitas = await axios.get(`${CITAS_API_URL}/usuario/${userId}`);
-            const citasRaw = respCitas.data || [];
-            
+        // C.5: Citas (Cruzamos con la lista de doctores que ya recibimos)
+        const citasRaw = respCitas.data;
+        if (citasRaw.length > 0) {
             const citasCompletas = citasRaw.map((cita: any) => {
-                const dId = cita.idDoctor || (cita.doctor ? cita.doctor.id : null);
-                const doc = doctoresReales.find(d => d.id === dId);
+                // Buscamos el ID del doctor (soporta estructura plana o anidada)
+                const doctorIdEnCita = cita.idDoctor || (cita.doctor ? cita.doctor.id : null);
+                
+                // Buscamos el nombre real en la lista descargada
+                const doctorReal = doctoresReales.find(d => d.id === doctorIdEnCita);
+
                 return {
-                    id: cita.id, fechaCita: cita.fechaCita, horaInicio: cita.horaInicio, estado: cita.estado,
-                    doctor: { id: dId, usuario: { 
-                        nombre: doc ? doc.usuario.nombre : "Doctor", 
-                        apellido: doc ? doc.usuario.apellido : "No encontrado" 
-                    }}
+                    id: cita.id,
+                    fechaCita: cita.fechaCita,
+                    horaInicio: cita.horaInicio,
+                    estado: cita.estado,
+                    doctor: {
+                        id: doctorIdEnCita,
+                        usuario: {
+                            nombre: doctorReal ? doctorReal.usuario.nombre : "Doctor",
+                            apellido: doctorReal ? doctorReal.usuario.apellido : "No encontrado"
+                        }
+                    }
                 };
             });
             setListaCitas(citasCompletas);
-        } catch (e) { setListaCitas([]); }
+        } else {
+            setListaCitas([]);
+        }
 
-      } catch (error) { console.error("Error general:", error); } finally { setLoading(false); }
+      } catch (error) {
+        console.error("Error crítico cargando perfil:", error);
+        // Solo si falla la carga del usuario (que no tiene catch individual) caerá aquí.
+      } finally {
+        setLoading(false);
+      }
     };
+
     cargarDatos();
   }, [navigate]);
-
   // --- ACCIONES ---
   const handleLogout = () => { localStorage.removeItem('usuario'); navigate('/login'); };
 
