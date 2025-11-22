@@ -1,0 +1,145 @@
+/* =========================================
+   ESTILOS EXCLUSIVOS PARA ADMIN DASHBOARD
+   ========================================= */
+
+:root {
+    --admin-primary: #dc3545;      /* Rojo Intenso */
+    --admin-dark: #8a1c27;         /* Rojo Oscuro */
+    --admin-bg: #f4f6f9;           /* Fondo gris azulado muy claro */
+}
+
+/* Contenedor Principal - Fuerza el fondo correcto */
+.admin-container {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--admin-bg);
+    min-height: 100vh;
+    padding-bottom: 60px;
+}
+
+/* HEADER ROJO (Degradado) */
+.admin-header-bg {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-dark) 100%) !important;
+    color: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(220, 53, 69, 0.25);
+    margin-bottom: 2rem;
+}
+
+/* Botones de Navegación en el Header */
+.btn-admin-nav {
+    background-color: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.btn-admin-nav:hover {
+    background-color: rgba(255,255,255,0.25);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-admin-nav.active {
+    background-color: white;
+    color: var(--admin-primary);
+    font-weight: 700;
+    border-color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Tarjetas del Admin */
+.admin-card {
+    background: white;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+    overflow: hidden;
+}
+
+.admin-card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+    background-color: #fff;
+}
+
+.admin-card-title {
+    color: var(--admin-primary);
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Inputs específicos de Admin */
+.admin-form-control {
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    border: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
+    font-size: 0.95rem;
+}
+
+.admin-form-control:focus {
+    background-color: #fff;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
+}
+
+.admin-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+/* Botón de Acción Principal */
+.btn-admin-submit {
+    background: linear-gradient(45deg, var(--admin-primary), var(--admin-dark));
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-admin-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    color: white;
+}
+
+/* Avatar del Admin */
+.admin-avatar-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid rgba(255,255,255,0.8);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    position: relative;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+.admin-avatar-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: white;
+    color: var(--admin-primary);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}

@@ -1,0 +1,116 @@
+/* =========================================
+   ESTILOS EXCLUSIVOS PARA DOCTOR DASHBOARD
+   ========================================= */
+
+:root {
+    /* Reutilizamos el color primario de Perfil, pero con un enfoque más institucional */
+    --doctor-primary: #0d6efd;      /* Azul Bootstrap */
+    --doctor-dark: #1A237E;         /* Azul Oscuro */
+    --doctor-bg: #f8f9fa;           /* Fondo gris claro */
+    --color-texto-claro: #6c757d;
+}
+
+/* Contenedor Principal */
+.doctor-container {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--doctor-bg);
+    min-height: 100vh;
+    padding-bottom: 60px;
+}
+
+/* HEADER INSTITUCIONAL (Azul Degradado) */
+.doctor-header-bg {
+    background: linear-gradient(135deg, var(--doctor-primary) 0%, var(--doctor-dark) 100%) !important;
+    color: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(13, 110, 253, 0.25);
+    margin-bottom: 2rem;
+}
+
+/* Botones de Navegación en el Header */
+.btn-doctor-nav {
+    background-color: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: white;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    font-weight: 500;
+}
+
+.btn-doctor-nav:hover:not(.active) {
+    background-color: rgba(255,255,255,0.3);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-doctor-nav.active {
+    background-color: white;
+    color: var(--doctor-primary);
+    font-weight: 700;
+    border-color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* AVATAR DOCTOR */
+.doctor-avatar-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid rgba(255,255,255,0.8);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    position: relative;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+/* CITA CARD (Agenda de Pacientes) */
+.doctor-cita-card {
+    border: none;
+    border-left: 5px solid var(--doctor-primary);
+    border-radius: 10px;
+    margin-bottom: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.doctor-cita-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+}
+
+.cita-paciente-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--doctor-dark);
+}
+
+.cita-info-item {
+    font-size: 0.9rem;
+    color: var(--color-texto-claro);
+    display: flex;
+    align-items: center;
+}
+
+.cita-info-item i {
+    color: var(--doctor-primary);
+    margin-right: 5px;
+}
+
+/* COLUMNA DE CANCELADAS (Historial Lateral) */
+.cancelada-sidebar {
+    border-radius: 10px;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+.cancelada-item {
+    border-left: 3px solid #f8d7da; /* Rojo claro para cancelación */
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import "../styles/estiloPerfil.css";
+import "../styles/estiloAdmin.css";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 import PerfilForm, { PerfilData } from '../components/perfil/PerfilForm';

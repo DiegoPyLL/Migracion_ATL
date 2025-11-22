@@ -26,11 +26,9 @@ body {
 .perfil-container {
     background-color: var(--color-fondo);
     min-height: 100vh;
-    /* Eliminamos padding excesivo para que container-fluid maneje los margenes */
     padding-bottom: 60px; 
 }
 
-/* Ajuste para que el contenedor no se sienta "apretado" */
 .perfil-wrapper {
     width: 100%;
     max-width: 100%;
@@ -38,7 +36,6 @@ body {
     padding: 0;
 }
 
-/* Tarjeta contenedora principal (Ahora transparente para separar bloques) */
 .perfil-card {
     background-color: transparent;
     box-shadow: none;
@@ -74,12 +71,9 @@ body {
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    
-    /* NUEVO: Propiedades de fondo */
-    background-size: cover;      /* Llena el círculo sin deformar */
-    background-position: center; /* Centra la cara/imagen */
+    background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
-    
     border: 3px solid rgba(255, 255, 255, 0.9);
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
@@ -106,7 +100,7 @@ body {
 }
 
 /* =========================================
-   5. FOTO DE PERFIL (CARRUSEL)
+   5. FOTO DE PERFIL (CARRUSEL) - CORREGIDO
    ========================================= */
 
 .perfil-carousel-container-wrapper {
@@ -117,62 +111,66 @@ body {
 }
 
 .perfil-carousel-circle {
-    /* 1. Definimos el tamaño del círculo */
+    /* Tamaño fijo del círculo */
     width: 320px;
     height: 320px;
     
-    /* 2. Lo hacemos redondo */
+    /* Forma redonda y recorte */
     border-radius: 50%;
+    overflow: hidden; /* CRÍTICO: Recorta todo lo que salga del círculo */
     
-    /* 3. Esto es lo que recorta la foto en forma de círculo */
-    overflow: hidden;
-    
-    /* Estilo del borde */
+    /* Estética */
     border: 6px solid white;
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    
-    /* Necesario para que el carrusel se comporte bien adentro */
     position: relative;
-    background-color: #eee; /* Color de fondo por si la imagen tarda en cargar */
+    background-color: #e9ecef; /* Fondo gris mientras carga */
+    z-index: 1;
 }
 
-/* Aseguramos que el carrusel ocupe todo el espacio del círculo */
+/* --- CORRECCIÓN CLAVE AQUÍ --- */
+/* Forzamos a TODOS los contenedores internos de Bootstrap a llenar el espacio */
 .perfil-carousel-circle .carousel,
 .perfil-carousel-circle .carousel-inner,
-.perfil-carousel-circle .carousel-item {
+.perfil-carousel-circle .carousel-item,
+.perfil-carousel-circle .carousel-item.active {
     width: 100% !important;
     height: 100% !important;
+    position: absolute !important; /* Asegura que se peguen a los bordes */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
-/* LA IMAGEN: Aquí está la corrección */
+/* Aseguramos que la imagen cubra todo sin deformarse */
 .perfil-carousel-circle img {
     width: 100% !important;
     height: 100% !important;
+    min-width: 320px; /* Doble seguridad */
+    min-height: 320px; /* Doble seguridad */
     
-    /* 'cover' hace que la imagen llene el círculo SIN aplastarse.
-       Recortará los bordes que sobren, pero la cara se verá bien. */
-    object-fit: cover !important;
-    
-    /* Centra la imagen */
+    object-fit: cover !important; /* Esto hace la magia del recorte */
     object-position: center center !important;
+    display: block !important;
 }
 
-/* Ocultar controles para que se vea más limpio (opcional, puedes borrarlas si quieres flechas) */
+/* Flechas de navegación (opcional: hacerlo sutil) */
 .perfil-carousel-circle .carousel-control-prev,
 .perfil-carousel-circle .carousel-control-next {
     width: 15%;
-    opacity: 0; 
+    opacity: 0; /* Ocultas por defecto */
     transition: opacity 0.3s;
+    z-index: 10; /* Encima de la imagen */
 }
 
 .perfil-carousel-circle:hover .carousel-control-prev,
 .perfil-carousel-circle:hover .carousel-control-next {
-    opacity: 1;
+    opacity: 1; /* Visibles al pasar el mouse */
 }
+
 /* =========================================
    6. TARJETAS DE CITAS Y CONTENIDO
    ========================================= */
-/* Tarjetas individuales de Citas */
 .cita-card {
     border: none;
     border-radius: 12px;
@@ -220,21 +218,13 @@ body {
     font-size: 1.1rem;
 }
 
-/* Lista de Historial (Lateral Derecha) */
 .historial-card-item {
     background-color: white;
     border-radius: 10px;
     padding: 1rem;
     margin-bottom: 0.75rem;
-    border-left: 4px solid #dc3545; /* Rojo para canceladas */
+    border-left: 4px solid #dc3545;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
-/* Tarjetas contenedoras generales (Blanco sobre fondo gris) */
-.card {
-    border-radius: 16px;
-    border: none;
-    box-shadow: var(--sombra-suave);
 }
 
 /* =========================================
@@ -257,4 +247,19 @@ body {
     font-weight: 500;
     color: var(--color-texto);
     margin-bottom: 0.5rem;
+}
+
+/* Helpers para badges y botones */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.transition-hover {
+    transition: all 0.3s ease;
+}
+
+.transition-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sombra-fuerte) !important;
 }
