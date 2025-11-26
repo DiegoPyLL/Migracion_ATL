@@ -82,7 +82,7 @@ const DoctorDashboard: React.FC = () => {
   const [citas, setCitas] = useState<CitaMedica[]>([]);
   const [completadas, setCompletadas] = useState<CitaCompletada[]>([]);
   const [completadasLoading, setCompletadasLoading] = useState(false);
-  const [filters, setFilters] = useState<{ month: string; search: string; searchId: string }>({ month: '', search: '', searchId: '' });
+  const [filters, setFilters] = useState<{ month: string; search: string }>({ month: '', search: '' });
   const [editItem, setEditItem] = useState<CitaCompletada | null>(null);
   const [editDiag, setEditDiag] = useState<string>('');
   const [editObs, setEditObs] = useState<string>('');
@@ -108,6 +108,10 @@ const DoctorDashboard: React.FC = () => {
 
   const { stats, loading: statsLoading, error: statsError, refetch: refetchStats } =
     useDoctorStatsFront(doctorId, 6, tarifaConsulta);
+
+  const nombreApellidoRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,40}$/;
+  const correoRegex = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
+  const telefonoRegex = /^569\d{8}$/; // validamos digitos y agregamos + al guardar
 
   const monthToday = () => {
     const d = new Date();
@@ -286,6 +290,43 @@ const DoctorDashboard: React.FC = () => {
     return msg;
   };
 
+  const validarNombreApellidoLive = (valor: string, campo: "nombre" | "apellido") => {
+    const limpio = valor.trim();
+    if (!limpio) return `El ${campo} es obligatorio.`;
+    if (limpio.length > 40) return `El ${campo} admite hasta 40 caracteres.`;
+    if (!nombreApellidoRegex.test(limpio)) return `El ${campo} solo puede tener letras y espacios.`;
+    return '';
+  };
+
+  const validateField = (id: string, value: string) => {
+    if (id === 'nombre' || id === 'apellido') return validarNombreApellidoLive(value, id as 'nombre' | 'apellido');
+    if (id === 'correo') {
+      const correo = value.trim();
+      if (!correo) return "El correo es obligatorio.";
+      if (correo.length > 60) return "El correo admite hasta 60 caracteres.";
+      if (!correoRegex.test(correo)) return "Ingresa un correo valido (ej: usuario@mail.cl).";
+      return '';
+    }
+    if (id === 'telefono') {
+      const tel = value.trim();
+      const soloDigitos = tel.replace(/\D/g, '');
+      if (!tel) return "El telefono es obligatorio.";
+      if (!soloDigitos.startsWith('569')) return "El telefono debe iniciar con +569.";
+      if (!telefonoRegex.test(soloDigitos)) return "Luego de +569 deben ser 8 digitos (ej: +56920731865).";
+      return '';
+    }
+    if (id === 'fechaNacimiento') {
+      if (!value) return "La fecha de nacimiento es obligatoria.";
+      const fechaNacimientoDate = new Date(value);
+      if (Number.isNaN(fechaNacimientoDate.getTime())) return "La fecha de nacimiento es invalida.";
+      const hoy = new Date();
+      const fechaMayorEdad = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate());
+      if (fechaNacimientoDate > fechaMayorEdad) return "Debes ser mayor de 18 años.";
+      return '';
+    }
+    return '';
+  };
+
   const handleCancelarCita = async (id: number) => {
     if (!confirm("¿Seguro que desea cancelar esta cita?")) return;
     try {
@@ -324,8 +365,7 @@ const DoctorDashboard: React.FC = () => {
     try {
       const respGet = await axios.get(`${CITAS_API_URL}/${id}`);
       const cita = respGet.data || {};
-      const diagAuto = pickRandomDiag();
-      const baseDiag = `[Auto] ${diagAuto} | [Dr] ${diagnosticoUsuario.trim()}`;
+      const baseDiag = diagnosticoUsuario.trim();
       const obsFinal = observaciones ? `${baseDiag} | Obs: ${observaciones}` : baseDiag;
       const payload = buildPayloadFromCita(cita, {
         estado: 'REALIZADA',
@@ -346,6 +386,13 @@ const DoctorDashboard: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
     setPerfilData(prev => ({ ...prev, [id]: value }));
+
+    const errorMsg = validateField(id, value);
+    setPerfilErrors(prev => {
+      const updated = { ...prev };
+      if (errorMsg) updated[id] = errorMsg; else delete updated[id];
+      return updated;
+    });
   };
 
   const handleRestore = () => {
@@ -361,32 +408,30 @@ const DoctorDashboard: React.FC = () => {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!myUserId) return;
-    if (!perfilData.nombre.trim() || !perfilData.apellido.trim() || !perfilData.correo.trim()) {
-        alert("No puedes dejar campos vacíos.");
-        return;
-    }
-
-    try {
-        const payload = { ...perfilData, fechaNacimiento: `${perfilData.fechaNacimiento}T00:00:00` };
-        await axios.put(`${USUARIOS_API_URL}/${myUserId}`, payload);
-        alert("Datos actualizados.");
-        setIsEditing(false);
-        setOriginalData(perfilData);
-        
-        const sesion = JSON.parse(localStorage.getItem('usuario') || '{}');
-        sesion.nombre = perfilData.nombre; sesion.apellido = perfilData.apellido;
-        localStorage.setItem('usuario', JSON.stringify(sesion));
-        setDoctorName(`${perfilData.nombre} ${perfilData.apellido}`);
-    } catch (e) { alert("Error al guardar."); }
+    await handleSaveProfileWithPassword(e);
   };
 
   const handleSaveProfileWithPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!myUserId) return;
+    const nombre = perfilData.nombre.trim();
+    const apellido = perfilData.apellido.trim();
+    const correo = perfilData.correo.trim();
+    const telefono = perfilData.telefono.trim();
+    const telefonoDigitos = telefono.replace(/\D/g, '');
+    const fechaNac = perfilData.fechaNacimiento;
+
     const errs: Record<string, string> = {};
-    if (!perfilData.nombre.trim() || !perfilData.apellido.trim() || !perfilData.correo.trim()) {
-        errs.nombre = "Nombre, apellido y correo son obligatorios.";
-    }
+    ([
+      ['nombre', nombre],
+      ['apellido', apellido],
+      ['correo', correo],
+      ['telefono', telefono],
+      ['fechaNacimiento', fechaNac],
+    ] as const).forEach(([campo, valor]) => {
+      const msg = validateField(campo, valor);
+      if (msg) errs[campo] = msg;
+    });
     if (nuevaPassword || confirmPassword) {
       if (nuevaPassword.length < 8) errs.contrasena = "La contrasena debe tener al menos 8 caracteres.";
       if (nuevaPassword !== confirmPassword) errs.confirmarContrasena = "Las contrasenas no coinciden.";
@@ -395,17 +440,27 @@ const DoctorDashboard: React.FC = () => {
     if (Object.keys(errs).length > 0) return;
 
     try {
-        const payload: any = { ...perfilData, fechaNacimiento: `${perfilData.fechaNacimiento}T00:00:00` };
+        const telefonoNormalizado = telefonoDigitos.startsWith('569') && telefonoDigitos.length === 11
+          ? `+${telefonoDigitos}`
+          : telefono;
+        const payload: any = {
+          ...perfilData,
+          nombre,
+          apellido,
+          correo,
+          telefono: telefonoNormalizado,
+          fechaNacimiento: `${perfilData.fechaNacimiento}T00:00:00`
+        };
         if (nuevaPassword) payload.contrasena = nuevaPassword;
         await axios.put(`${USUARIOS_API_URL}/${myUserId}`, payload);
         alert("Datos actualizados.");
         setIsEditing(false);
-        setOriginalData(perfilData);
-        
+        setPerfilData(prev => ({ ...prev, ...payload, fechaNacimiento: perfilData.fechaNacimiento }));
+        setOriginalData({ ...perfilData, nombre, apellido, correo, telefono: telefonoNormalizado });
         const sesion = JSON.parse(localStorage.getItem('usuario') || '{}');
-        sesion.nombre = perfilData.nombre; sesion.apellido = perfilData.apellido;
+        sesion.nombre = nombre; sesion.apellido = apellido;
         localStorage.setItem('usuario', JSON.stringify(sesion));
-        setDoctorName(`${perfilData.nombre} ${perfilData.apellido}`);
+        setDoctorName(`${nombre} ${apellido}`);
         setNuevaPassword('');
         setConfirmPassword('');
         setPerfilErrors({});
@@ -417,8 +472,7 @@ const DoctorDashboard: React.FC = () => {
     const fullName = `${item.paciente?.nombre || ''} ${item.paciente?.apellido || ''}`.toLowerCase();
     const email = (item.paciente?.correo || '').toLowerCase();
     const matchesSearch = filters.search ? (fullName.includes(filters.search.toLowerCase()) || email.includes(filters.search.toLowerCase())) : true;
-    const matchesId = filters.searchId ? String(item.idCita) === filters.searchId.trim() : true;
-    return matchesMonth && matchesSearch && matchesId;
+    return matchesMonth && matchesSearch;
   });
 
   const filteredAgenda = citas
@@ -543,16 +597,6 @@ const DoctorDashboard: React.FC = () => {
                           placeholder="Ej: nombre, apellido o email"
                           value={filters.search}
                           onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                        />
-                      </div>
-                      <div className="d-flex flex-column">
-                        <label className="form-label mb-1 small text-muted">Buscar por ID cita</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Ej: 123"
-                          value={filters.searchId}
-                          onChange={(e) => setFilters(prev => ({ ...prev, searchId: e.target.value }))}
                         />
                       </div>
                     </div>

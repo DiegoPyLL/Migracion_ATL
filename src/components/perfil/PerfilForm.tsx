@@ -73,8 +73,10 @@ const PerfilForm = ({
             value={perfilData.nombre}
             onChange={onChange}
             disabled={!isEditing}
+            maxLength={40}
+            aria-invalid={!!errors.nombre}
           />
-          {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+          {errors.nombre && <div className="invalid-feedback d-block text-danger small" style={{ display: 'block' }}>{errors.nombre}</div>}
         </div>
 
         <div className="mb-3">
@@ -86,8 +88,10 @@ const PerfilForm = ({
             value={perfilData.apellido}
             onChange={onChange}
             disabled={!isEditing}
+            maxLength={40}
+            aria-invalid={!!errors.apellido}
           />
-          {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
+          {errors.apellido && <div className="invalid-feedback d-block text-danger small" style={{ display: 'block' }}>{errors.apellido}</div>}
         </div>
 
         <div className="mb-3">
@@ -99,8 +103,9 @@ const PerfilForm = ({
             value={perfilData.fechaNacimiento}
             onChange={onChange}
             disabled={!isEditing}
+            aria-invalid={!!errors.fechaNacimiento}
           />
-          {errors.fechaNacimiento && <div className="invalid-feedback">{errors.fechaNacimiento}</div>}
+          {errors.fechaNacimiento && <div className="invalid-feedback d-block text-danger small" style={{ display: 'block' }}>{errors.fechaNacimiento}</div>}
         </div>
 
         <div className="mb-3">
@@ -112,8 +117,10 @@ const PerfilForm = ({
             value={perfilData.correo}
             onChange={onChange}
             disabled={!isEditing}
+            maxLength={60}
+            aria-invalid={!!errors.correo}
           />
-          {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
+          {errors.correo && <div className="invalid-feedback d-block text-danger small" style={{ display: 'block' }}>{errors.correo}</div>}
         </div>
 
         <div className="mb-3">
@@ -126,8 +133,10 @@ const PerfilForm = ({
             onChange={onChange}
             disabled={!isEditing}
             placeholder="+569..."
+            maxLength={16}
+            aria-invalid={!!errors.telefono}
           />
-          {errors.telefono && <div className="invalid-feedback">{errors.telefono}</div>}
+          {errors.telefono && <div className="invalid-feedback d-block text-danger small" style={{ display: 'block' }}>{errors.telefono}</div>}
         </div>
 
         {isEditing && showPasswordChange && (

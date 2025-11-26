@@ -14,7 +14,6 @@ interface DoctorDetail {
   tarifaConsulta: number;
   sueldo: number;
   bono: number;
-  activo: boolean;
   idEspecialidad?: number;
 }
 
@@ -49,10 +48,10 @@ const AdminDoctorDetail = () => {
         const detalle: DoctorDetail = {
           id: doc.id ?? doc.idDoctor ?? Number(doctorId),
           idUsuario: doc.usuario?.id ?? doc.id_usuario ?? doc.idUsuario,
-          nombre: doc.usuario?.nombre ?? doc.nombre ?? '',
-          apellido: doc.usuario?.apellido ?? doc.apellido ?? '',
-          correo: doc.usuario?.correo ?? doc.correo ?? '',
-          telefono: doc.usuario?.telefono ?? doc.telefono ?? '',
+        nombre: doc.usuario?.nombre ?? doc.nombre ?? '',
+        apellido: doc.usuario?.apellido ?? doc.apellido ?? '',
+        correo: doc.usuario?.correo ?? doc.correo ?? '',
+        telefono: doc.usuario?.telefono ?? doc.telefono ?? '',
           fechaNacimiento: doc.usuario?.fechaNacimiento
             ? doc.usuario.fechaNacimiento.split('T')[0]
             : doc.fechaNacimiento
@@ -61,7 +60,6 @@ const AdminDoctorDetail = () => {
           tarifaConsulta: doc.tarifaConsulta ?? doc.tarifa_consulta ?? 0,
           sueldo: doc.sueldo ?? 0,
           bono: doc.bono ?? 0,
-          activo: doc.activo ?? true,
           idEspecialidad:
             doc.idEspecialidad ??
             (doc.especialidad ? Number(doc.especialidad.id ?? doc.especialidad.idEspecialidad ?? doc.especialidad.codigo) : undefined)
@@ -121,6 +119,17 @@ const AdminDoctorDetail = () => {
     } finally { setSaving(false); }
   };
 
+  const handleToggleActivo = async (activoDeseado: boolean) => {
+    if (!data) return;
+    const confirmar = window.confirm(
+      activoDeseado
+        ? "¿Deseas activar nuevamente a este doctor?"
+        : "¿Deseas desactivar a este doctor? No podrá ser asignado a nuevas citas."
+    );
+    if (!confirmar) return;
+    alert("El backend no expone/permite cambiar el estado. Consulta con el equipo backend.");
+  };
+
   if (loading) return <div className="text-center mt-5">Cargando doctor...</div>;
   if (error) return (
     <div className="container py-4">
@@ -178,18 +187,6 @@ const AdminDoctorDetail = () => {
           <div className="col-md-4 col-12">
             <label className="form-label">Bono</label>
             <input id="bono" type="number" min="0" className="form-control" value={data.bono} onChange={handleChange} />
-          </div>
-          <div className="col-md-6 col-12 d-flex align-items-center mt-4">
-            <div className="form-check form-switch">
-              <input
-                id="activo"
-                className="form-check-input"
-                type="checkbox"
-                checked={data.activo}
-                onChange={(e) => setData({ ...data, activo: e.target.checked })}
-              />
-              <label className="form-check-label ms-2" htmlFor="activo">Activo</label>
-            </div>
           </div>
         </div>
 

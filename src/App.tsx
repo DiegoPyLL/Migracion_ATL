@@ -20,7 +20,7 @@ import AdminSeguroEditar from "./pages/AdminSeguroEditar";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 
 // --- COMPONENTE: PORTERO DEL HOME ---
-// Decide si muestra el Home público o redirige al dashboard si ya tienes rol de "empleado"
+// Decide si muestra el Home público o redirige al dashboard si ya tienes rol de "usuario"
 const HomeRedirector = () => {
   const usuarioSesion = localStorage.getItem('usuario');
 

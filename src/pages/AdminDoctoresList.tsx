@@ -11,7 +11,6 @@ interface DoctorListItem {
   correo?: string;
   telefono?: string;
   especialidad?: string;
-  activo?: boolean;
 }
 
 const USUARIOS_API_URL = 'http://localhost:8082/api/v1';
@@ -36,8 +35,7 @@ const AdminDoctoresList = () => {
           apellido: d.usuario?.apellido ?? d.apellido ?? '',
           correo: d.usuario?.correo ?? d.correo,
           telefono: d.usuario?.telefono ?? d.telefono,
-          especialidad: d.especialidad ?? d.especialidadPrincipal ?? d.nombreEspecialidad,
-          activo: d.activo ?? true,
+          especialidad: d.especialidad ?? d.especialidadPrincipal ?? d.nombreEspecialidad
         }));
         setDoctores(items);
         setError('');
@@ -101,12 +99,7 @@ const AdminDoctoresList = () => {
               onClick={() => navigate(`/admin/doctores/${doc.id}`)}
             >
               <div className="card-body">
-                <div className="d-flex justify-content-between align-items-start mb-2">
-                  <h5 className="fw-bold mb-0">{doc.nombre} {doc.apellido}</h5>
-                  <span className={`badge ${doc.activo ? 'bg-success' : 'bg-secondary'}`}>
-                    {doc.activo ? 'Activo' : 'Inactivo'}
-                  </span>
-                </div>
+                <h5 className="fw-bold mb-2">{doc.nombre} {doc.apellido}</h5>
                 <p className="text-muted mb-1">{doc.correo || 'Sin correo'}</p>
                 <p className="mb-0"><i className="bi bi-briefcase me-1"></i>{doc.especialidad || 'Sin especialidad'}</p>
                 <small className="text-muted">ID Doc: {doc.id} {doc.idUsuario ? ` • ID Usuario: ${doc.idUsuario}` : ''}</small>
