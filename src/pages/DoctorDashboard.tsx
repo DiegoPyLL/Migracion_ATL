@@ -96,11 +96,15 @@ const DoctorDashboard: React.FC = () => {
     nombre: '', apellido: '', correo: '', telefono: '', fechaNacimiento: ''
   });
   const [originalData, setOriginalData] = useState<PerfilData | null>(null);
+  const [nuevaPassword, setNuevaPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [perfilErrors, setPerfilErrors] = useState<Record<string, string>>({});
 
   const [isEditing, setIsEditing] = useState(false);
   const [myUserId, setMyUserId] = useState<number | null>(null);
   const [doctorId, setDoctorId] = useState<number | null>(null);
   const [tarifaConsulta, setTarifaConsulta] = useState<number>(0);
+  const [agendaSearch, setAgendaSearch] = useState('');
 
   const { stats, loading: statsLoading, error: statsError, refetch: refetchStats } =
     useDoctorStatsFront(doctorId, 6, tarifaConsulta);
@@ -349,6 +353,9 @@ const DoctorDashboard: React.FC = () => {
         setPerfilData(originalData);
         alert("Datos restaurados.");
     }
+    setNuevaPassword('');
+    setConfirmPassword('');
+    setPerfilErrors({});
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -373,6 +380,38 @@ const DoctorDashboard: React.FC = () => {
     } catch (e) { alert("Error al guardar."); }
   };
 
+  const handleSaveProfileWithPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!myUserId) return;
+    const errs: Record<string, string> = {};
+    if (!perfilData.nombre.trim() || !perfilData.apellido.trim() || !perfilData.correo.trim()) {
+        errs.nombre = "Nombre, apellido y correo son obligatorios.";
+    }
+    if (nuevaPassword || confirmPassword) {
+      if (nuevaPassword.length < 8) errs.contrasena = "La contrasena debe tener al menos 8 caracteres.";
+      if (nuevaPassword !== confirmPassword) errs.confirmarContrasena = "Las contrasenas no coinciden.";
+    }
+    setPerfilErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+
+    try {
+        const payload: any = { ...perfilData, fechaNacimiento: `${perfilData.fechaNacimiento}T00:00:00` };
+        if (nuevaPassword) payload.contrasena = nuevaPassword;
+        await axios.put(`${USUARIOS_API_URL}/${myUserId}`, payload);
+        alert("Datos actualizados.");
+        setIsEditing(false);
+        setOriginalData(perfilData);
+        
+        const sesion = JSON.parse(localStorage.getItem('usuario') || '{}');
+        sesion.nombre = perfilData.nombre; sesion.apellido = perfilData.apellido;
+        localStorage.setItem('usuario', JSON.stringify(sesion));
+        setDoctorName(`${perfilData.nombre} ${perfilData.apellido}`);
+        setNuevaPassword('');
+        setConfirmPassword('');
+        setPerfilErrors({});
+    } catch (e) { alert("Error al guardar."); }
+  };
+
   const filteredCompletadas = completadas.filter(item => {
     const matchesMonth = filters.month ? (formatFecha(item.fechaCita) || '').startsWith(filters.month) : true;
     const fullName = `${item.paciente?.nombre || ''} ${item.paciente?.apellido || ''}`.toLowerCase();
@@ -381,6 +420,16 @@ const DoctorDashboard: React.FC = () => {
     const matchesId = filters.searchId ? String(item.idCita) === filters.searchId.trim() : true;
     return matchesMonth && matchesSearch && matchesId;
   });
+
+  const filteredAgenda = citas
+    .filter(c => !esCancelada(c.estado) && c.usuario?.nombre && c.usuario?.correo && c.usuario?.telefono)
+    .filter((c) => {
+      if (!agendaSearch.trim()) return true;
+      const term = agendaSearch.toLowerCase();
+      const fullName = `${c.usuario?.nombre || ''} ${c.usuario?.apellido || ''}`.toLowerCase();
+      const email = (c.usuario?.correo || '').toLowerCase();
+      return fullName.includes(term) || email.includes(term);
+    });
 
   if (loading) return <div className="d-flex justify-content-center mt-5"><div className="spinner-border text-primary"></div></div>;
 
@@ -412,13 +461,24 @@ const DoctorDashboard: React.FC = () => {
           {activeTab === 'agenda' && (
             <>
               <div className="col-lg-12">
-                <h4 className="mb-3 text-primary fw-bold">Próximos Pacientes</h4>
+                <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-3">
+                  <h4 className="text-primary fw-bold mb-2 mb-lg-0">Proximos Pacientes</h4>
+                  <div className="d-flex align-items-center gap-2">
+                    <input
+                      type="text"
+                      className="form-control"
+                      style={{ minWidth: '260px' }}
+                      placeholder="Buscar por nombre o correo"
+                      value={agendaSearch}
+                      onChange={(e) => setAgendaSearch(e.target.value)}
+                    />
+                  </div>
+                </div>
                 <div className="agenda-list">
-                    {citas.filter(c => !esCancelada(c.estado) && c.usuario?.nombre && c.usuario?.correo && c.usuario?.telefono).length === 0 ? (
+                    {filteredAgenda.length === 0 ? (
                         <div className="text-center p-5 bg-white rounded shadow-sm"><p className="text-muted">No hay citas programadas.</p></div>
                     ) : (
-                        citas
-                          .filter(c => !esCancelada(c.estado) && c.usuario?.nombre && c.usuario?.correo && c.usuario?.telefono)
+                        filteredAgenda
                           .map(cita => (
                             <div key={cita.id} className="card cita-card">
                                 <div className="card-body cita-card-body">
@@ -604,8 +664,17 @@ const DoctorDashboard: React.FC = () => {
                             onEnableEdition={() => setIsEditing(true)}
                             onClear={handleRestore}
                             onChange={handleChange}
-                            onSubmit={handleSaveProfile}
+                            onSubmit={handleSaveProfileWithPassword}
                             onLogout={() => {}}
+                            showPasswordChange
+                            password={nuevaPassword}
+                            confirmPassword={confirmPassword}
+                            onPasswordChange={(ev) => {
+                              const { id, value } = ev.target;
+                              if (id === 'contrasena') setNuevaPassword(value);
+                              if (id === 'confirmarContrasena') setConfirmPassword(value);
+                            }}
+                            errors={perfilErrors}
                         />
                         <hr />
                         <h5 className="fw-bold text-primary mb-3">BONO</h5>
@@ -620,8 +689,7 @@ const DoctorDashboard: React.FC = () => {
                                 <div className="border rounded p-3 bg-light">
                                   <div className="fw-bold">{formatMonthLabel(s.month)}</div>
                                   <div className="small text-muted">Realizadas: {s.realizadas} • Canceladas: {s.canceladas}</div>
-                                  <div className="small text-muted">Programadas: {s.programadas}</div>
-                                  <div className="fw-semibold text-success mt-1">Revenue: {formatMoney(s.total_revenue || 0)}</div>
+                                  <div className="fw-semibold text-success mt-1">Ganancias totales: {formatMoney(s.total_revenue || 0)}</div>
                                   <div className="text-primary">Bono 10%: {formatMoney(s.bonus_10 || 0)}</div>
                                 </div>
                               </div>

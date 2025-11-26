@@ -17,6 +17,7 @@ export interface PerfilData {
   telefono: string;
   fechaNacimiento: string;
   rol?: any;
+  contrasena?: string;
 }
 
 // Interfaz auxiliar para Doctores
@@ -35,12 +36,14 @@ const Perfil = () => {
     nombre: '', apellido: '', correo: '', telefono: '', fechaNacimiento: ''
   });
   const [originalData, setOriginalData] = useState<PerfilData | null>(null);
-  
   const [listaSeguros, setListaSeguros] = useState<Seguro[]>([]);
   const [listaCitas, setListaCitas] = useState<Cita[]>([]);
   const [listaFichas, setListaFichas] = useState<Ficha[]>([]);
+  const [nuevaPassword, setNuevaPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
-  // [NUEVO] Lista de doctores global para usar en Citas e Historial
+  // Lista de doctores global para usar en Citas e Historial
   const [listaDoctores, setListaDoctores] = useState<DoctorMap[]>([]);
 
   // --- URLS ---
@@ -54,7 +57,7 @@ const Perfil = () => {
   // --- 1. CARGAR DATOS (OPTIMIZADO CON PROMISE.ALL) ---
   useEffect(() => {
     const cargarDatos = async () => {
-      // 1. Verificar Sesión
+      // 1. Verificar sesion
       const usuarioSesion = localStorage.getItem('usuario');
       if (!usuarioSesion) {
         navigate('/login');
@@ -67,47 +70,15 @@ const Perfil = () => {
       setLoading(true);
 
       try {
-        // ---------------------------------------------------------------------
-        // PASO A: Disparar todas las peticiones en PARALELO
-        // Usamos .catch() en las secundarias para retornar { data: [] } si fallan,
-        // así no rompen la carga principal del usuario.
-        // ---------------------------------------------------------------------
-
-        // 1. Doctores (Para mapear nombres)
-        const reqDoctores = axios.get(DOCTORES_API_URL).catch(e => {
-            console.warn("API Doctores no disponible o vacía");
-            return { data: [] }; 
-        });
-
-        // 2. Usuario (CRÍTICO: Si falla, dejamos que salte al catch general)
+        // PASO A: Disparar todas las peticiones en paralelo
+        const reqDoctores = axios.get(DOCTORES_API_URL).catch(() => ({ data: [] }));
         const reqUsuario = axios.get(`${USUARIOS_API_URL}/${userId}`);
+        const reqSegurosContratos = axios.get(`${CONTRATOS_SEGUROS_API_URL}/usuario/${userId}`).catch(() => ({ data: [] }));
+        const reqCatalogoSeguros = axios.get(SEGUROS_API_URL).catch(() => ({ data: [] }));
+        const reqHistorial = axios.get(`${HISTORIAL_API_URL}/usuario/${userId}`).catch(() => ({ data: [] }));
+        const reqCitas = axios.get(`${CITAS_API_URL}/usuario/${userId}`).catch(() => ({ data: [] }));
 
-        // 3. Seguros (contratos) del usuario y catálogo de seguros para mapear nombres
-        const reqSegurosContratos = axios.get(`${CONTRATOS_SEGUROS_API_URL}/usuario/${userId}`).catch(e => {
-            console.warn("API Contratos de Seguros no disponible");
-            return { data: [] };
-        });
-        const reqCatalogoSeguros = axios.get(SEGUROS_API_URL).catch(e => {
-            console.warn("Catálogo de Seguros no disponible");
-            return { data: [] };
-        });
-
-        // 4. Historial
-        const reqHistorial = axios.get(`${HISTORIAL_API_URL}/usuario/${userId}`).catch(e => {
-            console.warn("API Historial no disponible");
-            return { data: [] };
-        });
-
-        // 5. Citas
-        const reqCitas = axios.get(`${CITAS_API_URL}/usuario/${userId}`).catch(e => {
-            console.warn("API Citas no disponible");
-            return { data: [] };
-        });
-
-        // ---------------------------------------------------------------------
-        // PASO B: Esperar a que TODAS terminen (Promise.all)
-        // Esto reduce el tiempo de espera a la petición más lenta, no a la suma de todas.
-        // ---------------------------------------------------------------------
+        // PASO B: Esperar a que todas terminen
         const [respDoctores, respUsuario, respSegurosContratos, respCatalogo, respHistorial, respCitas] = await Promise.all([
             reqDoctores,
             reqUsuario,
@@ -117,15 +88,10 @@ const Perfil = () => {
             reqCitas
         ]);
 
-        // ---------------------------------------------------------------------
-        // PASO C: Procesar la información recibida
-        // ---------------------------------------------------------------------
-
-        // C.1: Doctores (Guardamos en variable local para usar en el mapeo de citas)
+        // PASO C: Procesar la informacion recibida
         const doctoresReales: DoctorMap[] = respDoctores.data;
         setListaDoctores(doctoresReales);
 
-        // C.2: Usuario (Datos del perfil)
         const u = respUsuario.data;
         const datosCargados = {
           id: u.id,
@@ -134,12 +100,10 @@ const Perfil = () => {
           correo: u.correo || '',
           telefono: u.telefono || '',
           fechaNacimiento: u.fechaNacimiento ? u.fechaNacimiento.split('T')[0] : '',
-          rol: u.rol
         };
         setPerfilData(datosCargados);
         setOriginalData(datosCargados);
 
-        // C.3: Seguros contratados (mapeamos contrato -> tarjeta MisSeguros)
         const catalogo: any[] = respCatalogo.data || [];
         const contratosRaw: any[] = respSegurosContratos.data || [];
         const segurosMap = new Map<number, any>();
@@ -178,17 +142,12 @@ const Perfil = () => {
         });
         setListaSeguros(segurosParseados);
 
-        // C.4: Historial (Fichas)
         setListaFichas(respHistorial.data);
 
-        // C.5: Citas (Cruzamos con la lista de doctores que ya recibimos)
         const citasRaw = respCitas.data;
         if (citasRaw.length > 0) {
             const citasCompletas = citasRaw.map((cita: any) => {
-                // Buscamos el ID del doctor (soporta estructura plana o anidada)
                 const doctorIdEnCita = cita.idDoctor || (cita.doctor ? cita.doctor.id : null);
-                
-                // Buscamos el nombre real en la lista descargada
                 const doctorReal = doctoresReales.find(d => d.id === doctorIdEnCita);
 
                 return {
@@ -211,8 +170,7 @@ const Perfil = () => {
         }
 
       } catch (error) {
-        console.error("Error crítico cargando perfil:", error);
-        // Solo si falla la carga del usuario (que no tiene catch individual) caerá aquí.
+        console.error("Error critico cargando perfil:", error);
       } finally {
         setLoading(false);
       }
@@ -220,11 +178,12 @@ const Perfil = () => {
 
     cargarDatos();
   }, [navigate]);
+
   // --- ACCIONES ---
   const handleLogout = () => { localStorage.removeItem('usuario'); navigate('/login'); };
 
   const handleCancelSeguro = async (idContrato: number) => {
-    if (!confirm("¿Cancelar seguro?")) return;
+    if (!confirm("Cancelar seguro?")) return;
     try {
         await axios.patch(`${CONTRATOS_SEGUROS_API_URL}/${idContrato}/cancelacion`, { motivo: "Web" });
         setListaSeguros(prev => prev.map(s => s.id === idContrato ? { ...s, estado: "CANCELADO" } : s));
@@ -232,7 +191,7 @@ const Perfil = () => {
   };
 
   const handleCancelCita = async (idCita: number) => {
-    if (!confirm("¿Cancelar cita?")) return;
+    if (!confirm("Cancelar cita?")) return;
     try {
         await axios.delete(`${CITAS_API_URL}/${idCita}`);
         setListaCitas(prev => prev.filter(c => c.id !== idCita));
@@ -247,14 +206,26 @@ const Perfil = () => {
 
   const handleRestore = () => {
     if (originalData) { setPerfilData(originalData); alert("Datos restaurados."); }
+    setNuevaPassword('');
+    setConfirmPassword('');
+    setFormErrors({});
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!perfilData.id) return;
-    if (!perfilData.nombre.trim() || !perfilData.apellido.trim()) { alert("Campos obligatorios vacíos."); return; }
+    const errors: Record<string, string> = {};
+    if (!perfilData.nombre.trim() || !perfilData.apellido.trim()) { errors.nombre = "Nombre y apellido son obligatorios."; }
+    if (nuevaPassword || confirmPassword) {
+      if (nuevaPassword.length < 8) errors.contrasena = "La contrasena debe tener al menos 8 caracteres.";
+      if (nuevaPassword !== confirmPassword) errors.confirmarContrasena = "Las contrasenas no coinciden.";
+    }
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
     try {
-      const payload = { ...perfilData, fechaNacimiento: `${perfilData.fechaNacimiento}T00:00:00` };
+      const { rol, ...rest } = perfilData;
+      const payload: any = { ...rest, fechaNacimiento: `${perfilData.fechaNacimiento}T00:00:00` };
+      if (nuevaPassword) payload.contrasena = nuevaPassword;
       await axios.put(`${USUARIOS_API_URL}/${perfilData.id}`, payload);
       alert('Perfil actualizado.');
       setIsEditing(false);
@@ -262,7 +233,14 @@ const Perfil = () => {
       const sesion = JSON.parse(localStorage.getItem('usuario') || '{}');
       sesion.nombre = perfilData.nombre; sesion.apellido = perfilData.apellido;
       localStorage.setItem('usuario', JSON.stringify(sesion));
-    } catch (error) { alert("Error al guardar."); }
+      setNuevaPassword('');
+      setConfirmPassword('');
+      setFormErrors({});
+    } catch (error: any) {
+      console.error("Error guardando perfil:", error);
+      const msg = error?.response?.data?.message || error?.response?.data?.error || error?.message || "Error al guardar.";
+      alert(msg);
+    }
   };
 
   if (loading) return <div className="text-center mt-5 p-5"><div className="spinner-border text-primary"></div></div>;
@@ -292,6 +270,15 @@ const Perfil = () => {
                           onClear={handleRestore}
                           onSubmit={handleSubmit}
                           onLogout={handleLogout}
+                          showPasswordChange
+                          password={nuevaPassword}
+                          confirmPassword={confirmPassword}
+                          onPasswordChange={(e) => {
+                            const { id, value } = e.target;
+                            if (id === 'contrasena') setNuevaPassword(value);
+                            if (id === 'confirmarContrasena') setConfirmPassword(value);
+                          }}
+                          errors={formErrors}
                         />
                     </div>
                 </div>
@@ -318,7 +305,6 @@ const Perfil = () => {
                     <h5 className="text-info fw-bold mb-0"><i className="bi bi-file-medical me-2"></i>Historial</h5>
                 </div>
                 <div className="card-body p-4">
-                    {/* [CAMBIO] Pasamos la lista de doctores al componente */}
                     <MisFichas fichas={listaFichas} doctores={listaDoctores} />
                 </div>
              </div>

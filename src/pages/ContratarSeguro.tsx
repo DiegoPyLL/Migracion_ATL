@@ -50,10 +50,22 @@ const ContratarSeguro = () => {
 
   const userId = usuarioSesion?.id || usuarioSesion?.userId;
 
-  const esSeguroFamiliar = useMemo(() => {
-    if (!seguro?.nombre_seguro) return false;
-    return seguro.nombre_seguro.toLowerCase().includes('familiar');
+  const nombreSeguro = useMemo(() => {
+    const raw = seguro?.nombre_seguro ?? (seguro as any)?.nombreSeguro ?? '';
+    return raw || '';
   }, [seguro]);
+
+  // Permite multiples beneficiarios para planes especificos
+  const permiteMultiplesBeneficiarios = useMemo(() => {
+    if (!nombreSeguro) return false;
+    const n = nombreSeguro.toLowerCase();
+    return (
+      n.includes('familiar') ||
+      n.includes('avanzado') ||
+      n.includes('premium') ||
+      n.includes('empresarial')
+    );
+  }, [nombreSeguro]);
 
   useEffect(() => {
     const cargar = async () => {
@@ -74,14 +86,14 @@ const ContratarSeguro = () => {
   }, [id, navigate, userId]);
 
   useEffect(() => {
-    // Prellenamos contacto con el usuario logueado (titular). El titular es el id_usuario que se envía al contrato.
+    // Prellenamos contacto con el usuario logueado (titular)
     if (usuarioSesion) {
       setContacto({
         correo: usuarioSesion.correo || '',
         telefono: usuarioSesion.telefono || ''
       });
 
-      // Para no-familiar podemos precargar beneficiario con el titular
+      // Para seguros sin beneficiarios multiples, precargamos con el titular
       setBeneficiarios((prev) => {
         if (!prev || prev.length === 0) return prev;
         const base: Beneficiario = {
@@ -90,21 +102,23 @@ const ContratarSeguro = () => {
           rut: prev[0].rut,
           fechaNacimiento: prev[0].fechaNacimiento
         };
-        return esSeguroFamiliar ? prev : [base];
+        return permiteMultiplesBeneficiarios ? prev : [base];
       });
     }
-  }, [usuarioSesion, esSeguroFamiliar]);
+  }, [usuarioSesion, permiteMultiplesBeneficiarios]);
 
   const handleBenefChange = (index: number, field: keyof Beneficiario, value: string) => {
     setBeneficiarios((prev) => prev.map((b, i) => (i === index ? { ...b, [field]: value } : b)));
   };
 
   const addBeneficiario = () => {
+    if (!permiteMultiplesBeneficiarios) return;
     if (beneficiarios.length >= 5) return;
     setBeneficiarios((prev) => [...prev, { nombre: '', apellido: '', rut: '', fechaNacimiento: '' }]);
   };
 
   const removeBeneficiario = (index: number) => {
+    if (!permiteMultiplesBeneficiarios) return;
     if (beneficiarios.length <= 1) return;
     setBeneficiarios((prev) => prev.filter((_, i) => i !== index));
   };
@@ -112,28 +126,27 @@ const ContratarSeguro = () => {
   const validar = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\+?\d{8,}$/;
-    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{1,60}$/;
+    const nameRegex = /^[A-Za-z�?�%�?�"�sǭǸ����ǧ�'���oǬ\s]{1,60}$/;
     const rutRegex = /^\d{1,2}\.?\d{3}\.?\d{3}-[\dkK]$/;
 
-    if (!emailRegex.test(contacto.correo.trim())) return 'Correo de contacto inválido.';
-    if (!phoneRegex.test(contacto.telefono.trim())) return 'Teléfono: solo dígitos y + opcional, mínimo 8.';
-    if (!metodoPago) return 'Seleccione un método de pago.';
+    if (!emailRegex.test(contacto.correo.trim())) return 'Correo de contacto invalido.';
+    if (!phoneRegex.test(contacto.telefono.trim())) return 'Telefono: solo digitos y + opcional, minimo 8.';
+    if (!metodoPago) return 'Seleccione un metodo de pago.';
 
     const list = beneficiarios;
     if (list.length === 0) return 'Debe agregar al menos un beneficiario.';
 
     for (let i = 0; i < list.length; i++) {
       const b = list[i];
-      if (!nameRegex.test(b.nombre.trim())) return `Nombre del beneficiario ${i + 1} inválido.`;
-      if (!nameRegex.test(b.apellido.trim())) return `Apellido del beneficiario ${i + 1} inválido.`;
-      if (!rutRegex.test(b.rut.trim())) return `RUT del beneficiario ${i + 1} inválido (ej: 11.111.111-1).`;
+      if (!nameRegex.test(b.nombre.trim())) return `Nombre del beneficiario ${i + 1} invalido.`;
+      if (!nameRegex.test(b.apellido.trim())) return `Apellido del beneficiario ${i + 1} invalido.`;
+      if (!rutRegex.test(b.rut.trim())) return `RUT del beneficiario ${i + 1} invalido (ej: 11.111.111-1).`;
       if (!b.fechaNacimiento) return `Fecha de nacimiento del beneficiario ${i + 1} obligatoria.`;
     }
     return null;
   };
 
   const toDDMMYYYY = (isoDate: string) => {
-    // Aceptamos entrada en formato yyyy-mm-dd (input date) y la convertimos
     if (!isoDate.includes('-')) return isoDate;
     const [y, m, d] = isoDate.split('-');
     return `${d}-${m}-${y}`;
@@ -157,13 +170,10 @@ const ContratarSeguro = () => {
     const ruts = beneficiarios.map((b) => b.rut.trim()).join('; ');
     const fechas = beneficiarios.map((b) => toDDMMYYYY(b.fechaNacimiento.trim())).join('; ');
 
-    // id_usuario SIEMPRE es el titular (usuario logueado)
-    // Usamos camelCase para acoplar al DTO del backend (mapea a columnas snake_case)
     const hoyIso = new Date().toISOString().split('T')[0];
-    // ContratoSeguro usa LocalDateTime en backend, enviamos con hora 00:00:00 para evitar parse error
     const payload = {
       idSeguro: idSeguro,
-      idUsuario: titularId, // siempre el titular logueado
+      idUsuario: titularId,
       nombreBeneficiarios: nombres,
       rutBeneficiarios: ruts,
       fechaNacimientoBeneficiarios: fechas,
@@ -182,7 +192,7 @@ const ContratarSeguro = () => {
     } catch (err) {
       console.error(err);
       const serverMsg = (err as any)?.response?.data?.message || (err as any)?.response?.data || '';
-      alert(`No se pudo contratar el seguro. ${serverMsg || 'Intente de nuevo más tarde.'}`);
+      alert(`No se pudo contratar el seguro. ${serverMsg || 'Intente de nuevo mas tarde.'}`);
     }
   };
 
@@ -192,7 +202,7 @@ const ContratarSeguro = () => {
   return (
     <div className="container py-4">
       <div className="seguros-hero">
-        <h3 className="fw-bold mb-1">{seguro.nombre_seguro}</h3>
+        <h3 className="fw-bold mb-1">{nombreSeguro || 'Seguro'}</h3>
         <p className="mb-1">{seguro.descripcion}</p>
         <span className="seguro-price">Valor: ${seguro.valor?.toLocaleString('es-CL')}</span>
       </div>
@@ -200,7 +210,7 @@ const ContratarSeguro = () => {
       <form className="bg-white p-3 p-md-4 rounded shadow-sm" onSubmit={handleSubmit}>
         <section className="mb-3">
           <h5 className="fw-bold">Datos de contacto titular</h5>
-          <p className="text-muted small mb-2">Se prellenan con tu sesión. El titular siempre es el usuario logueado.</p>
+          <p className="text-muted small mb-2">Se prellenan con tu sesion. El titular siempre es el usuario logueado.</p>
           <div className="row g-3">
             <div className="col-md-6">
               <label className="form-label">Correo de contacto</label>
@@ -212,7 +222,7 @@ const ContratarSeguro = () => {
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label">Teléfono de contacto</label>
+              <label className="form-label">Telefono de contacto</label>
               <input
                 className="form-control"
                 value={contacto.telefono}
@@ -228,19 +238,20 @@ const ContratarSeguro = () => {
             <div>
               <h5 className="fw-bold mb-0">Beneficiarios</h5>
               <small className="text-muted">
-                {esSeguroFamiliar
-                  ? 'Seguro de Vida Familiar: puedes agregar hasta 5 beneficiarios.'
-                  : 'Seguros individuales: beneficiario único (puede ser el titular).'}
+                {permiteMultiplesBeneficiarios
+                  ? 'Puedes agregar beneficiarios (hasta 5).'
+                  : 'Seguros individuales: beneficiario unico (puede ser el titular).'}
               </small>
             </div>
-            {esSeguroFamiliar && (
+            {permiteMultiplesBeneficiarios && (
               <button
                 type="button"
-                className="btn btn-outline-info btn-sm"
+                className="btn btn-outline-info btn-sm d-flex align-items-center"
                 onClick={addBeneficiario}
                 disabled={beneficiarios.length >= 5}
+                title="Agregar beneficiario"
               >
-                Agregar beneficiario
+                <span className="fw-bold me-1">+</span> Beneficiario
               </button>
             )}
           </div>
@@ -250,7 +261,7 @@ const ContratarSeguro = () => {
               <div key={idx} className="beneficiario-card">
                 <div className="beneficiario-header">
                   <span className="pill">Beneficiario {idx + 1}</span>
-                  {esSeguroFamiliar && beneficiarios.length > 1 && (
+                  {permiteMultiplesBeneficiarios && beneficiarios.length > 1 && (
                     <button type="button" className="btn btn-link text-danger p-0" onClick={() => removeBeneficiario(idx)}>
                       Eliminar
                     </button>
@@ -304,17 +315,17 @@ const ContratarSeguro = () => {
         </section>
 
         <section className="mb-3">
-          <h5 className="fw-bold">Método de pago</h5>
+          <h5 className="fw-bold">Metodo de pago</h5>
           <select className="form-select" value={metodoPago} onChange={(e) => setMetodoPago(e.target.value)} required>
             <option value="" disabled>Selecciona...</option>
-            <option value="Débito">Débito</option>
-            <option value="Crédito">Crédito</option>
+            <option value="Debito">Debito</option>
+            <option value="Credito">Credito</option>
             <option value="Transferencia">Transferencia</option>
           </select>
         </section>
 
         <div className="d-grid">
-          <button type="submit" className="btn btn-info text-white btn-lg">Confirmar contratación</button>
+          <button type="submit" className="btn btn-info text-white btn-lg">Confirmar contratacion</button>
         </div>
       </form>
     </div>

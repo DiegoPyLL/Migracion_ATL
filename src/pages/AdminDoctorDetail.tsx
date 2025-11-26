@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/estiloAdmin.css';
@@ -18,32 +18,26 @@ interface DoctorDetail {
   idEspecialidad?: number;
 }
 
-interface Especialidad {
-  id: number | string;
-  nombre: string;
-}
-
 const USUARIOS_API_URL = 'http://localhost:8082/api/v1';
 
 const AdminDoctorDetail = () => {
   const { doctorId } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState<DoctorDetail | null>(null);
-  const [especialidades, setEspecialidades] = useState<Especialidad[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   const validar = (d: DoctorDetail) => {
-    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{1,60}$/;
+    const nameRegex = /^[A-Za-z\u00c1\u00c9\u00cd\u00d3\u00da\u00dc\u00e1\u00e9\u00ed\u00f3\u00fa\u00fc\u00d1\u00f1'\\s]{1,60}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\+?\d{8,}$/;
-    if (!nameRegex.test(d.nombre.trim())) return 'Nombre inválido.';
-    if (!nameRegex.test(d.apellido.trim())) return 'Apellido inválido.';
-    if (!emailRegex.test(d.correo.trim())) return 'Correo inválido.';
-    if (!phoneRegex.test(d.telefono.trim())) return 'Teléfono inválido.';
+    if (!nameRegex.test(d.nombre.trim())) return 'Nombre invalido (solo letras y espacios).';
+    if (!nameRegex.test(d.apellido.trim())) return 'Apellido invalido (solo letras y espacios).';
+    if (!emailRegex.test(d.correo.trim())) return 'Correo invalido.';
+    if (!phoneRegex.test(d.telefono.trim())) return 'Telefono invalido. Debe tener al menos 8 digitos.';
     if (!d.fechaNacimiento) return 'Fecha de nacimiento requerida.';
-    if (d.tarifaConsulta < 0 || d.sueldo < 0 || d.bono < 0) return 'Valores numéricos deben ser positivos.';
+    if (d.tarifaConsulta < 0 || d.sueldo < 0 || d.bono < 0) return 'Los valores numericos deben ser positivos.';
     return null;
   };
 
@@ -51,32 +45,7 @@ const AdminDoctorDetail = () => {
     const cargar = async () => {
       setLoading(true);
       try {
-        const [respDoc, respEsp] = await Promise.all([
-          axios.get(`${USUARIOS_API_URL}/doctores/${doctorId}`),
-          axios.get(`${USUARIOS_API_URL}/especialidades`)
-        ]);
-        const doc = respDoc.data;
-        const especialidadesRaw = respEsp.data || [];
-        const espList: Especialidad[] = especialidadesRaw.map((e: any) => ({
-          id: e.id ?? e.idEspecialidad ?? e.codigo ?? e.nombre,
-          nombre: e.nombre
-        }));
-
-        // Detectar especialidad actual del doctor aunque no venga en el catálogo
-        const espActual =
-          doc.especialidad ||
-          (Array.isArray(doc.especialidades) && doc.especialidades.length > 0 ? doc.especialidades[0] : null) ||
-          doc.especialidadPrincipal;
-        if (espActual) {
-          const espId = espActual.id ?? espActual.idEspecialidad ?? espActual.codigo ?? espActual.nombre;
-          const espNombre = espActual.nombre;
-          if (espId !== undefined && espNombre) {
-            const existe = espList.some((e) => String(e.id) === String(espId));
-            if (!existe) espList.push({ id: espId, nombre: espNombre });
-          }
-        }
-
-        setEspecialidades(espList);
+        const { data: doc } = await axios.get(`${USUARIOS_API_URL}/doctores/${doctorId}`);
         const detalle: DoctorDetail = {
           id: doc.id ?? doc.idDoctor ?? Number(doctorId),
           idUsuario: doc.usuario?.id ?? doc.id_usuario ?? doc.idUsuario,
@@ -94,9 +63,8 @@ const AdminDoctorDetail = () => {
           bono: doc.bono ?? 0,
           activo: doc.activo ?? true,
           idEspecialidad:
-            (espActual && Number(espActual.id ?? espActual.idEspecialidad ?? espActual.codigo)) ??
             doc.idEspecialidad ??
-            undefined
+            (doc.especialidad ? Number(doc.especialidad.id ?? doc.especialidad.idEspecialidad ?? doc.especialidad.codigo) : undefined)
         };
         setData(detalle);
         setError('');
@@ -104,19 +72,13 @@ const AdminDoctorDetail = () => {
         console.error(err);
         const status = err?.response?.status;
         if (status === 404) setError('Doctor no encontrado.');
-        else setError('Error al cargar información del doctor.');
+        else setError('Error al cargar informacion del doctor.');
       } finally {
         setLoading(false);
       }
     };
     if (doctorId) cargar();
   }, [doctorId]);
-
-  const nombreEspecialidadActual = useMemo(() => {
-    if (!data || !especialidades.length || data.idEspecialidad === undefined) return '';
-    const esp = especialidades.find((e) => String(e.id) === String(data.idEspecialidad));
-    return esp?.nombre || '';
-  }, [data, especialidades]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!data) return;
@@ -132,24 +94,30 @@ const AdminDoctorDetail = () => {
     if (err) { alert(err); return; }
     setSaving(true);
     try {
-      // Intento actualizar con /doctores/{id}
-      await axios.put(`${USUARIOS_API_URL}/doctores/${data.id}`, {
+      // Actualizamos primero el usuario y luego el doctor
+      await axios.put(`${USUARIOS_API_URL}/usuarios/${data.idUsuario}`, {
         nombre: data.nombre,
         apellido: data.apellido,
         correo: data.correo,
         telefono: data.telefono,
-        fechaNacimiento: `${data.fechaNacimiento}T00:00:00`,
+        fechaNacimiento: `${data.fechaNacimiento}T00:00:00`
+      });
+
+      await axios.put(`${USUARIOS_API_URL}/doctores/${data.id}`, {
         tarifaConsulta: data.tarifaConsulta,
         sueldo: data.sueldo,
         bono: data.bono,
         activo: data.activo,
-        idEspecialidad: data.idEspecialidad
+        idEspecialidad: data.idEspecialidad,
+        usuario: { id: data.idUsuario }
       });
+
       alert('Doctor actualizado.');
       navigate('/admin/doctores');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('No se pudo actualizar el doctor.');
+      const msg = err?.response?.data?.message || 'No se pudo actualizar el doctor.';
+      alert(msg);
     } finally { setSaving(false); }
   };
 
@@ -167,7 +135,7 @@ const AdminDoctorDetail = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h2 className="fw-bold text-danger mb-0">Editar Doctor</h2>
-          <small className="text-muted">ID Doctor: {data.id} • ID Usuario: {data.idUsuario}</small>
+          <small className="text-muted">ID Doctor: {data.id} · ID Usuario: {data.idUsuario}</small>
         </div>
         <button className="btn btn-outline-secondary" onClick={() => navigate('/admin/doctores')}>Volver</button>
       </div>
@@ -192,7 +160,7 @@ const AdminDoctorDetail = () => {
             <input id="correo" type="email" className="form-control" value={data.correo} onChange={handleChange} required />
           </div>
           <div className="col-md-6 col-12">
-            <label className="form-label">Teléfono</label>
+            <label className="form-label">Telefono</label>
             <input id="telefono" className="form-control" value={data.telefono} onChange={handleChange} required />
           </div>
         </div>
@@ -210,21 +178,6 @@ const AdminDoctorDetail = () => {
           <div className="col-md-4 col-12">
             <label className="form-label">Bono</label>
             <input id="bono" type="number" min="0" className="form-control" value={data.bono} onChange={handleChange} />
-          </div>
-          <div className="col-md-6 col-12">
-            <label className="form-label">Especialidad {nombreEspecialidadActual ? `(actual: ${nombreEspecialidadActual})` : ''}</label>
-            <select
-              id="idEspecialidad"
-              className="form-select"
-              value={data.idEspecialidad !== undefined ? String(data.idEspecialidad) : ''}
-              onChange={(e) => setData({ ...data, idEspecialidad: e.target.value ? Number(e.target.value) : undefined })}
-              required
-            >
-              <option value="" disabled>Seleccione...</option>
-              {especialidades.map((esp) => (
-                <option key={esp.id} value={String(esp.id)}>{esp.nombre}</option>
-              ))}
-            </select>
           </div>
           <div className="col-md-6 col-12 d-flex align-items-center mt-4">
             <div className="form-check form-switch">

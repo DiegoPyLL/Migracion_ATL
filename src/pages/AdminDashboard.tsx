@@ -176,7 +176,7 @@ const AdminDashboard = () => {
 
   const validarNuevoDoctor = () => {
     const { nombre, apellido, telefono, fechaNacimiento, correo, salario } = formData;
-    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{1,60}$/;
+    const nameRegex = /^[A-Za-zÁÉÍÓÚÜáéíóúüÑñ'\s]{1,60}$/;
     if (!nameRegex.test(nombre.trim())) return "El nombre solo admite letras y espacios (máximo 60).";
     if (!nameRegex.test(apellido.trim())) return "El apellido solo admite letras y espacios (máximo 60).";
 
@@ -184,6 +184,11 @@ const AdminDashboard = () => {
     if (!dateRegex.test(fechaNacimiento)) return "La fecha de nacimiento debe tener formato aaaa-mm-dd.";
     const fecha = new Date(fechaNacimiento);
     if (Number.isNaN(fecha.getTime())) return "La fecha de nacimiento no es válida.";
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - fecha.getFullYear();
+    const diffMes = hoy.getMonth() - fecha.getMonth();
+    if (diffMes < 0 || (diffMes === 0 && hoy.getDate() < fecha.getDate())) edad--;
+    if (edad < 25) return "El doctor debe tener al menos 25 años.";
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(correo.trim())) return "El correo no tiene un formato válido.";
@@ -288,7 +293,7 @@ const AdminDashboard = () => {
           }
         }
         
-        alert(`Dr. ${formData.apellido} registrado correctamente.`);
+        alert(`Dr. ${formData.apellido} registrado correctamente. La contraseña es auto generada y será enviada al correo del doctor.`);
 
         setFormData({ nombre: '', apellido: '', correo: '', telefono: '', fechaNacimiento: '', salario: '' });
         setSelectedSpecialtyId('');
@@ -359,7 +364,7 @@ const AdminDashboard = () => {
                                         />
                                     </div>
                                     <div className="col-md-6">
-                                      <label>Fecha de nacimiento (aaaa-mm-dd)</label>
+                                      <label>Fecha de nacimiento</label>
                                       <input
                                         id="fechaNacimiento"
                                         type="date"

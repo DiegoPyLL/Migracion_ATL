@@ -194,7 +194,7 @@ const CombinedReservaForm: React.FC = () => {
             </div>
 
             <div className="ph-field">
-              <label>Fecha (Mínimo: {fechaMinima})</label>
+              <label>Puedes tomar una cita a partir de 3 dias en adelante</label>
               <input
                 type="date"
                 value={fecha}

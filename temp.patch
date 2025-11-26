@@ -1,0 +1,37 @@
+*** Begin Patch
+*** Update File: src/pages/DoctorDashboard.tsx
+@@
+-          {activeTab === 'agenda' && (
+-            <>
+-              <div className="col-lg-12">
+-                <h4 className="mb-3 text-primary fw-bold">Pr??ximos Pacientes</h4>
+-                <div className="agenda-list">
+-                    {citas.filter(c => !esCancelada(c.estado) && c.usuario?.nombre && c.usuario?.correo && c.usuario?.telefono).length === 0 ? (
+-                        <div className="text-center p-5 bg-white rounded shadow-sm"><p className="text-muted">No hay citas programadas.</p></div>
+-                    ) : (
+-                        citas
+-                          .filter(c => !esCancelada(c.estado) && c.usuario?.nombre && c.usuario?.correo && c.usuario?.telefono)
+-                          .map(cita => (
++          {activeTab === 'agenda' && (
++            <>
++              <div className="col-lg-12">
++                <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-3">
++                  <h4 className="text-primary fw-bold mb-2 mb-lg-0">Proximos Pacientes</h4>
++                  <div className="d-flex align-items-center gap-2">
++                    <input
++                      type="text"
++                      className="form-control"
++                      style={{ minWidth: '260px' }}
++                      placeholder="Buscar por nombre o correo"
++                      value={agendaSearch}
++                      onChange={(e) => setAgendaSearch(e.target.value)}
++                    />
++                  </div>
++                </div>
++                <div className="agenda-list">
++                    {filteredAgenda.length === 0 ? (
++                        <div className="text-center p-5 bg-white rounded shadow-sm"><p className="text-muted">No hay citas programadas.</p></div>
++                    ) : (
++                        filteredAgenda
++                          .map(cita => (
+*** End Patch
