@@ -1,0 +1,102 @@
+/* Estilos simples para listados y contratación de seguros */
+.seguros-hero {
+  background: linear-gradient(135deg, #0dcaf0, #0a95c2);
+  color: white;
+  padding: 40px 28px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+}
+
+.seguros-grid {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .seguros-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.seguro-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.seguro-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.seguro-card-highlight {
+  box-shadow: 0 0 0 3px rgba(13, 202, 240, 0.4), 0 10px 24px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.3s ease;
+}
+
+.seguro-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  background: #e7f5ff;
+  color: #0a95c2;
+}
+
+.seguro-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #198754;
+}
+
+.beneficiarios-grid {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .beneficiarios-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.beneficiario-card {
+  border: 1px dashed #cce5ff;
+  background: #f8fbff;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.beneficiario-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #f1f3f5;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+@media (max-width: 576px) {
+  .seguros-hero {
+    padding: 24px 18px;
+    text-align: center;
+  }
+  .seguro-card {
+    padding: 12px;
+  }
+  .seguro-price {
+    font-size: 16px;
+  }
+}

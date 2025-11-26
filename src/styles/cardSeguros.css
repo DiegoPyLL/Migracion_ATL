@@ -83,3 +83,20 @@
 .btn-contratar:hover {
   background-color: #0090d1;
 }
+
+@media (max-width: 768px) {
+  .seguros-container {
+    width: 100%;
+    padding: 1.5rem 1rem;
+    border-radius: 10px;
+  }
+  .card-main-title {
+    font-size: 1.6rem;
+  }
+  .seguro-card {
+    max-width: 100%;
+  }
+  .seg-card-video {
+    height: 180px;
+  }
+}

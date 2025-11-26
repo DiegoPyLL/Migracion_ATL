@@ -3,10 +3,16 @@ import React from 'react';
 // Definimos la estructura del Seguro tal como viene de tu API Java
 export interface Seguro {
   id: number;
+  idSeguro?: number;
   nombreSeguro: string;
   descripcion: string;
   estado: "ACTIVO" | "CANCELADO";
   fechaCreacion: string;
+  beneficiarios?: string[];
+  ruts?: string[];
+  metodoPago?: string;
+  telefonoContacto?: string;
+  correoContacto?: string;
 }
 
 interface MisSegurosProps {
@@ -55,7 +61,8 @@ const MisSeguros = ({ seguros, onCancel }: MisSegurosProps) => {
                           {seguro.nombreSeguro}
                         </h6>
                         <span className="text-muted small d-block">
-                            <i className="bi bi-hash me-1"></i>Contrato {seguro.id + 5000}
+                            <i className="bi bi-hash me-1"></i>
+                            Contrato {seguro.id + 5000}
                         </span>
                       </div>
                       <span className={`badge rounded-pill px-3 ${
@@ -71,12 +78,39 @@ const MisSeguros = ({ seguros, onCancel }: MisSegurosProps) => {
                         <p className="card-text small text-secondary mb-0 fst-italic">
                           "{seguro.descripcion}"
                         </p>
+                        {seguro.beneficiarios && seguro.beneficiarios.length > 0 && (
+                          <div className="mt-2">
+                            <small className="text-muted fw-semibold d-block">Beneficiarios</small>
+                            <div className="d-flex flex-wrap gap-2 mt-1">
+                              {seguro.beneficiarios.map((b, idx) => (
+                                <span key={idx} className="badge bg-info-subtle text-info-emphasis border">
+                                  {b}{seguro.ruts && seguro.ruts[idx] ? ` • ${seguro.ruts[idx]}` : ''}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {seguro.metodoPago && (
+                          <div className="mt-2">
+                            <small className="text-muted fw-semibold d-block">Método de pago</small>
+                            <span className="badge bg-light text-dark border">{seguro.metodoPago}</span>
+                          </div>
+                        )}
+                        {(seguro.correoContacto || seguro.telefonoContacto) && (
+                          <div className="mt-2">
+                            <small className="text-muted fw-semibold d-block">Contacto</small>
+                            <div className="small text-secondary">
+                              {seguro.correoContacto && <div><i className="bi bi-envelope me-1"></i>{seguro.correoContacto}</div>}
+                              {seguro.telefonoContacto && <div><i className="bi bi-telephone me-1"></i>{seguro.telefonoContacto}</div>}
+                            </div>
+                          </div>
+                        )}
                     </div>
 
                     {/* Pie: Fecha y Acción */}
                     <div className="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-light">
                       <div>
-                        <small className="text-muted d-block text-uppercase fw-bold" style={{fontSize: '0.65rem'}}>Alta</small>
+                        <small className="text-muted d-block text-uppercase fw-bold" style={{fontSize: '0.65rem'}}>Día del contrato</small>
                         <small className="fw-bold text-dark">
                             {seguro.fechaCreacion ? new Date(seguro.fechaCreacion).toLocaleDateString() : 'N/A'}
                         </small>

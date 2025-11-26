@@ -5,14 +5,18 @@ import Home from "./pages/home";
 import Login from "./pages/login";
 import Registro from "./pages/registro";
 import Perfil from "./pages/perfil";
-import VentaSeguros from "./pages/ventaSeguros";
-import ComprarSeguroSalud from "./pages/comprar_seguro_salud";
-import ComprarSeguroVida from "./pages/compra_seguro_vida";
+import SegurosListado from "./pages/SegurosListado";
+import ContratarSeguro from "./pages/ContratarSeguro";
 import TerminosCondiciones from "./pages/TyC";
 import SobreNosotros from "./pages/sobre_nosotros";
 import PedirHora from "./pages/pedirHora";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminDoctoresList from "./pages/AdminDoctoresList";
+import AdminDoctorDetail from "./pages/AdminDoctorDetail";
+import AdminSegurosList from "./pages/AdminSegurosList";
+import AdminSeguroNuevo from "./pages/AdminSeguroNuevo";
+import AdminSeguroEditar from "./pages/AdminSeguroEditar";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 
 // --- COMPONENTE: PORTERO DEL HOME ---
@@ -54,7 +58,8 @@ export default function App() {
           
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
-          <Route path="/seguros/venta" element={<VentaSeguros />} />
+          <Route path="/seguros/venta" element={<SegurosListado />} />
+          <Route path="/seguros" element={<SegurosListado />} />
           <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
 
@@ -63,8 +68,7 @@ export default function App() {
           <Route element={<RoleProtectedRoute allowedRole="paciente" />}>
               <Route path="/perfil" element={<Perfil />} />
               <Route path="/pedir-hora" element={<PedirHora />} />
-              <Route path="/comprar-seguro-salud" element={<ComprarSeguroSalud />} />
-              <Route path="/comprar-seguro-vida" element={<ComprarSeguroVida />} />
+              <Route path="/seguros/:id/contratar" element={<ContratarSeguro />} />
           </Route>
 
           {/* --- ZONA DOCTORES --- */}
@@ -77,6 +81,11 @@ export default function App() {
           {/* Solo entran Administrativos */}
           <Route element={<RoleProtectedRoute allowedRole="administrativo" />}>
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/doctores" element={<AdminDoctoresList />} />
+              <Route path="/admin/doctores/:doctorId" element={<AdminDoctorDetail />} />
+              <Route path="/admin/seguros" element={<AdminSegurosList />} />
+              <Route path="/admin/seguros/nuevo" element={<AdminSeguroNuevo />} />
+              <Route path="/admin/seguros/:id/editar" element={<AdminSeguroEditar />} />
           </Route>
 
           {/* CATCH-ALL: Si la ruta no existe, vuelve al inicio */}

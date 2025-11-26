@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import "../styles/estiloAdmin.css";
@@ -7,6 +7,12 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import PerfilForm, { PerfilData } from '../components/perfil/PerfilForm';
 
 const USUARIOS_API_URL = 'http://localhost:8082/api/v1';
+const DOCTOR_CREACION_URL = `${USUARIOS_API_URL}/usuarios/doctores`;
+
+interface Especialidad {
+  id: number | string;
+  nombre: string;
+}
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -22,13 +28,23 @@ const AdminDashboard = () => {
     nombre: '', apellido: '', correo: '', telefono: '', fechaNacimiento: ''
   });
   const [originalData, setOriginalData] = useState<PerfilData | null>(null);
+  const [nuevaPassword, setNuevaPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [perfilErrors, setPerfilErrors] = useState<Record<string, string>>({});
   
   const [isEditing, setIsEditing] = useState(false);
-  const [listaEspecialidades, setListaEspecialidades] = useState<string[]>([]);
+  const [listaEspecialidades, setListaEspecialidades] = useState<Especialidad[]>([]);
+  const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string>('');
+  const [nuevaEspecialidad, setNuevaEspecialidad] = useState('');
+  const [creandoEspecialidad, setCreandoEspecialidad] = useState(false);
 
   const [formData, setFormData] = useState({
-    nombre: '', apellido: '', correo: '', telefono: '', fechaNacimiento: '',
-    contrasena: '', tarifaConsulta: '', sueldo: '', bono: '0', especialidad: ''
+    nombre: '',
+    apellido: '',
+    correo: '',
+    telefono: '',
+    fechaNacimiento: '',
+    salario: ''
   });
 
   // --- CARGA INICIAL ---
@@ -62,9 +78,18 @@ const AdminDashboard = () => {
 
       try {
         const respEsp = await axios.get(`${USUARIOS_API_URL}/especialidades`);
-        const especialidadesRaw = respEsp.data || [];
-        const nombresUnicos = Array.from(new Set(especialidadesRaw.map((e: any) => e.nombre)));
-        setListaEspecialidades(nombresUnicos as string[]);
+        const especialidadesRaw = (respEsp.data || []) as any[];
+        const especialidades: Especialidad[] = especialidadesRaw
+          .map((e: any) => ({
+            id: e.id ?? e.idEspecialidad ?? e.codigo ?? e.nombre,
+            nombre: e.nombre as string
+          }))
+          .filter((e) => e.id !== undefined && !!e.nombre);
+        // Deduplicamos por nombre (case-insensitive) para mostrar una sola vez
+        const unicasPorNombre: Especialidad[] = Array.from(
+          new Map<string, Especialidad>(especialidades.map((e) => [e.nombre.toLowerCase(), e])).values()
+        );
+        setListaEspecialidades(unicasPorNombre);
       } catch (e) { console.warn("No especialidades"); }
     };
 
@@ -85,6 +110,25 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleCrearEspecialidad = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const nombre = nuevaEspecialidad.trim();
+    if (!nombre) { alert("Ingrese un nombre de especialidad."); return; }
+    const existente = listaEspecialidades.find((esp) => esp.nombre.toLowerCase() === nombre.toLowerCase());
+    if (existente) {
+        setSelectedSpecialtyId(String(existente.id));
+        setNuevaEspecialidad('');
+        alert("Esa especialidad ya existe, la he seleccionado.");
+        return;
+    }
+    // No creamos en API aquí para evitar 400: marcamos como nueva y la enviaremos luego junto al doctor.
+    const tempId = `new-${Date.now()}`;
+    const nueva = { id: tempId, nombre };
+    setListaEspecialidades(prev => [...prev, nueva]);
+    setNuevaEspecialidad('');
+    setSelectedSpecialtyId(String(nueva.id));
+  };
+
   const handleLogout = () => { localStorage.removeItem('usuario'); navigate('/login'); };
 
   const handleChangeForm = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,6 +140,9 @@ const AdminDashboard = () => {
         setPerfilData(originalData);
         alert("Datos restaurados.");
     }
+    setPerfilErrors({});
+    setNuevaPassword('');
+    setConfirmPassword('');
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -116,93 +163,139 @@ const AdminDashboard = () => {
     } catch (e) { alert("Error al guardar."); }
   };
 
-  // --- 🛡️ FUNCIÓN DE VALIDACIÓN AVANZADA ---
+  const generarPassword = (apellido: string) => {
+    const clean = apellido
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z]/g, '')
+      .toLowerCase();
+    const base = (clean || 'doc').slice(0, 4).padEnd(4, 'x');
+    const digits = Math.floor(100 + Math.random() * 900); // 3 dígitos aleatorios
+    return `${base}${digits}@`;
+  };
+
   const validarNuevoDoctor = () => {
-    const { nombre, apellido, telefono, fechaNacimiento, contrasena, tarifaConsulta, sueldo, bono, especialidad } = formData;
+    const { nombre, apellido, telefono, fechaNacimiento, correo, salario } = formData;
+    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{1,60}$/;
+    if (!nameRegex.test(nombre.trim())) return "El nombre solo admite letras y espacios (máximo 60).";
+    if (!nameRegex.test(apellido.trim())) return "El apellido solo admite letras y espacios (máximo 60).";
 
-    // 1. Nombre y Apellido (3-30 caracteres)
-    if (nombre.length < 3 || nombre.length > 30) return "El nombre debe tener entre 3 y 30 caracteres.";
-    if (apellido.length < 3 || apellido.length > 30) return "El apellido debe tener entre 3 y 30 caracteres.";
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(fechaNacimiento)) return "La fecha de nacimiento debe tener formato aaaa-mm-dd.";
+    const fecha = new Date(fechaNacimiento);
+    if (Number.isNaN(fecha.getTime())) return "La fecha de nacimiento no es válida.";
 
-    // 2. Especialidad (Máximo 30 caracteres)
-    if (especialidad.length > 30) return "La especialidad no puede superar los 30 caracteres.";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correo.trim())) return "El correo no tiene un formato válido.";
 
-    // 3. Teléfono Chileno (+569XXXXXXXX)
-    const fonoRegex = /^\+569\d{8}$/;
-    if (!fonoRegex.test(telefono)) return "El teléfono debe ser formato +569 seguido de 8 dígitos.";
+    const phoneRegex = /^\+?\d{8,}$/;
+    if (!phoneRegex.test(telefono.trim())) return "El teléfono debe tener mínimo 8 dígitos, solo números y puede iniciar con +.";
 
-    // 4. Edad (Mayor de 18)
-    const hoy = new Date();
-    const nacimiento = new Date(fechaNacimiento);
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mes = hoy.getMonth() - nacimiento.getMonth();
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-        edad--;
-    }
-    if (edad < 18) return "El doctor debe ser mayor de 18 años.";
+    const salarioVal = Number(salario);
+    if (!Number.isFinite(salarioVal) || salarioVal <= 0) return "El salario debe ser un número positivo.";
 
-    // 5. Contraseña (Mayúscula, 3 números, signo, min 8)
-    // Regex: Al menos 1 Mayus, 3 Digitos, 1 Caracter especial, Min 8 largo
-    // (?=.*[A-Z]) -> Mayúscula
-    // (?=(?:.*\d){3,}) -> 3 Números
-    // (?=.*[\W_]) -> Símbolo
-    // .{8,} -> Largo 8
-    const passRegex = /^(?=.*[A-Z])(?=(?:.*\d){3,})(?=.*[\W_]).{8,}$/;
-    if (!passRegex.test(contrasena)) {
-        return "La contraseña debe tener al menos: 8 caracteres, 1 mayúscula, 3 números y 1 símbolo (ej: Duoc123@).";
-    }
+    if (!selectedSpecialtyId) return "Seleccione una especialidad.";
 
-    // 6. Valores Numéricos (No negativos)
-    if (parseInt(tarifaConsulta) < 0) return "La tarifa no puede ser negativa.";
-    if (parseInt(sueldo) < 0) return "El sueldo no puede ser negativo.";
-    if (parseInt(bono) < 0) return "El bono no puede ser negativo.";
-
-    return null; // Todo OK
+    return null;
   };
 
 
   const handleCreateDoctor = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // --- VALIDACIÓN PREVIA ---
     const errorValidacion = validarNuevoDoctor();
     if (errorValidacion) {
-        alert(`Error de Validación:\n${errorValidacion}`);
+        alert(`Error de validación:\n${errorValidacion}`);
         return;
     }
-    // ------------------------
 
     setLoading(true);
     try {
+        const rolId = 2;
+        const especialidadSeleccionada = listaEspecialidades.find(e => String(e.id) === selectedSpecialtyId);
+        const esNuevaEspecialidad = selectedSpecialtyId.startsWith('new-') && especialidadSeleccionada;
+
+        // Payload principal (titular usuario doctor)
         const usuarioPayload = {
-            nombre: formData.nombre, apellido: formData.apellido, correo: formData.correo,
-            telefono: formData.telefono, contrasena: formData.contrasena,
-            fechaNacimiento: `${formData.fechaNacimiento}T00:00:00`, rol: { id: 2 }
+          nombre: formData.nombre.trim(),
+          apellido: formData.apellido.trim(),
+          correo: formData.correo.trim(),
+          telefono: formData.telefono.trim(),
+          fechaNacimiento: `${formData.fechaNacimiento}T00:00:00`,
+          contrasena: generarPassword(formData.apellido),
+          rol: { id: rolId },
+          idRol: rolId
         };
-        const respUsuario = await axios.post(`${USUARIOS_API_URL}/usuarios`, usuarioPayload);
-        
-        const doctorPayload = {
-            tarifaConsulta: parseInt(formData.tarifaConsulta), sueldo: parseInt(formData.sueldo),
-            bono: parseInt(formData.bono), activo: true, usuario: { id: respUsuario.data.id }
+
+        const doctorPayloadBase = {
+          salario: Number(formData.salario),
+          // Tarifa/bono obligatorios en la tabla Doctor: usamos 0 como placeholder si no se pide en UI
+          tarifaConsulta: 0,
+          bono: 0,
+          activo: true
         };
-        const respDoctor = await axios.post(`${USUARIOS_API_URL}/doctores`, doctorPayload);
-        
-        await axios.post(`${USUARIOS_API_URL}/doctores/${respDoctor.data.id}/especialidades`, {
-            nombre: formData.especialidad, doctorId: respDoctor.data.id
-        });
-        
-        alert(`¡Dr. ${formData.apellido} registrado correctamente!`);
-        
-        // Actualizamos lista si es nueva especialidad
-        if (!listaEspecialidades.includes(formData.especialidad)) {
-            setListaEspecialidades([...listaEspecialidades, formData.especialidad]);
+
+        let doctorId: number | null = null;
+        let usuarioId: number | null = null;
+
+        // Intentamos endpoint combinado primero
+        try {
+          const respCombined = await axios.post(DOCTOR_CREACION_URL, {
+            ...usuarioPayload,
+            ...doctorPayloadBase,
+            idEspecialidad: esNuevaEspecialidad ? undefined : Number(selectedSpecialtyId),
+            nombreEspecialidad: esNuevaEspecialidad ? especialidadSeleccionada?.nombre : undefined
+          });
+          doctorId = respCombined.data?.doctor?.id ?? respCombined.data?.idDoctor ?? respCombined.data?.id ?? null;
+          usuarioId = respCombined.data?.usuario?.id ?? respCombined.data?.idUsuario ?? null;
+        } catch (err: any) {
+          const status = err?.response?.status;
+          if (status !== 404 && status !== 405) {
+            throw err;
+          }
         }
 
-        setFormData({ nombre: '', apellido: '', correo: '', telefono: '', fechaNacimiento: '', contrasena: '', tarifaConsulta: '', sueldo: '', bono: '0', especialidad: '' });
+        // Si combinado falló o no devolvió ids, hacemos flujo en dos pasos
+        if (!doctorId) {
+          const respUser = await axios.post(`${USUARIOS_API_URL}/usuarios`, usuarioPayload);
+          usuarioId = respUser.data?.id ?? respUser.data?.userId ?? respUser.data?.id_usuario ?? null;
+
+          const respDoctor = await axios.post(`${USUARIOS_API_URL}/doctores`, {
+            ...doctorPayloadBase,
+            sueldo: Number(formData.salario),
+            usuario: { id: usuarioId },
+            idEspecialidad: esNuevaEspecialidad ? undefined : Number(selectedSpecialtyId)
+          });
+          doctorId = respDoctor.data?.id ?? respDoctor.data?.idDoctor ?? null;
+        }
+
+        // Asociar especialidad si es nueva o si el backend requiere endpoint separado
+        if (doctorId) {
+          try {
+            if (esNuevaEspecialidad) {
+              await axios.post(`${USUARIOS_API_URL}/doctores/${doctorId}/especialidades`, {
+                nombre: especialidadSeleccionada?.nombre,
+                doctorId
+              });
+            } else if (selectedSpecialtyId) {
+              await axios.post(`${USUARIOS_API_URL}/doctores/${doctorId}/especialidades`, {
+                idEspecialidad: Number(selectedSpecialtyId),
+                doctorId
+              });
+            }
+          } catch (err) {
+            console.warn("No se pudo asociar especialidad al doctor", err);
+          }
+        }
+        
+        alert(`Dr. ${formData.apellido} registrado correctamente.`);
+
+        setFormData({ nombre: '', apellido: '', correo: '', telefono: '', fechaNacimiento: '', salario: '' });
+        setSelectedSpecialtyId('');
     } catch (error: any) {
         console.error("Error creando doctor:", error);
         const msg = error.response?.data?.message || "Error al registrar. Verifique correo duplicado.";
-        alert(`Error del Servidor: ${msg}`);
+        alert(`Error del servidor: ${msg}`);
     } finally { setLoading(false); }
   };
 
@@ -214,7 +307,6 @@ const AdminDashboard = () => {
              style={{ background: 'linear-gradient(135deg, #dc3545 0%, #8a1c27 100%)' }}>
           <div className="d-flex align-items-center">
             <div className="avatar-container" onClick={handleAvatarClick}>
-              {/* CAMBIO: Usamos un div con imagen de fondo en lugar de img */}
               <div 
                 className="avatar-image" 
                 style={{ backgroundImage: `url(${avatarPreview})` }}
@@ -227,6 +319,8 @@ const AdminDashboard = () => {
           <div className="d-flex gap-2">
             <button className={`btn ${activeTab === 'crear' ? 'btn-light text-danger' : 'btn-outline-light'}`} onClick={() => setActiveTab('crear')}>Gestión Médica</button>
             <button className={`btn ${activeTab === 'perfil' ? 'btn-light text-danger' : 'btn-outline-light'}`} onClick={() => setActiveTab('perfil')}>Mis Datos</button>
+            <button className="btn btn-outline-light" onClick={() => navigate('/admin/doctores')}>Lista de Doctores</button>
+            <button className="btn btn-outline-light" onClick={() => navigate('/admin/seguros')}>Seguros</button>
             <button className="btn btn-dark" onClick={handleLogout}>Salir</button>
           </div>
         </div>
@@ -241,34 +335,128 @@ const AdminDashboard = () => {
                                 <h6 className="text-muted mb-3 text-uppercase small fw-bold">Información Personal</h6>
                                 <div className="row g-3 mb-4">
                                     <div className="col-md-6">
-                                        <label>Nombre (3-30 caracteres)</label>
-                                        <input id="nombre" className="form-control" value={formData.nombre} onChange={handleChangeForm} required minLength={3} maxLength={30} />
+                                        <label>Nombre</label>
+                                        <input
+                                          id="nombre"
+                                          className="form-control"
+                                          value={formData.nombre}
+                                          onChange={handleChangeForm}
+                                          maxLength={60}
+                                          placeholder="Solo letras y espacios"
+                                          required
+                                        />
                                     </div>
                                     <div className="col-md-6">
-                                        <label>Apellido (3-30 caracteres)</label>
-                                        <input id="apellido" className="form-control" value={formData.apellido} onChange={handleChangeForm} required minLength={3} maxLength={30} />
+                                        <label>Apellido</label>
+                                        <input
+                                          id="apellido"
+                                          className="form-control"
+                                          value={formData.apellido}
+                                          onChange={handleChangeForm}
+                                          maxLength={60}
+                                          placeholder="Solo letras y espacios"
+                                          required
+                                        />
                                     </div>
-                                    <div className="col-md-6"><label>Correo (Login)</label><input id="correo" type="email" className="form-control" value={formData.correo} onChange={handleChangeForm} required placeholder="doctor@clinica.com" /></div>
                                     <div className="col-md-6">
-                                        <label>Contraseña (Ej: Duoc123@)</label>
-                                        <input id="contrasena" type="password" className="form-control" value={formData.contrasena} onChange={handleChangeForm} required placeholder="1 Mayus, 3 Num, 1 Signo" />
+                                      <label>Fecha de nacimiento (aaaa-mm-dd)</label>
+                                      <input
+                                        id="fechaNacimiento"
+                                        type="date"
+                                        className="form-control"
+                                        value={formData.fechaNacimiento}
+                                        onChange={handleChangeForm}
+                                        required
+                                      />
                                     </div>
                                     <div className="col-md-6">
-                                        <label>Teléfono (+569...)</label>
-                                        <input id="telefono" className="form-control" value={formData.telefono} onChange={handleChangeForm} placeholder="+56912345678" />
+                                      <label>Correo</label>
+                                      <input
+                                        id="correo"
+                                        type="email"
+                                        className="form-control"
+                                        value={formData.correo}
+                                        onChange={handleChangeForm}
+                                        placeholder="doctor@clinica.com"
+                                        required
+                                      />
                                     </div>
-                                    <div className="col-md-6"><label>Fecha Nacimiento (+18 años)</label><input id="fechaNacimiento" type="date" className="form-control" value={formData.fechaNacimiento} onChange={handleChangeForm} required /></div>
+                                    <div className="col-md-6">
+                                      <label>Teléfono</label>
+                                      <input
+                                        id="telefono"
+                                        className="form-control"
+                                        value={formData.telefono}
+                                        onChange={handleChangeForm}
+                                        placeholder="+56912345678"
+                                        required
+                                      />
+                                    </div>
+                                    <div className="col-md-6">
+                                      <label>Salario</label>
+                                      <input
+                                        id="salario"
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        className="form-control"
+                                        value={formData.salario}
+                                        onChange={handleChangeForm}
+                                        placeholder="Monto en pesos"
+                                        required
+                                      />
+                                    </div>
                                 </div>
-                                <h6 className="text-muted mb-3">Datos Profesionales</h6>
+                                <h6 className="text-muted mb-3">Especialidad (elige solo una)</h6>
                                 <div className="row g-3 mb-4">
-                                    <div className="col-md-6">
-                                        <label>Especialidad (Max 30 chars)</label>
-                                        <input list="esp-list" id="especialidad" className="form-control" value={formData.especialidad} onChange={handleChangeForm} required maxLength={30} />
-                                        <datalist id="esp-list">{listaEspecialidades.map((e, i) => <option key={i} value={e} />)}</datalist>
+                                  <div className="col-12">
+                                    {listaEspecialidades.length === 0 && (
+                                      <p className="text-muted small mb-1">No hay especialidades disponibles.</p>
+                                    )}
+                                    <div className="d-flex gap-2 mb-3">
+                                      <input
+                                        className="form-control"
+                                        placeholder="Nueva especialidad"
+                                        value={nuevaEspecialidad}
+                                        onChange={(e) => setNuevaEspecialidad(e.target.value)}
+                                        maxLength={60}
+                                      />
+                                      <button
+                                        className="btn btn-outline-danger"
+                                        type="button"
+                                        disabled={creandoEspecialidad}
+                                        onClick={() => handleCrearEspecialidad()}
+                                      >
+                                        {creandoEspecialidad ? '...' : 'Agregar'}
+                                      </button>
                                     </div>
-                                    <div className="col-md-6"><label>Tarifa ($)</label><input id="tarifaConsulta" type="number" min="0" className="form-control" value={formData.tarifaConsulta} onChange={handleChangeForm} required /></div>
-                                    <div className="col-md-6"><label>Sueldo ($)</label><input id="sueldo" type="number" min="0" className="form-control" value={formData.sueldo} onChange={handleChangeForm} required /></div>
-                                    <div className="col-md-6"><label>Bono ($)</label><input id="bono" type="number" min="0" className="form-control" value={formData.bono} onChange={handleChangeForm} /></div>
+                                    <div className="row row-cols-1 row-cols-md-2 g-2">
+                                      {listaEspecialidades.map((esp) => (
+                                        <div className="col" key={esp.id}>
+                                          <div
+                                            className={`especialidad-card ${selectedSpecialtyId === String(esp.id) ? 'selected' : ''}`}
+                                            onClick={() => setSelectedSpecialtyId(String(esp.id))}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') setSelectedSpecialtyId(String(esp.id)); }}
+                                          >
+                                            <input
+                                              className="form-check-input especialidad-radio"
+                                              type="radio"
+                                              name="especialidad"
+                                              id={`esp-${esp.id}`}
+                                              value={esp.id}
+                                              checked={selectedSpecialtyId === String(esp.id)}
+                                              onChange={(e) => setSelectedSpecialtyId(e.target.value)}
+                                            />
+                                            <label className="form-check-label especialidad-label" htmlFor={`esp-${esp.id}`}>
+                                              {esp.nombre}
+                                            </label>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
                                 </div>
                                 <div className="d-grid"><button type="submit" className="btn btn-danger btn-lg" disabled={loading}>{loading ? "..." : "Crear Doctor"}</button></div>
                             </form>
@@ -282,14 +470,22 @@ const AdminDashboard = () => {
                     <div className="card shadow-sm border-0">
                         <div className="card-body p-4">
                             <PerfilForm 
-                                perfilData={perfilData}
-                                isEditing={isEditing}
-                                onEnableEdition={() => setIsEditing(true)}
-                                onClear={handleRestore}
-                                onChange={(e) => setPerfilData(prev => ({ ...prev, [e.target.id]: e.target.value }))}
-                                onSubmit={handleSaveProfile}
-                                onLogout={() => {}} 
-                            />
+                            perfilData={perfilData}
+                            isEditing={isEditing}
+                            onEnableEdition={() => setIsEditing(true)}
+                            onClear={handleRestore}
+                            onChange={(e) => setPerfilData(prev => ({ ...prev, [e.target.id]: e.target.value }))}
+                            onSubmit={handleSaveProfile}
+                            showPasswordChange
+                            password={nuevaPassword}
+                            confirmPassword={confirmPassword}
+                            onPasswordChange={(e) => {
+                              const { id, value } = e.target;
+                              if (id === 'contrasena') setNuevaPassword(value);
+                              if (id === 'confirmarContrasena') setConfirmPassword(value);
+                            }}
+                            onLogout={() => {}} 
+                        />
                         </div>
                     </div>
                 </div>
@@ -301,3 +497,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

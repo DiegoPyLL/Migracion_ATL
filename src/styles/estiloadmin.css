@@ -114,6 +114,45 @@
     color: white;
 }
 
+/* Cards de especialidad (selección única) */
+.especialidad-card {
+    position: relative;
+    cursor: pointer;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    transition: all 0.2s ease;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+}
+
+.especialidad-card:hover {
+    border-color: var(--admin-primary);
+    box-shadow: 0 6px 14px rgba(220, 53, 69, 0.15);
+}
+
+.especialidad-card.selected {
+    border-color: var(--admin-primary);
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe9ec 100%);
+    box-shadow: 0 8px 18px rgba(220, 53, 69, 0.2);
+}
+
+.especialidad-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.especialidad-label {
+    margin: 0;
+    font-weight: 700;
+    color: #343a40;
+    width: 100%;
+    cursor: pointer;
+}
+
 /* Avatar del Admin */
 .admin-avatar-circle {
     width: 70px;

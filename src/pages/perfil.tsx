@@ -47,6 +47,7 @@ const Perfil = () => {
   const USUARIOS_API_URL = 'http://localhost:8082/api/v1/usuarios';
   const DOCTORES_API_URL = 'http://localhost:8082/api/v1/doctores';
   const SEGUROS_API_URL = 'http://localhost:8084/api/v1/seguros';
+  const CONTRATOS_SEGUROS_API_URL = 'http://localhost:8084/api/v1/seguros/contratos';
   const CITAS_API_URL = 'http://localhost:8080/api/v1/citas';
   const HISTORIAL_API_URL = 'http://localhost:8083/api/v1/historial';
 
@@ -81,9 +82,13 @@ const Perfil = () => {
         // 2. Usuario (CRÍTICO: Si falla, dejamos que salte al catch general)
         const reqUsuario = axios.get(`${USUARIOS_API_URL}/${userId}`);
 
-        // 3. Seguros
-        const reqSeguros = axios.get(`${SEGUROS_API_URL}/usuario/${userId}`).catch(e => {
-            console.warn("API Seguros no disponible (Posible error 500 resuelto o servicio apagado)");
+        // 3. Seguros (contratos) del usuario y catálogo de seguros para mapear nombres
+        const reqSegurosContratos = axios.get(`${CONTRATOS_SEGUROS_API_URL}/usuario/${userId}`).catch(e => {
+            console.warn("API Contratos de Seguros no disponible");
+            return { data: [] };
+        });
+        const reqCatalogoSeguros = axios.get(SEGUROS_API_URL).catch(e => {
+            console.warn("Catálogo de Seguros no disponible");
             return { data: [] };
         });
 
@@ -103,10 +108,11 @@ const Perfil = () => {
         // PASO B: Esperar a que TODAS terminen (Promise.all)
         // Esto reduce el tiempo de espera a la petición más lenta, no a la suma de todas.
         // ---------------------------------------------------------------------
-        const [respDoctores, respUsuario, respSeguros, respHistorial, respCitas] = await Promise.all([
+        const [respDoctores, respUsuario, respSegurosContratos, respCatalogo, respHistorial, respCitas] = await Promise.all([
             reqDoctores,
             reqUsuario,
-            reqSeguros,
+            reqSegurosContratos,
+            reqCatalogoSeguros,
             reqHistorial,
             reqCitas
         ]);
@@ -133,8 +139,44 @@ const Perfil = () => {
         setPerfilData(datosCargados);
         setOriginalData(datosCargados);
 
-        // C.3: Seguros
-        setListaSeguros(respSeguros.data);
+        // C.3: Seguros contratados (mapeamos contrato -> tarjeta MisSeguros)
+        const catalogo: any[] = respCatalogo.data || [];
+        const contratosRaw: any[] = respSegurosContratos.data || [];
+        const segurosMap = new Map<number, any>();
+        catalogo.forEach((s: any) => {
+          const id = s.id_seguro ?? s.id;
+          if (id !== undefined) segurosMap.set(Number(id), s);
+        });
+
+        const parseList = (s?: string) => (s ? s.split(';').map((t: string) => t.trim()).filter(Boolean) : []);
+
+        const segurosParseados: Seguro[] = contratosRaw.map((c) => {
+          const idContrato = c.id_contrato ?? c.id;
+          const idSeguro = c.id_seguro ?? c.idSeguro;
+          const seguroInfo = idSeguro ? segurosMap.get(Number(idSeguro)) : null;
+          const beneficiarios = parseList(c.nombre_beneficiarios ?? c.nombreBeneficiarios);
+          const ruts = parseList(c.rut_beneficiarios ?? c.rutBeneficiarios);
+          const nombreSeguro =
+            seguroInfo?.nombre_seguro ||
+            seguroInfo?.nombreSeguro ||
+            c.nombre_seguro ||
+            c.nombreSeguro ||
+            (idSeguro ? `Seguro ${idSeguro}` : 'Seguro');
+          return {
+            id: idContrato ?? 0,
+            idSeguro: idSeguro ? Number(idSeguro) : undefined,
+            nombreSeguro,
+            descripcion: seguroInfo?.descripcion || 'Contrato de seguro',
+            estado: c.estado || 'ACTIVO',
+            fechaCreacion: c.fecha_contratacion || c.fechaContratacion || '',
+            beneficiarios,
+            ruts,
+            metodoPago: c.metodo_pago ?? c.metodoPago,
+            telefonoContacto: c.telefono_contacto ?? c.telefonoContacto,
+            correoContacto: c.correo_contacto ?? c.correoContacto
+          };
+        });
+        setListaSeguros(segurosParseados);
 
         // C.4: Historial (Fichas)
         setListaFichas(respHistorial.data);
@@ -181,11 +223,11 @@ const Perfil = () => {
   // --- ACCIONES ---
   const handleLogout = () => { localStorage.removeItem('usuario'); navigate('/login'); };
 
-  const handleCancelSeguro = async (idSeguro: number) => {
+  const handleCancelSeguro = async (idContrato: number) => {
     if (!confirm("¿Cancelar seguro?")) return;
     try {
-        await axios.patch(`${SEGUROS_API_URL}/${idSeguro}/cancelacion`, { motivo: "Web" });
-        setListaSeguros(prev => prev.map(s => s.id === idSeguro ? { ...s, estado: "CANCELADO" } : s));
+        await axios.patch(`${CONTRATOS_SEGUROS_API_URL}/${idContrato}/cancelacion`, { motivo: "Web" });
+        setListaSeguros(prev => prev.map(s => s.id === idContrato ? { ...s, estado: "CANCELADO" } : s));
     } catch (error) { alert("Error al cancelar seguro."); }
   };
 
