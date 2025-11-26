@@ -17,6 +17,7 @@ import AdminDoctorDetail from "./pages/AdminDoctorDetail";
 import AdminSegurosList from "./pages/AdminSegurosList";
 import AdminSeguroNuevo from "./pages/AdminSeguroNuevo";
 import AdminSeguroEditar from "./pages/AdminSeguroEditar";
+import ExplorerPage from "./pages/admin/ExplorerPage";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 
 // Decide si muestra el Home público o redirige al dashboard si ya tienes rol de "usuario"
@@ -79,6 +80,7 @@ const AppRoutes = () => {
             <Route path="/admin/seguros" element={<AdminSegurosList />} />
             <Route path="/admin/seguros/nuevo" element={<AdminSeguroNuevo />} />
             <Route path="/admin/seguros/:id/editar" element={<AdminSeguroEditar />} />
+            <Route path="/admin/explorador" element={<ExplorerPage />} />
           </Route>
 
           {/* CATCH-ALL */}
