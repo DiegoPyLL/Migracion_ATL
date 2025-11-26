@@ -97,7 +97,18 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">      
+    <div className="login-container">
+      <video
+        className="login-bg-video"
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster="/videos/Video_de_pareja_feliz_en_parque.mp4"
+      >
+        <source src="/videos/Video_de_pareja_feliz_en_parque.mp4" type="video/mp4" />
+        Tu navegador no soporta video en segundo plano.
+      </video>
       <form id="loginForm" onSubmit={handleSubmit} noValidate>
         <h2>Iniciar Sesión</h2>
 

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home"; 
@@ -19,43 +19,39 @@ import AdminSeguroNuevo from "./pages/AdminSeguroNuevo";
 import AdminSeguroEditar from "./pages/AdminSeguroEditar";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 
-// --- COMPONENTE: PORTERO DEL HOME ---
 // Decide si muestra el Home público o redirige al dashboard si ya tienes rol de "usuario"
 const HomeRedirector = () => {
-  const usuarioSesion = localStorage.getItem('usuario');
+  const usuarioSesion = localStorage.getItem("usuario");
 
   if (usuarioSesion) {
     try {
       const usuario = JSON.parse(usuarioSesion);
-      const rol = usuario.role ? usuario.role.toLowerCase() : '';
+      const rol = usuario.role ? usuario.role.toLowerCase() : "";
 
-      // Si es doctor, a su oficina
-      if (rol === 'doctor') {
+      if (rol === "doctor") {
         return <Navigate to="/doctor-dashboard" replace />;
       }
-      // Si es administrativo (así se llama en tu BD), a su panel
-      if (rol === 'administrativo') {
+      if (rol === "administrativo") {
         return <Navigate to="/admin-dashboard" replace />;
       }
-      // Si es paciente, puede ver el Home
     } catch (e) {
-      localStorage.removeItem('usuario');
+      localStorage.removeItem("usuario");
     }
   }
   return <Home />;
 };
 
-export default function App() {
+const AppRoutes = () => {
+  const location = useLocation();
+  const hideFooter = location.pathname === "/login";
+
   return (
-    <BrowserRouter>
+    <>
       <Header />
       <main className="app-content">
         <Routes>
-          {/* --- ZONA PÚBLICA --- */}
-          
-          {/* Inicio Inteligente */}
+          {/* ZONA PÚBLICA */}
           <Route path="/" element={<HomeRedirector />} />
-          
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/seguros/venta" element={<SegurosListado />} />
@@ -63,37 +59,41 @@ export default function App() {
           <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
 
-          {/* --- ZONA PACIENTES --- */}
-          {/* Solo entran Pacientes (o usuarios sin rol definido como 'doctor/admin') */}
+          {/* PACIENTES */}
           <Route element={<RoleProtectedRoute allowedRole="paciente" />}>
-              <Route path="/perfil" element={<Perfil />} />
-              <Route path="/pedir-hora" element={<PedirHora />} />
-              <Route path="/seguros/:id/contratar" element={<ContratarSeguro />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/pedir-hora" element={<PedirHora />} />
+            <Route path="/seguros/:id/contratar" element={<ContratarSeguro />} />
           </Route>
 
-          {/* --- ZONA DOCTORES --- */}
-          {/* Solo entran Doctores */}
+          {/* DOCTORES */}
           <Route element={<RoleProtectedRoute allowedRole="doctor" />}>
-              <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+            <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
           </Route>
 
-          {/* --- ZONA ADMINISTRATIVA --- */}
-          {/* Solo entran Administrativos */}
+          {/* ADMINISTRATIVOS */}
           <Route element={<RoleProtectedRoute allowedRole="administrativo" />}>
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/doctores" element={<AdminDoctoresList />} />
-              <Route path="/admin/doctores/:doctorId" element={<AdminDoctorDetail />} />
-              <Route path="/admin/seguros" element={<AdminSegurosList />} />
-              <Route path="/admin/seguros/nuevo" element={<AdminSeguroNuevo />} />
-              <Route path="/admin/seguros/:id/editar" element={<AdminSeguroEditar />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/doctores" element={<AdminDoctoresList />} />
+            <Route path="/admin/doctores/:doctorId" element={<AdminDoctorDetail />} />
+            <Route path="/admin/seguros" element={<AdminSegurosList />} />
+            <Route path="/admin/seguros/nuevo" element={<AdminSeguroNuevo />} />
+            <Route path="/admin/seguros/:id/editar" element={<AdminSeguroEditar />} />
           </Route>
 
-          {/* CATCH-ALL: Si la ruta no existe, vuelve al inicio */}
+          {/* CATCH-ALL */}
           <Route path="*" element={<Navigate to="/" replace />} />
-
         </Routes>
       </main>
-      <Footer />
+      {!hideFooter && <Footer />}
+    </>
+  );
+};
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
     </BrowserRouter>
   );
 }
