@@ -20,6 +20,10 @@ const toDoctor = (d: any): DoctorDto => {
   const nombreCompleto = usuario
     ? `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim()
     : `${d?.nombre || ""} ${d?.apellido || ""}`.trim();
+  const especialidadesArray = Array.isArray(d?.especialidades) ? d.especialidades : [];
+  const especialidadDesdeArray = especialidadesArray
+    .map((esp: any) => esp?.nombre ?? esp?.nombreEspecialidad)
+    .find((value): value is string => Boolean(value));
   return {
     id,
     idDoctor: d?.idDoctor,
@@ -27,7 +31,13 @@ const toDoctor = (d: any): DoctorDto => {
     idUsuario,
     usuario,
     nombreCompleto: nombreCompleto || undefined,
-    especialidad: d?.especialidad?.nombre ?? d?.especialidad ?? d?.especialidadPrincipal ?? d?.nombreEspecialidad,
+    especialidad:
+      d?.especialidad?.nombre ??
+      d?.especialidad ??
+      d?.especialidadPrincipal ??
+      d?.especialidad?.nombreEspecialidad ??
+      d?.nombreEspecialidad ??
+      especialidadDesdeArray,
     tarifaConsulta: d?.tarifaConsulta ?? d?.tarifa_consulta
   };
 };

@@ -1,16 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-// Interfaces actualizadas según tus DTOs
-interface Doctor {
-  id: number;
-  especialidad?: string;
-  usuario: {
-    nombre: string;
-    apellido: string;
-  };
-}
+import { doctoresApi, DoctorDto } from "../../services/doctoresApi";
 
 // Horarios disponibles (Bloques de 30 min)
 const HORARIOS_DISPONIBLES = [
@@ -23,7 +14,7 @@ const CombinedReservaForm: React.FC = () => {
   
   // Estados
   const [userId, setUserId] = useState<number | null>(null);
-  const [doctores, setDoctores] = useState<Doctor[]>([]);
+  const [doctores, setDoctores] = useState<DoctorDto[]>([]);
   const [loadingDoctores, setLoadingDoctores] = useState(true);
 
   // Formulario
@@ -35,7 +26,6 @@ const CombinedReservaForm: React.FC = () => {
 
   // URLs EXACTAS (Basadas en tus properties)
   const CITAS_API_URL = "http://localhost:8080/api/v1/citas"; 
-  const DOCTORES_API_URL = "http://localhost:8082/api/v1/doctores";
 
   // Fecha mínima (Hoy + 3 días)
   const fechaMinima = useMemo(() => {
@@ -56,9 +46,8 @@ const CombinedReservaForm: React.FC = () => {
 
     const cargarDoctores = async () => {
       try {
-        const response = await axios.get(DOCTORES_API_URL);
-        // Filtramos solo doctores activos si es necesario
-        setDoctores(response.data);
+        const lista = await doctoresApi.getAll();
+        setDoctores(lista);
       } catch (err) {
         console.error("Error cargando doctores", err);
         setError("No se pudo cargar la lista de médicos (API 8082).");
@@ -185,11 +174,18 @@ const CombinedReservaForm: React.FC = () => {
                 <option value="" disabled>
                     {areaSeleccionada ? "Selecciona profesional" : "Primero elige especialidad"}
                 </option>
-                {doctoresFiltrados.map((doc) => (
-                  <option key={doc.id} value={doc.id}>
-                    {doc.usuario.nombre} {doc.usuario.apellido}
-                  </option>
-                ))}
+                {doctoresFiltrados.map((doc) => {
+                  const doctorId = doc.id ?? doc.doctorId ?? doc.idDoctor;
+                  if (!doctorId) return null;
+                  const nombrePaciente = doc.usuario
+                    ? `${doc.usuario.nombre ?? ""} ${doc.usuario.apellido ?? ""}`.trim()
+                    : doc.nombreCompleto ?? "";
+                  return (
+                    <option key={doctorId} value={doctorId}>
+                      {nombrePaciente || "Doctor sin nombre"}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 
