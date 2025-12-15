@@ -6,7 +6,7 @@ const DoctorCard: React.FC<Doc> = ({ nombre, cargo, desde, img }) => (
   <article className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
     <div
       className="position-relative mx-auto mt-4 mb-3 rounded-circle overflow-hidden shadow-sm"
-      
+      style={{ width: "160px", height: "160px" }}
     >
       <img src={img} className="w-100 h-100 object-fit-cover" alt={nombre} />
     </div>

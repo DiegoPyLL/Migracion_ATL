@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { IconType } from "react-icons";
 import { FaStethoscope, FaHeartbeat, FaUserMd, FaMicroscope } from "react-icons/fa";
 import { FiArrowRight } from "react-icons/fi";
+import { doctoresApi, DoctorDto } from "../../services/doctoresApi";
 import "../../styles/doctorsShowcase.css";
-type Doctor = {
+
+type DoctorCardData = {
+  id?: number;
   name: string;
   specialty: string;
   description: string;
@@ -14,62 +17,81 @@ type Doctor = {
   accent: string;
   img: string;
 };
-const doctors: Doctor[] = [
-  {
-    name: "Dra. Ana L\u00f3pez",
-    specialty: "Medicina General",
-    description:
-      "Coordina los planes preventivos y acompa\u00f1a a las familias en controles peri\u00f3dicos.",
-    icon: FaStethoscope,
-    highlight: "10 a\u00f1os de experiencia",
-    schedule: "Disponible esta semana",
-    accent: "linear-gradient(135deg, #d6ecff 0%, #f2f8ff 100%)",
-    img: "/images/doctor_medgen_1.png",
-  },
-  {
-    name: "Dr. Mart\u00edn Salazar",
-    specialty: "Cardiolog\u00eda",
-    description:
-      "Especialista en chequeos cardiacos y programas de recuperaci\u00f3n activa.",
-    icon: FaHeartbeat,
-    highlight: "Unidad Coraz\u00f3n Saludable",
-    schedule: "Agenda mi\u00e9rcoles y viernes",
-    accent: "linear-gradient(135deg, #ffe7e0 0%, #fff5f1 100%)",
-    img: "/images/doctor_cardio_2.png",
-  },
-  {
-    name: "Dr. Aleksei Ivanov",
-    specialty: "Pediatr\u00eda Integral",
-    description:
-      "Gu\u00eda a los m\u00e1s peque\u00f1os con un enfoque c\u00e1lido y personalizado para cada familia.",
-    icon: FaUserMd,
-    highlight: "Consultas familiares",
-    schedule: "Turnos ma\u00f1ana y tarde",
-    accent: "linear-gradient(135deg, #e8f8f1 0%, #f4fffb 100%)",
-    img: "/images/doctor_pedi_1.png",
-  },
-  {
-    name: "Dr. Felipe Arancibia",
-    specialty: "Medicina Interna",
-    description:
-      "Apoya diagn\u00f3sticos complejos y coordina tratamientos junto a especialistas.",
-    icon: FaMicroscope,
-    highlight: "Referente en casos integrales",
-    schedule: "Pr\u00f3ximas horas martes",
-    accent: "linear-gradient(135deg, #ede7ff 0%, #f7f4ff 100%)",
-    img: "/images/doctor_medgen_5.png",
-  },
+
+const visuals = [
+  { img: "/images/doctor_medgen_1.png", accent: "linear-gradient(135deg, #d6ecff 0%, #f2f8ff 100%)", icon: FaStethoscope },
+  { img: "/images/doctor_cardio_2.png", accent: "linear-gradient(135deg, #ffe7e0 0%, #fff5f1 100%)", icon: FaHeartbeat },
+  { img: "/images/doctor_pedi_1.png", accent: "linear-gradient(135deg, #e8f8f1 0%, #f4fffb 100%)", icon: FaUserMd },
+  { img: "/images/doctor_medgen_5.png", accent: "linear-gradient(135deg, #ede7ff 0%, #f7f4ff 100%)", icon: FaMicroscope },
+  { img: "/images/doctor_derma_3.png", accent: "linear-gradient(135deg, #fef6ff 0%, #fff8fc 100%)", icon: FaUserMd },
+  { img: "/images/doctor_nutri_1.png", accent: "linear-gradient(135deg, #f1fff6 0%, #f8fffb 100%)", icon: FaHeartbeat },
 ];
+
+const fallbackDocs: DoctorDto[] = [
+  { id: 1, nombreCompleto: "Dra. Ana López", especialidad: "Medicina General" },
+  { id: 2, nombreCompleto: "Dr. Martín Salazar", especialidad: "Cardiología" },
+  { id: 3, nombreCompleto: "Dr. Aleksei Ivanov", especialidad: "Pediatría Integral" },
+  { id: 4, nombreCompleto: "Dr. Felipe Arancibia", especialidad: "Medicina Interna" },
+];
+
+const buildCards = (items: DoctorDto[]): DoctorCardData[] =>
+  items.map((doc, idx) => {
+    const visual = visuals[idx % visuals.length];
+    const name =
+      doc.nombreCompleto ||
+      `${doc.usuario?.nombre ?? "Doctor"} ${doc.usuario?.apellido ?? ""}`.trim() ||
+      "Doctor/a";
+    const specialty = doc.especialidad || "Especialidad no disponible";
+
+    return {
+      id: doc.id ?? doc.idDoctor ?? doc.doctorId,
+      name,
+      specialty,
+      description: `Atiende en ${specialty.toLowerCase()}.`,
+      icon: visual.icon,
+      highlight: `Especialista en ${specialty}`,
+      schedule: "Agenda disponible",
+      accent: visual.accent,
+      img: visual.img,
+    };
+  });
+
 const DoctorsShowcase: React.FC = () => {
+  const [cards, setCards] = useState<DoctorCardData[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const apiDocs = await doctoresApi.getAll();
+        if (!isMounted) return;
+        const mapped = buildCards(apiDocs);
+        setCards(mapped.length ? mapped.slice(0, 4) : buildCards(fallbackDocs));
+      } catch (err) {
+        console.error("No se pudieron cargar los doctores", err);
+        if (!isMounted) return;
+        setError("No pudimos actualizar la lista en línea.");
+        setCards(buildCards(fallbackDocs));
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const visibleCards = cards.length ? cards : buildCards(fallbackDocs);
+
   return (
     <section className="doctors-section" aria-labelledby="doctors-section-title">
       <div className="doctors-wrapper">
         <h2 id="doctors-section-title">Conoce a nuestros especialistas</h2>
+        {error && <p className="doctor-error">{error}</p>}
 
         <div className="doctors-grid">
-          {doctors.map(
-            ({ name, specialty, description, icon: Icon, highlight, schedule, accent, img }) => (
-              <article key={name} className="doctor-card">
+          {visibleCards.map(
+            ({ id, name, specialty, description, icon: Icon, highlight, schedule, accent, img }) => (
+              <article key={id ?? name} className="doctor-card">
                 <div className="doctor-hero" style={{ background: accent }}>
                   <span className="doctor-highlight">{highlight}</span>
                   <Icon className="doctor-icon" aria-hidden="true" />
@@ -99,4 +121,5 @@ const DoctorsShowcase: React.FC = () => {
     </section>
   );
 };
+
 export default DoctorsShowcase;
