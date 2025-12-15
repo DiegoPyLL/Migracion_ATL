@@ -3,8 +3,8 @@
   padding: 4rem 1.25rem 4.5rem;
 }
 .doctors-wrapper {
-  margin: 0 auto;
-  max-width: 1180px;
+  margin: 0 100px;
+  max-width: none;
 }
 .doctors-kicker {
   display: inline-block;
@@ -30,8 +30,8 @@
 .doctors-grid {
   margin-top: 2.75rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
 }
 .doctor-card {
   background: #ffffff;
@@ -40,7 +40,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  min-height: 350px;
+  min-height: 420px;
+  max-width: 100%;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 .doctor-card:hover {
@@ -49,20 +50,20 @@
 }
 .doctor-hero {
   position: relative;
-  padding: 1.75rem 1.75rem 1.5rem;
+  padding: 2rem 2rem 1.75rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   gap: 1.25rem;
-  min-height: 150px;
+  min-height: 180px;
   border-bottom: 1px solid rgba(19, 45, 70, 0.08);
 }
 .doctor-icon {
-  font-size: 2.8rem;
+  font-size: 3.1rem;
   color: #134880;
   background: rgba(255, 255, 255, 0.88);
   border-radius: 16px;
-  padding: 0.7rem;
+  padding: 0.85rem;
   box-shadow: 0 12px 26px rgba(15, 54, 102, 0.18);
 }
 .doctor-highlight {
@@ -78,8 +79,8 @@
   box-shadow: 0 8px 18px rgba(0, 64, 140, 0.12);
 }
 .doctor-photo {
-  width: 110px;
-  height: 110px;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid #ffffff;
@@ -87,11 +88,11 @@
   flex-shrink: 0;
 }
 .doctor-body {
-  padding: 1.6rem 1.75rem 1.25rem;
+  padding: 1.9rem 2rem 1.4rem;
   flex: 1;
 }
 .doctor-body h3 {
-  font-size: 1.35rem;
+  font-size: 1.45rem;
   color: #0f1f33;
   margin-bottom: 0.35rem;
 }
@@ -102,12 +103,12 @@
   margin-bottom: 0.75rem;
 }
 .doctor-description {
-  font-size: 0.95rem;
+  font-size: 1.02rem;
   color: #4b5d72;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 .doctor-footer {
-  padding: 0 1.75rem 1.75rem;
+  padding: 0 2rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
@@ -142,10 +143,15 @@
     min-height: 0;
   }
   .doctor-hero {
-    min-height: 140px;
+    min-height: 150px;
   }
   .doctor-photo {
-    width: 90px;
-    height: 90px;
+    width: 110px;
+    height: 110px;
+  }
+}
+@media (max-width: 1100px) {
+  .doctors-wrapper {
+    margin: 0 1.25rem;
   }
 }

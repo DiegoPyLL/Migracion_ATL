@@ -33,7 +33,7 @@ const CarouselHome: React.FC = () => {
             <source src="/videos/Video_de_pareja_feliz_en_parque.mp4" type="video/mp4" />
           </video>
           <div className="texto-sobre-imagen">
-            <h1>El tiempo se agota.</h1>
+            <h1>Tu tiempo se agota.</h1>
           </div>
         </div>
 
@@ -45,7 +45,7 @@ const CarouselHome: React.FC = () => {
           />
           <div className="texto-sobre-imagen">
             <h1>Protege a quienes amas</h1>
-            <h2>Planes flexibles para cada familia</h2>
+            <h2>Mientras puedas</h2>
           </div>
         </div>
 
@@ -55,7 +55,7 @@ const CarouselHome: React.FC = () => {
           </video>
           <div className="texto-sobre-imagen">
             <h1>Disfruta cada momento</h1>
-            <h2>Estamos contigo en cada etapa</h2>
+            <h2>Estaremos contigo en cada etapa</h2>
           </div>
         </div>
 
