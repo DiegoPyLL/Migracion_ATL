@@ -211,7 +211,7 @@ const DoctorDashboard: React.FC = () => {
       } catch (_) { /* sin usuarios, seguimos */ }
 
       const agenda = todas
-        .filter(c => c.idDoctor === dId && c.fechaCita && !esCancelada(c.estado) && (c.estado || '').toUpperCase() !== 'REALIZADA')
+        .filter(c => c.idDoctor === dId && c.fechaCita)
         .filter(c => {
           // fecha futura o hoy
           const hoy = new Date();
@@ -373,7 +373,18 @@ const DoctorDashboard: React.FC = () => {
         observacionesHorario: obsFinal
       });
       await axios.put(`${CITAS_API_URL}/${id}`, payload);
-      setCitas(prev => prev.filter(c => c.id !== id)); // sacamos de agenda
+      setCitas(prev =>
+        prev.map(c =>
+          c.id === id
+            ? {
+                ...c,
+                estado: 'REALIZADA',
+                disponible: false,
+                observacionesHorario: obsFinal
+              }
+            : c
+        )
+      );
       refetchStats();
       if (doctorId) await cargarCitasYCompletadas(doctorId, filters.month || monthToday());
       alert("Cita finalizada y marcada como REALIZADA.");
@@ -476,7 +487,7 @@ const DoctorDashboard: React.FC = () => {
   });
 
   const filteredAgenda = citas
-    .filter(c => !esCancelada(c.estado) && c.usuario?.nombre && c.usuario?.correo && c.usuario?.telefono)
+    .filter(c => c.usuario?.nombre && c.usuario?.correo && c.usuario?.telefono)
     .filter((c) => {
       if (!agendaSearch.trim()) return true;
       const term = agendaSearch.toLowerCase();
@@ -533,33 +544,60 @@ const DoctorDashboard: React.FC = () => {
                         <div className="text-center p-5 bg-white rounded shadow-sm"><p className="text-muted">No hay citas programadas.</p></div>
                     ) : (
                         filteredAgenda
-                          .map(cita => (
-                            <div key={cita.id} className="card cita-card">
-                                <div className="card-body cita-card-body">
-                                    <div>
-                                        <h5 className="cita-paciente-name">{cita.usuario?.nombre} {cita.usuario?.apellido}</h5>
-                                        <div className="d-flex gap-3 flex-wrap">
-                                            <span className="cita-info-item"><i className="bi bi-calendar-event"></i> {formatFecha(cita.fechaCita)}</span>
-                                            <span className="cita-info-item"><i className="bi bi-clock-fill"></i> {cita.horaInicio}</span>
-                                            {cita.usuario?.correo && (
-                                              <span className="cita-info-item" title={cita.usuario.correo}>
-                                                <i className="bi bi-envelope-fill"></i> {cita.usuario.correo}
-                                              </span>
-                                            )}
-                                            {cita.usuario?.telefono && (
-                                              <span className="cita-info-item" title={cita.usuario.telefono}>
-                                                <i className="bi bi-telephone-fill"></i> {cita.usuario.telefono}
-                                              </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="d-flex gap-2">
-                                      <button className="btn btn-outline-danger btn-sm" onClick={() => handleCancelarCita(cita.id)}>Cancelar</button>
-                                      <button className="btn btn-outline-success btn-sm" onClick={() => handleDiagnosticar(cita.id)}>Finalizar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
+                          .map(cita => {
+                            const isRealizada = (cita.estado || '').toUpperCase() === 'REALIZADA';
+                            const isCancelada = esCancelada(cita.estado || '');
+                            const finalBtnLabel = isRealizada ? 'Finalizada' : isCancelada ? 'Cancelada' : 'Finalizar';
+                            const finalBtnClass = isRealizada ? 'btn-success' : isCancelada ? 'btn-danger' : 'btn-outline-success';
+                            return (
+                              <div
+                                key={cita.id}
+                                className={`card cita-card ${isRealizada ? 'cita-realizada' : ''} ${isCancelada ? 'cita-cancelada' : ''}`}
+                              >
+                                  <div className="card-body cita-card-body">
+                                      <div>
+                                          <h5 className="cita-paciente-name">{cita.usuario?.nombre} {cita.usuario?.apellido}</h5>
+                                          <div className="d-flex gap-3 flex-wrap">
+                                              <span className="cita-info-item"><i className="bi bi-calendar-event"></i> {formatFecha(cita.fechaCita)}</span>
+                                              <span className="cita-info-item"><i className="bi bi-clock-fill"></i> {cita.horaInicio}</span>
+                                              {isRealizada && (
+                                                <span className="badge bg-success">Realizada</span>
+                                              )}
+                                              {isCancelada && (
+                                                <span className="badge bg-danger">Cancelada</span>
+                                              )}
+                                              {cita.usuario?.correo && (
+                                                <span className="cita-info-item" title={cita.usuario.correo}>
+                                                  <i className="bi bi-envelope-fill"></i> {cita.usuario.correo}
+                                                </span>
+                                              )}
+                                              {cita.usuario?.telefono && (
+                                                <span className="cita-info-item" title={cita.usuario.telefono}>
+                                                  <i className="bi bi-telephone-fill"></i> {cita.usuario.telefono}
+                                                </span>
+                                              )}
+                                          </div>
+                                      </div>
+                                      <div className="d-flex gap-2">
+                                        <button
+                                          className="btn btn-outline-danger btn-sm"
+                                          onClick={() => handleCancelarCita(cita.id)}
+                                          disabled={isRealizada || isCancelada}
+                                        >
+                                          Cancelar
+                                        </button>
+                                        <button
+                                          className={`btn btn-sm ${finalBtnClass}`}
+                                          onClick={() => handleDiagnosticar(cita.id)}
+                                          disabled={isRealizada || isCancelada}
+                                        >
+                                          {finalBtnLabel}
+                                        </button>
+                                      </div>
+                                  </div>
+                              </div>
+                            );
+                          })
                     )}
                 </div>
               </div>

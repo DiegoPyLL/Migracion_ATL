@@ -182,6 +182,16 @@ body {
     overflow: hidden;
 }
 
+.cita-card.cita-realizada {
+    border-left: 4px solid #28a745;
+    background-color: #e8f9ee;
+}
+
+.cita-card.cita-cancelada {
+    border-left: 4px solid #dc3545;
+    background-color: #fdecea;
+}
+
 .cita-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.08);
