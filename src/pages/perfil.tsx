@@ -56,7 +56,9 @@ const Perfil = () => {
   const SEGUROS_API_URL = 'http://localhost:8084/api/v1/seguros';
   const CONTRATOS_SEGUROS_API_URL = 'http://localhost:8084/api/v1/seguros/contratos';
   const CITAS_API_URL = 'http://localhost:8080/api/v1/citas';
-  const HISTORIAL_API_URL = 'http://localhost:8083/api/v1/historial';
+  const HISTORIAL_API_URL =
+    import.meta.env.VITE_HISTORIAL_API_URL ||
+    'http://localhost:8081/api/v1/historial';
 
   // --- 1. CARGAR DATOS (OPTIMIZADO CON PROMISE.ALL) ---
   useEffect(() => {

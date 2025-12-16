@@ -54,6 +54,10 @@ const CITAS_API_URL = 'http://localhost:8080/api/v1/citas';
 const DOCTORES_API_URL = 'http://localhost:8082/api/v1/doctores';
 const USUARIOS_API_URL = 'http://localhost:8082/api/v1/usuarios';
 
+const HISTORIAL_API_URL =
+  import.meta.env.VITE_HISTORIAL_API_URL ||
+  'http://localhost:8081/api/v1/historial';
+
 const DIAGS = [
   "Cefalea tensional. Reposo e hidratación.",
   "Faringitis viral. Analgésico y reposo.",
@@ -361,18 +365,48 @@ const DoctorDashboard: React.FC = () => {
   const handleDiagnosticar = async (id: number) => {
     const diagnosticoUsuario = prompt("Diagnostico de la cita:");
     if (!diagnosticoUsuario || !diagnosticoUsuario.trim()) return;
+
     const observaciones = prompt("Observaciones (opcional):") || '';
+
     try {
       const respGet = await axios.get(`${CITAS_API_URL}/${id}`);
-      const cita = respGet.data || {};
+      const cita = respGet.data as CitaMedica;
+
       const baseDiag = diagnosticoUsuario.trim();
-      const obsFinal = observaciones ? `${baseDiag} | Obs: ${observaciones}` : baseDiag;
+      const obsSolo = observaciones || '';
+      const obsFinalConcat = obsSolo
+        ? `${baseDiag} | Obs: ${obsSolo}`
+        : baseDiag;
+
       const payload = buildPayloadFromCita(cita, {
         estado: 'REALIZADA',
         disponible: false,
-        observacionesHorario: obsFinal
+        observacionesHorario: obsFinalConcat
       });
+
+      // 1) Actualizar la cita en citas_api
       await axios.put(`${CITAS_API_URL}/${id}`, payload);
+
+      // 2) Crear registro en historial_api con diagnostico + observaciones
+      const duracion =
+        cita.duracionMinutos ??
+        (cita as any).duracion_minutos ??
+        45;
+
+      await axios.post(HISTORIAL_API_URL, {
+        fechaHistorial: formatFecha(cita.fechaCita),
+        estado: 'REALIZADA',
+        idUsuario: cita.idUsuario,
+        idDoctor: cita.idDoctor,
+        pago: cita.pago ?? null,
+        horaInicio: cita.horaInicio,
+        horaFin: cita.horaFin ?? null,
+        duracionMinutos: duracion,
+        diagnostico: baseDiag,
+        observaciones: obsSolo
+      });
+
+      // 3) Actualizar el estado local de la cita
       setCitas(prev =>
         prev.map(c =>
           c.id === id
@@ -380,13 +414,20 @@ const DoctorDashboard: React.FC = () => {
                 ...c,
                 estado: 'REALIZADA',
                 disponible: false,
-                observacionesHorario: obsFinal
+                observacionesHorario: obsFinalConcat
               }
             : c
         )
       );
+
       refetchStats();
-      if (doctorId) await cargarCitasYCompletadas(doctorId, filters.month || monthToday());
+      if (doctorId) {
+        await cargarCitasYCompletadas(
+          doctorId,
+          filters.month || monthToday()
+        );
+      }
+
       alert("Cita finalizada y marcada como REALIZADA.");
     } catch (e: any) {
       console.error("Error al diagnosticar la cita:", e);
@@ -706,16 +747,37 @@ const DoctorDashboard: React.FC = () => {
                           onClick={async () => {
                             if (!editItem || !doctorId) return;
                             setSavingDiag(true);
+
                             try {
                               const respGet = await axios.get(`${CITAS_API_URL}/${editItem.idCita}`);
-                              const cita = respGet.data || {};
+                              const cita = respGet.data as CitaMedica;
+
+                              const diagFinal = editDiag.trim();
+                              const obsSolo = editObs || '';
+                              const obsFinalConcat = obsSolo
+                                ? `${diagFinal} | Obs: ${obsSolo}`
+                                : diagFinal;
+
                               const payload = buildPayloadFromCita(cita, {
                                 estado: 'REALIZADA',
                                 disponible: false,
-                                observacionesHorario: editDiag.trim() + (editObs ? ` | Obs: ${editObs}` : '')
+                                observacionesHorario: obsFinalConcat
                               });
+
+                              // 1) Actualizar cita en citas_api
                               await axios.put(`${CITAS_API_URL}/${editItem.idCita}`, payload);
-                              await cargarCitasYCompletadas(doctorId, filters.month || monthToday());
+
+                              // 2) Actualizar diagnostico/observaciones en historial_api
+                              await axios.put(`${HISTORIAL_API_URL}/cita/${editItem.idCita}`, {
+                                diagnostico: diagFinal,
+                                observaciones: obsSolo
+                              });
+
+                              await cargarCitasYCompletadas(
+                                doctorId,
+                                filters.month || monthToday()
+                              );
+
                               alert('Diagnostico actualizado.');
                             } catch (e: any) {
                               console.error('Error al actualizar diagnostico', e);

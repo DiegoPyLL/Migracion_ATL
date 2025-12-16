@@ -12,7 +12,9 @@ export type DoctorStat = {
 
 const CITAS_API_URL = 'http://localhost:8080/api/v1/citas';
 const DOCTORES_API_URL = 'http://localhost:8082/api/v1/doctores';
-const HISTORIAL_API_URL = 'http://localhost:8083/api/v1/historial';
+const HISTORIAL_API_URL =
+  import.meta.env.VITE_HISTORIAL_API_URL ||
+  'http://localhost:8081/api/v1/historial';
 
 const normalizeEstado = (estado: any): 'PROGRAMADA' | 'REALIZADA' | 'CANCELADA' => {
   const e = (estado || '').toString().toUpperCase();

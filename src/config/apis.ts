@@ -1,7 +1,12 @@
+const HISTORIAL_ENV_URL = import.meta.env.VITE_HISTORIAL_API_URL;
+const HISTORIAL_API_BASE = HISTORIAL_ENV_URL
+  ? HISTORIAL_ENV_URL.replace(/\/historial\/?$/, "")
+  : "http://localhost:8081/api/v1";
+
 export const API_HOSTS = {
   usuarios: "http://localhost:8082/api/v1",
   citas: "http://localhost:8080/api/v1",
-  historial: "http://localhost:8083/api/v1",
+  historial: HISTORIAL_API_BASE,
   seguros: "http://localhost:8084/api/v1"
 };
 
