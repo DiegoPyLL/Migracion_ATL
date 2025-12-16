@@ -215,7 +215,7 @@ const DoctorDashboard: React.FC = () => {
       } catch (_) { /* sin usuarios, seguimos */ }
 
       const agenda = todas
-        .filter(c => c.idDoctor === dId && c.fechaCita)
+        .filter(c => c.idDoctor === dId && c.fechaCita && !esCancelada(c.estado))
         .filter(c => {
           // fecha futura o hoy
           const hoy = new Date();
@@ -588,8 +588,7 @@ const DoctorDashboard: React.FC = () => {
                           .map(cita => {
                             const isRealizada = (cita.estado || '').toUpperCase() === 'REALIZADA';
                             const isCancelada = esCancelada(cita.estado || '');
-                            const finalBtnLabel = isRealizada ? 'Finalizada' : isCancelada ? 'Cancelada' : 'Finalizar';
-                            const finalBtnClass = isRealizada ? 'btn-success' : isCancelada ? 'btn-danger' : 'btn-outline-success';
+                            const estadoLabel = cita.estado || (isCancelada ? 'CANCELADA' : 'PROGRAMADA');
                             return (
                               <div
                                 key={cita.id}
@@ -597,16 +596,15 @@ const DoctorDashboard: React.FC = () => {
                               >
                                   <div className="card-body cita-card-body">
                                       <div>
-                                          <h5 className="cita-paciente-name">{cita.usuario?.nombre} {cita.usuario?.apellido}</h5>
+                                          <h5 className="cita-paciente-name">
+                                            {cita.usuario?.nombre} {cita.usuario?.apellido}
+                                            <span className={`badge ms-2 ${isRealizada ? 'bg-success' : 'bg-secondary'}`}>
+                                              Estado: {estadoLabel}
+                                            </span>
+                                          </h5>
                                           <div className="d-flex gap-3 flex-wrap">
                                               <span className="cita-info-item"><i className="bi bi-calendar-event"></i> {formatFecha(cita.fechaCita)}</span>
                                               <span className="cita-info-item"><i className="bi bi-clock-fill"></i> {cita.horaInicio}</span>
-                                              {isRealizada && (
-                                                <span className="badge bg-success">Realizada</span>
-                                              )}
-                                              {isCancelada && (
-                                                <span className="badge bg-danger">Cancelada</span>
-                                              )}
                                               {cita.usuario?.correo && (
                                                 <span className="cita-info-item" title={cita.usuario.correo}>
                                                   <i className="bi bi-envelope-fill"></i> {cita.usuario.correo}
@@ -628,11 +626,11 @@ const DoctorDashboard: React.FC = () => {
                                           Cancelar
                                         </button>
                                         <button
-                                          className={`btn btn-sm ${finalBtnClass}`}
+                                          className="btn btn-outline-success btn-sm"
                                           onClick={() => handleDiagnosticar(cita.id)}
                                           disabled={isRealizada || isCancelada}
                                         >
-                                          {finalBtnLabel}
+                                          {isRealizada ? 'Finalizada' : 'Finalizar'}
                                         </button>
                                       </div>
                                   </div>

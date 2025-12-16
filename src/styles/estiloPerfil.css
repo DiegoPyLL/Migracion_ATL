@@ -184,10 +184,20 @@ body {
 
 .cita-card.cita-realizada {
     border-left: 4px solid #28a745;
-    background-color: #e8f9ee;
+    background-color: #e9f7ef;
 }
 
 .cita-card.cita-cancelada {
+    border-left: 4px solid #dc3545;
+    background-color: #fdecea;
+}
+
+.proxima-cita-realizada {
+    border-left: 4px solid #28a745;
+    background-color: #e9f7ef;
+}
+
+.proxima-cita-cancelada {
     border-left: 4px solid #dc3545;
     background-color: #fdecea;
 }

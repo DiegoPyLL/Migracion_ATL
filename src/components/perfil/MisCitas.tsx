@@ -64,7 +64,9 @@ const MisCitas = ({ citas = [], onCancel }: MisCitasProps) => {
           });
           
           const esPasada = fechaObj < new Date();
-          const estaCancelada = cita.estado === "CANCELADO";
+          const estadoUpper = (cita.estado || '').toUpperCase();
+          const isRealizada = estadoUpper === 'REALIZADA';
+          const isCancelada = estadoUpper === 'CANCELADA' || estadoUpper === 'CANCELADO';
           
           // Manejo seguro de hora (evita el error de substring en null)
           const horaMostrar = (cita.horaInicio && typeof cita.horaInicio === 'string') 
@@ -77,21 +79,27 @@ const MisCitas = ({ citas = [], onCancel }: MisCitasProps) => {
 
           return (
             <div key={cita.id} className="col-12">
-              <div className={`card border-0 shadow-sm border-start border-4 ${estaCancelada ? 'border-danger bg-light' : 'border-primary'} rounded-3 transition-hover`}>
+              <div
+                className={`card border-0 shadow-sm border-start border-4 ${isCancelada ? 'border-danger bg-light' : 'border-primary'} rounded-3 transition-hover ${isRealizada ? 'proxima-cita-realizada' : ''} ${isCancelada ? 'proxima-cita-cancelada' : ''}`.trim()}
+              >
                 <div className="card-body p-3">
                   
                   {/* Encabezado: Doctor y Estado */}
                   <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h6 className={`card-title fw-bold mb-0 ${estaCancelada ? 'text-muted' : 'text-primary'}`}>
+                    <h6 className={`card-title fw-bold mb-0 ${isCancelada ? 'text-muted' : 'text-primary'}`}>
                       <i className="bi bi-person-medical me-2"></i>
                       Dr/a. {nombreDoctor} {apellidoDoctor}
                     </h6>
-                    <span className={`badge rounded-pill px-3 ${
-                        estaCancelada ? 'bg-danger bg-opacity-10 text-danger border border-danger' : 
-                        esPasada ? 'bg-secondary text-white' : 
-                        'bg-primary bg-opacity-10 text-primary border border-primary'
-                    }`}>
-                      {estaCancelada ? 'CANCELADA' : (esPasada ? 'REALIZADA' : 'PROGRAMADA')}
+                    <span
+                      className={`badge rounded-pill px-3 ${
+                        isRealizada
+                          ? 'bg-success'
+                          : isCancelada
+                          ? 'bg-danger'
+                          : 'bg-primary'
+                      }`}
+                    >
+                      {estadoUpper || 'PROGRAMADA'}
                     </span>
                   </div>
 
@@ -114,18 +122,17 @@ const MisCitas = ({ citas = [], onCancel }: MisCitasProps) => {
                     
                     {/* Botón de Acción */}
                     <div className="col-12 col-md-4 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
-                        {!estaCancelada && !esPasada && (
-                            <button 
-                              onClick={() => {
-                                if(window.confirm("¿Seguro que deseas cancelar esta cita? Esta acción no se puede deshacer.")) {
-                                  onCancel(cita.id);
-                                }
-                              }}
-                              className="btn btn-sm btn-outline-danger rounded-pill px-3 w-100 w-md-auto"
-                            >
-                              <i className="bi bi-x-circle me-1"></i>Cancelar
-                            </button>
-                        )}
+                        <button 
+                          onClick={() => {
+                            if(window.confirm("¿Seguro que deseas cancelar esta cita? Esta acción no se puede deshacer.")) {
+                              onCancel(cita.id);
+                            }
+                          }}
+                          className="btn btn-sm btn-outline-danger rounded-pill px-3 w-100 w-md-auto"
+                          disabled={isRealizada || isCancelada}
+                        >
+                          <i className="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
                     </div>
                   </div>
 
